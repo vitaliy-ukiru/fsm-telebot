@@ -13,16 +13,26 @@ type chatKey struct {
 	u int64
 }
 
+// record in storage
 type record struct {
 	state fsm.State
 	data  map[string]interface{}
 }
 
+func newKey(chat, user int64) chatKey {
+	return chatKey{
+		c: chat,
+		u: user,
+	}
+}
+
+// MemoryStorage based in memory. Drops if you stop script.
 type MemoryStorage struct {
 	lock    sync.RWMutex
 	storage map[chatKey]record
 }
 
+// NewMemoryStorage returns new MemoryStorage
 func NewMemoryStorage() *MemoryStorage {
 	return &MemoryStorage{
 		storage: make(map[chatKey]record),
@@ -44,6 +54,8 @@ func (r *record) resetData() {
 	r.data = make(map[string]interface{})
 }
 
+// do exec `call` and save modification to storage.
+// It helps not to copy the code.
 func (m *MemoryStorage) do(key chatKey, call func(*record)) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -97,11 +109,4 @@ func (m *MemoryStorage) Close() error {
 	defer m.lock.Unlock()
 	m.storage = nil
 	return nil
-}
-
-func newKey(chat, user int64) chatKey {
-	return chatKey{
-		c: chat,
-		u: user,
-	}
 }
