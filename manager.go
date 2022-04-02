@@ -1,7 +1,6 @@
 package fsm_telebot
 
 import (
-	"github.com/vitaliy-ukiru/fsm-telebot/middleware"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -38,11 +37,7 @@ func (m *Manager) Handle(end interface{}, state State, h Handler, middlewares ..
 // HandlerAdapter create telebot.HandlerFunc object for Handler with FSM FSMContext.
 func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	return func(c tele.Context) error {
-		fsmCtx, ok := c.Get(middleware.ContextKey).(FSMContext)
-		if fsmCtx == nil || !ok {
-			fsmCtx = NewFSMContext(c, m.s)
-		}
-		return handler(c, fsmCtx)
+		return handler(c, NewFSMContext(c, m.s))
 	}
 }
 
