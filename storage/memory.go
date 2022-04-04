@@ -26,14 +26,14 @@ func newKey(chat, user int64) chatKey {
 	}
 }
 
-// MemoryStorage based in memory. Drops if you stop script.
+// MemoryStorage is storage based on RAM. Drops if you stop script.
 type MemoryStorage struct {
-	lock    sync.RWMutex
+	l       sync.RWMutex
 	storage map[chatKey]record
 }
 
 // NewMemoryStorage returns new MemoryStorage
-func NewMemoryStorage() *MemoryStorage {
+func NewMemoryStorage() fsm.Storage {
 	return &MemoryStorage{
 		storage: make(map[chatKey]record),
 	}
@@ -57,16 +57,16 @@ func (r *record) resetData() {
 // do exec `call` and save modification to storage.
 // It helps not to copy the code.
 func (m *MemoryStorage) do(key chatKey, call func(*record)) {
-	m.lock.Lock()
-	defer m.lock.Unlock()
+	m.l.Lock()
+	defer m.l.Unlock()
 	r := m.storage[key]
 	call(&r)
 	m.storage[key] = r
 }
 
 func (m *MemoryStorage) GetState(chatId, userId int64) fsm.State {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
+	m.l.RLock()
+	defer m.l.RUnlock()
 	return m.storage[newKey(chatId, userId)].state
 }
 
@@ -95,8 +95,8 @@ func (m *MemoryStorage) UpdateData(chatId, userId int64, key string, data interf
 }
 
 func (m *MemoryStorage) GetData(chatId, userId int64, key string) (interface{}, error) {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
+	m.l.RLock()
+	defer m.l.RUnlock()
 	v, ok := m.storage[newKey(chatId, userId)].data[key]
 	if !ok {
 		return nil, fsm.ErrNotFound
@@ -105,8 +105,8 @@ func (m *MemoryStorage) GetData(chatId, userId int64, key string) (interface{}, 
 }
 
 func (m *MemoryStorage) Close() error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
+	m.l.Lock()
+	defer m.l.Unlock()
 	m.storage = nil
 	return nil
 }

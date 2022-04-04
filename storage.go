@@ -22,8 +22,10 @@ type Storage interface {
 
 	// UpdateData sets, updates or deletes data for target. Set `data` as nil if you want delete.
 	UpdateData(chatId, userId int64, key string, data interface{}) error
+
 	// GetData gets data for target. If error is not nil then data will be nil.
 	GetData(chatId, userId int64, key string) (data interface{}, err error)
+
 	// Close closes storage. Needs for correct work with storage connection.
 	Close() error
 }
