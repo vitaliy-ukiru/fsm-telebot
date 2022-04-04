@@ -6,7 +6,7 @@ import (
 	"time"
 
 	fsm "github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storage"
+	"github.com/vitaliy-ukiru/fsm-telebot/storages"
 
 	tele "gopkg.in/telebot.v3"
 )
@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	m := fsm.NewManager(bot.Group(), storage.NewMemoryStorage())
+	m := fsm.NewManager(bot.Group(), storages.NewMemoryStorage())
 
 	// For any state
 	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.FSMContext) error {
