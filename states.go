@@ -5,15 +5,24 @@ package fsm_telebot
 // If state is "*" it corresponds to any state.
 type State string
 
+const (
+	DefaultState State = ""
+	AnyState     State = "*"
+)
+
 func (s State) String() string {
-	if s == "" {
+	switch s {
+	case DefaultState:
 		return "State(nil)"
+	case AnyState:
+		return "State(any)"
+	default:
+		return string("State(" + s + ")")
 	}
-	return string("State(" + s + ")")
 }
 
 // Is indicates what state corresponds for other state.
 func (s State) Is(other State) bool {
 	// if current or other state is * => every state equal
-	return s == "*" || other == "*" || s == other
+	return s == AnyState || other == AnyState || s == other
 }
