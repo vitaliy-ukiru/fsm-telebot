@@ -12,7 +12,7 @@ func StateFilterMiddleware(storage fsm.Storage, want fsm.State) tele.MiddlewareF
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
 		return func(c tele.Context) error {
 			currentState := storage.GetState(c.Chat().ID, c.Sender().ID)
-			if currentState.Is(want) {
+			if fsm.Is(currentState, want) {
 				return next(c)
 			}
 			return nil

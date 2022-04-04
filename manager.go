@@ -28,26 +28,24 @@ func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 	m.g.Use(middlewares...)
 }
 
-// Handle binding handler (with FSMContext) with filter on state.
-func (m *Manager) Handle(end interface{}, state State, h Handler, middlewares ...tele.MiddlewareFunc) {
-	m.g.Handle(end, m.StateFilter(state, h), middlewares...)
+// Bind adds handler (with FSMContext) with filter on state.
+//
+// Difference between Bind and Handle methods what Handle require Filter objects.
+// And this method can work with only one state.
+func (m *Manager) Bind(end interface{}, state State, h Handler, middlewares ...tele.MiddlewareFunc) {
+	m.Handle(F(end, state), h, middlewares...)
 
+}
+
+// Handle adds handler to group chain with filter on states.
+func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc) {
+	m.g.Handle(f.Endpoint, m.ForStates(h, f.States...), middlewares...)
 }
 
 // HandlerAdapter create telebot.HandlerFunc object for Handler with FSM FSMContext.
 func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	return func(c tele.Context) error {
 		return handler(c, NewFSMContext(c, m.s))
-	}
-}
-
-// StateFilter filtering updates with current state and execute handler.
-func (m *Manager) StateFilter(state State, handler Handler) tele.HandlerFunc {
-	return func(c tele.Context) error {
-		if m.GetState(c.Chat().ID, c.Sender().ID).Is(state) {
-			return handler(c, NewFSMContext(c, m.s))
-		}
-		return nil
 	}
 }
 
