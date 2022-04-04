@@ -22,7 +22,17 @@ func (s State) String() string {
 }
 
 // Is indicates what state corresponds for other state.
-func (s State) Is(other State) bool {
+func Is(s State, other State) bool {
 	// if current or other state is * => every state equal
 	return s == AnyState || other == AnyState || s == other
+}
+
+// ContainsState indicates what state contains in given states.
+func ContainsState(s State, other ...State) bool {
+	for _, state := range other {
+		if Is(s, state) {
+			return true
+		}
+	}
+	return false
 }
