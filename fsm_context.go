@@ -23,6 +23,9 @@ type FSMContext interface {
 	// Get data from storage.
 	// Data will be nil if storage not contains object with given key and error will be ErrNotFound
 	Get(key string) (data interface{}, err error)
+
+	// MustGet returns data from storage and ignore any errors.
+	MustGet(key string) (data interface{})
 }
 
 type fsmContext struct {
@@ -63,4 +66,9 @@ func (f *fsmContext) Update(key string, data interface{}) error {
 
 func (f *fsmContext) Get(key string) (interface{}, error) {
 	return f.s.GetData(f.chat, f.user, key)
+}
+
+func (f *fsmContext) MustGet(key string) interface{} {
+	data, _ := f.s.GetData(f.chat, f.user, key)
+	return data
 }
