@@ -13,7 +13,7 @@ type FSMContext interface {
 	State() State
 
 	// Set state for sender.
-	Set(state State) error
+	Set(state State)
 
 	// Finish state for sender and deletes data if set true.
 	Finish(deleteData bool) error
@@ -52,8 +52,8 @@ func (f *fsmContext) State() State {
 	return f.s.GetState(f.chat, f.user)
 }
 
-func (f *fsmContext) Set(state State) error {
-	return f.s.SetState(f.chat, f.user, state)
+func (f *fsmContext) Set(state State) {
+	f.s.SetState(f.chat, f.user, state)
 }
 
 func (f *fsmContext) Finish(deleteData bool) error {
