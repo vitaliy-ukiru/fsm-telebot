@@ -69,14 +69,14 @@ func (m *Manager) Storage() Storage {
 	return m.s
 }
 
-// GetState returns state for current user in current chat.
+// GetState returns state for given user in given chat.
 func (m *Manager) GetState(chat, user int64) State {
 	return m.s.GetState(chat, user)
 }
 
-// SetState sets state for current user in current chat.
-func (m *Manager) SetState(chat, user int64, state State) error {
-	return m.s.SetState(chat, user, state)
+// SetState sets state for given user in given chat.
+func (m *Manager) SetState(chat, user int64, state State) {
+	m.s.SetState(chat, user, state)
 }
 
 // add handler to storage, just shortcut.
