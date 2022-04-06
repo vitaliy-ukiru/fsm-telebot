@@ -36,3 +36,28 @@ func ContainsState(s State, other ...State) bool {
 	}
 	return false
 }
+
+// StateGroup storages states with custom prefix.
+//
+// It can use in filter like:
+// 	group := fsm_telebot.NewStateGroup("adm", "State0", "State1")
+//	filter := fsm_telebot.F("/cmd", group.States...)
+type StateGroup struct {
+	Prefix string
+	States []State
+}
+
+// NewStateGroup returns new StateGroup.
+func NewStateGroup(prefix string, states ...State) *StateGroup {
+	return &StateGroup{
+		Prefix: prefix,
+		States: states,
+	}
+}
+
+// New returns new state with group prefix and add to group states.
+func (s *StateGroup) New(name string) (state State) {
+	state = State(s.Prefix + "@" + name)
+	s.States = append(s.States, state)
+	return
+}
