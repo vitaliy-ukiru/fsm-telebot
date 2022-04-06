@@ -1,8 +1,11 @@
 # fsm-telebot
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/vitaliy-ukiru/fsm-telebot.svg)](https://pkg.go.dev/github.com/vitaliy-ukiru/fsm-telebot)
+
 Finite State Machine for [telebot](https://gopkg.in/telebot.v3). 
 Based on [aiogram](https://github.com/aiogram/aiogram) FSM version.
 
-[Examples](./examples)
+It not a full implementation FSM. It just states manager for telegram bots.
 
-README in dev...
+
+[Examples](./examples)
