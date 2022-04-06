@@ -1,3 +1,4 @@
+// Package memory contains base in-memory storage.
 package memory
 
 import (
