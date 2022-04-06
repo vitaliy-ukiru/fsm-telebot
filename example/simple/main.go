@@ -1,12 +1,13 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"time"
 
 	fsm "github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages"
+	"github.com/vitaliy-ukiru/fsm-telebot/storages/memory"
 
 	tele "gopkg.in/telebot.v3"
 )
@@ -15,16 +16,20 @@ const (
 	MyState fsm.State = "my_state" // Values must be unique else it breaks semantic
 )
 
+var debug = flag.Bool("debug", false, "log debug info")
+
 func main() {
+	flag.Parse()
+
 	bot, err := tele.NewBot(tele.Settings{
 		Token:   os.Getenv("BOT_TOKEN"),
 		Poller:  &tele.LongPoller{Timeout: 10 * time.Second},
-		Verbose: true,
+		Verbose: *debug,
 	})
 	if err != nil {
 		log.Fatalln(err)
 	}
-	m := fsm.NewManager(bot.Group(), storages.NewMemoryStorage())
+	m := fsm.NewManager(bot.Group(), memory.NewStorage())
 
 	// For any state
 	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.FSMContext) error {
@@ -40,7 +45,7 @@ func main() {
 
 	bot.Handle("/set", m.ForState(fsm.DefaultState,
 		func(c tele.Context, state fsm.FSMContext) error {
-			_ = state.Set(MyState)
+			state.Set(MyState)
 			_ = state.Update("payload", time.Now().Format(time.RFC850))
 			return c.Send("set state")
 		},
