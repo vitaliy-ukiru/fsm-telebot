@@ -7,7 +7,9 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	fsm "github.com/vitaliy-ukiru/fsm-telebot"
 	"github.com/vitaliy-ukiru/fsm-telebot/storages/memory"
@@ -75,8 +77,9 @@ func main() {
 	manager.Bind(tele.OnText, InputNameState, OnInputName)
 	manager.Bind(tele.OnText, InputAgeState, OnInputAge)
 	manager.Bind(tele.OnText, InputHobbyState, OnInputHobby(confirmBtn, resetFormBtn, cancelInlineBtn))
-	manager.Bind(&confirmBtn, InputConfirmState, OnInputConfirm)
-	manager.Bind(&resetFormBtn, InputConfirmState, OnInputResetForm)
+	manager.Bind(&confirmBtn, InputConfirmState, OnInputConfirm, EditFormMessage("Now check y", "Y"))
+	manager.Bind(&resetFormBtn, InputConfirmState, OnInputResetForm, EditFormMessage("Now check your", "Your old"))
+	manager.Bind(&cancelInlineBtn, InputConfirmState, OnCancelForm(regBtn), DeleteAfterHandler)
 
 	log.Println("Handlers configured")
 	bot.Start()
@@ -204,4 +207,39 @@ func OnInputResetForm(c tele.Context, state fsm.FSMContext) error {
 	go state.Set(InputNameState)
 	c.Send("Okay! Start again.")
 	return c.Send("How your name?")
+}
+
+func EditFormMessage(old, new string) tele.MiddlewareFunc {
+	return func(next tele.HandlerFunc) tele.HandlerFunc {
+		return func(c tele.Context) error {
+			strOffset := utf8.RuneCountInString(old)
+			if nLen := utf8.RuneCountInString(new); nLen > 1 {
+				strOffset -= nLen - 1
+			}
+
+			entities := make(tele.Entities, len(c.Message().Entities))
+			for i, entity := range c.Message().Entities {
+				entity.Offset -= strOffset
+				entities[i] = entity
+			}
+			defer func() {
+				err := c.EditOrSend(strings.Replace(c.Message().Text, old, new, 1), entities)
+				if err != nil {
+					c.Bot().OnError(err, c)
+				}
+			}()
+			return next(c)
+		}
+	}
+}
+
+func DeleteAfterHandler(next tele.HandlerFunc) tele.HandlerFunc {
+	return func(c tele.Context) error {
+		defer func(c tele.Context) {
+			if err := c.Delete(); err != nil {
+				c.Bot().OnError(err, c)
+			}
+		}(c)
+		return next(c)
+	}
 }
