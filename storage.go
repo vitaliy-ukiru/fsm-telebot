@@ -16,7 +16,7 @@ type Storage interface {
 	// GetState returns State for target. Default state is empty string
 	GetState(chatId, userId int64) State
 	// SetState sets states for target.
-	SetState(chatId, userId int64, state State) error
+	SetState(chatId, userId int64, state State)
 	// ResetState deletes state for target. If `withData` is true deletes user data from storage.
 	ResetState(chatId, userId int64, withData bool) error
 
