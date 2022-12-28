@@ -1,4 +1,4 @@
-module github.com/vitaliy-ukiru/fsm-telebot/v2
+module github.com/vitaliy-ukiru/fsm-telebot
 
 go 1.17
 
