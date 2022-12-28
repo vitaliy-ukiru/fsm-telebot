@@ -24,7 +24,7 @@ func (m *Manager) ForState(want State, handler Handler) tele.HandlerFunc {
 // ForStates  creates a handler with local filter
 // for current state to check for presence in given states.
 func (m *Manager) ForStates(h Handler, states ...State) tele.HandlerFunc {
-	return m.HandlerAdapter(func(c tele.Context, state FSMContext) error {
+	return m.HandlerAdapter(func(c tele.Context, state Context) error {
 		if ContainsState(state.State(), states...) {
 			return h(c, state)
 		}
@@ -39,6 +39,6 @@ func (f Filter) CallbackUnique() string {
 	case tele.CallbackEndpoint:
 		return end.CallbackUnique()
 	default:
-		panic("telebot: unsupported endpoint")
+		panic("fsm: telebot: unsupported endpoint")
 	}
 }

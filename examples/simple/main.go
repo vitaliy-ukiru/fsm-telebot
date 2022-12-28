@@ -32,19 +32,19 @@ func main() {
 	m := fsm.NewManager(bot, nil, memory.NewStorage())
 
 	// For any state
-	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.FSMContext) error {
+	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
 		_ = state.Finish(c.Data() != "")
 		return c.Send("finish")
 	})
 	// It also for any states. Because manager don't filter this handler
 	bot.Handle("/state",
-		m.HandlerAdapter(func(c tele.Context, state fsm.FSMContext) error {
+		m.HandlerAdapter(func(c tele.Context, state fsm.Context) error {
 			return c.Send("your state: " + state.State().String())
 		}),
 	)
 
 	bot.Handle("/set", m.ForState(fsm.DefaultState,
-		func(c tele.Context, state fsm.FSMContext) error {
+		func(c tele.Context, state fsm.Context) error {
 			state.Set(MyState)
 			_ = state.Update("payload", time.Now().Format(time.RFC850))
 			return c.Send("set state")
@@ -52,7 +52,7 @@ func main() {
 	))
 
 	m.Handle(fsm.F(tele.OnText, MyState),
-		func(c tele.Context, state fsm.FSMContext) error {
+		func(c tele.Context, state fsm.Context) error {
 			payload, _ := state.Get("payload")
 			_ = state.Update("payload", time.Now().Format(time.RFC850)+"  "+c.Text())
 			return c.Send("prev payload: " + (payload).(string))

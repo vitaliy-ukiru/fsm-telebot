@@ -65,7 +65,7 @@ func main() {
 	manager.Bind("/reg", fsm.DefaultState, OnStartRegister(cancelBtn))
 	manager.Bind("/cancel", fsm.AnyState, OnCancelForm(regBtn))
 
-	manager.Bind("/state", fsm.AnyState, func(c tele.Context, state fsm.FSMContext) error {
+	manager.Bind("/state", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
 		return c.Send(state.State().String())
 	})
 
@@ -104,20 +104,20 @@ func OnStartRegister(cancelBtn tele.Btn) fsm.Handler {
 	menu.Reply(menu.Row(cancelBtn))
 	menu.ResizeKeyboard = true
 
-	return func(c tele.Context, state fsm.FSMContext) error {
+	return func(c tele.Context, state fsm.Context) error {
 		state.Set(InputNameState)
 		return c.Send("Great! How your name?", menu)
 	}
 }
 
-func OnInputName(c tele.Context, state fsm.FSMContext) error {
+func OnInputName(c tele.Context, state fsm.Context) error {
 	name := c.Message().Text
 	go state.Update("name", name)
 	go state.Set(InputAgeState)
 	return c.Send(fmt.Sprintf("Okay, %s. How old are you?", name))
 }
 
-func OnInputAge(c tele.Context, state fsm.FSMContext) error {
+func OnInputAge(c tele.Context, state fsm.Context) error {
 	age, err := strconv.Atoi(c.Message().Text)
 	if err != nil || age <= 0 || age > 200 {
 		return c.Send("Incorrect age. Retry again.")
@@ -135,7 +135,7 @@ func OnInputHobby(confirmBtn, resetBtn, cancelBtn tele.Btn) fsm.Handler {
 		m.Row(resetBtn, cancelBtn),
 	)
 
-	return func(c tele.Context, state fsm.FSMContext) error {
+	return func(c tele.Context, state fsm.Context) error {
 		go state.Update("hobby", c.Message().Text)
 		go state.Set(InputConfirmState)
 
@@ -152,7 +152,7 @@ func OnInputHobby(confirmBtn, resetBtn, cancelBtn tele.Btn) fsm.Handler {
 	}
 }
 
-func OnInputConfirm(c tele.Context, state fsm.FSMContext) error {
+func OnInputConfirm(c tele.Context, state fsm.Context) error {
 	defer state.Finish(true)
 	var (
 		senderName  = state.MustGet("name")
@@ -197,13 +197,13 @@ func OnCancelForm(regBtn tele.Btn) fsm.Handler {
 	menu.Reply(menu.Row(regBtn))
 	menu.ResizeKeyboard = true
 
-	return func(c tele.Context, state fsm.FSMContext) error {
+	return func(c tele.Context, state fsm.Context) error {
 		go state.Finish(true)
 		return c.Send("Form entry canceled. Your input data has been deleted.", menu)
 	}
 }
 
-func OnInputResetForm(c tele.Context, state fsm.FSMContext) error {
+func OnInputResetForm(c tele.Context, state fsm.Context) error {
 	go state.Set(InputNameState)
 	c.Send("Okay! Start again.")
 	return c.Send("How your name?")

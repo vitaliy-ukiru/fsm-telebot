@@ -24,7 +24,7 @@ func (s State) String() string {
 // Is indicates what state corresponds for other state.
 func Is(s State, other State) bool {
 	// if current or other state is * => every state equal
-	return s == AnyState || other == AnyState || s == other
+	return s == other || (s == AnyState || other == AnyState)
 }
 
 // ContainsState indicates what state contains in given states.
@@ -40,8 +40,8 @@ func ContainsState(s State, other ...State) bool {
 // StateGroup storages states with custom prefix.
 //
 // It can use in filter like:
-// 	group := fsm_telebot.NewStateGroup("adm", "State0", "State1")
-//	filter := fsm_telebot.F("/cmd", group.States...)
+// 	group := fsm.NewStateGroup("adm", "State0", "State1")
+//	filter := fsm.F("/cmd", group.States...)
 type StateGroup struct {
 	Prefix string
 	States []State

@@ -5,7 +5,7 @@ import (
 )
 
 // Handler is object for handling  updates with FSM FSMContext
-type Handler func(c tele.Context, state FSMContext) error
+type Handler func(c tele.Context, state Context) error
 
 // fsmHandler representation handler with states, needed for add endpoints correct
 // Because telebot uses rule: 1 endpoint = 1 handler. But for 1 endpoint allowed more states.
@@ -102,7 +102,7 @@ func (m handlerStorage) add(endpoint string, h Handler, states []State) {
 
 // getHandler returns handler what filters queries and execute correct handler.
 func (m handlerStorage) getHandler(endpoint string) Handler {
-	return func(c tele.Context, fsm FSMContext) error {
+	return func(c tele.Context, fsm Context) error {
 		state := fsm.State()
 		for _, group := range m[endpoint] {
 			if ContainsState(state, group.states...) {

@@ -4,8 +4,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// FSMContext is wrapper for work with FSM from handlers and related to telebot.Context.
-type FSMContext interface {
+// Context is wrapper for work with FSM from handlers and related to telebot.Context.
+type Context interface {
 	// Bot returns the bot instance.
 	Bot() *tele.Bot
 
@@ -35,7 +35,7 @@ type fsmContext struct {
 }
 
 // NewFSMContext returns new FSMContext
-func NewFSMContext(c tele.Context, storage Storage) FSMContext {
+func NewFSMContext(c tele.Context, storage Storage) Context {
 	return &fsmContext{
 		c:    c,
 		s:    storage,
