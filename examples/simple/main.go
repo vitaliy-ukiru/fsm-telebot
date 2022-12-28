@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	m := fsm.NewManager(bot.Group(), memory.NewStorage())
+	m := fsm.NewManager(bot, nil, memory.NewStorage())
 
 	// For any state
 	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.FSMContext) error {

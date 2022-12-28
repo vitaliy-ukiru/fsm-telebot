@@ -20,19 +20,31 @@ type handlerStorage map[string][]fsmHandler
 
 // Manager is object for managing FSM, binding handlers.
 type Manager struct {
+	b *tele.Bot
 	g *tele.Group
 	s Storage
 	h handlerStorage
 }
 
 // NewManager returns new Manger.
-func NewManager(g *tele.Group, s Storage) *Manager {
-	return &Manager{g: g, s: s, h: make(handlerStorage)}
+func NewManager(b *tele.Bot, g *tele.Group, s Storage) *Manager {
+	if g == nil {
+		g = b.Group()
+	}
+	return &Manager{b: b, g: g, s: s, h: make(handlerStorage)}
 }
 
 // Group handlers for manger.
 func (m *Manager) Group() *tele.Group {
 	return m.g
+}
+
+func (m *Manager) With(g *tele.Group) *Manager {
+	return NewManager(m.b, g, m.s)
+}
+
+func (m *Manager) NewGroup() *Manager {
+	return m.With(m.b.Group())
 }
 
 // Use add middlewares to group.
@@ -81,22 +93,11 @@ func (m *Manager) SetState(chat, user int64, state State) {
 
 // add handler to storage, just shortcut.
 func (m handlerStorage) add(endpoint string, h Handler, states []State) {
-	handlers, ok := m[endpoint]
-	if !ok {
-		handlers = []fsmHandler{
-			{
-				states:  states,
-				handler: h,
-			},
-		}
-	} else {
-		handlers = append(handlers, fsmHandler{
-			states:  states,
-			handler: h,
-		})
-	}
+	m[endpoint] = append(m[endpoint], fsmHandler{
+		states:  states,
+		handler: h,
+	})
 
-	m[endpoint] = handlers
 }
 
 // getHandler returns handler what filters queries and execute correct handler.
