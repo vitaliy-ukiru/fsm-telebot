@@ -1,4 +1,4 @@
-package fsm_telebot
+package fsm
 
 import (
 	tele "gopkg.in/telebot.v3"

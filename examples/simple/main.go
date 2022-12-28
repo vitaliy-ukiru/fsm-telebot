@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	fsm "github.com/vitaliy-ukiru/fsm-telebot"
+	"github.com/vitaliy-ukiru/fsm-telebot"
 	"github.com/vitaliy-ukiru/fsm-telebot/storages/memory"
 
 	tele "gopkg.in/telebot.v3"

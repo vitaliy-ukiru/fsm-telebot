@@ -1,4 +1,4 @@
-package fsm_telebot
+package fsm
 
 import "github.com/pkg/errors"
 

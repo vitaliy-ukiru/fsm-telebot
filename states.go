@@ -1,4 +1,4 @@
-package fsm_telebot
+package fsm
 
 // State objects just string for identification.
 // Default state is empty string.

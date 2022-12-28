@@ -4,7 +4,7 @@ package memory
 import (
 	"sync"
 
-	fsm "github.com/vitaliy-ukiru/fsm-telebot"
+	"github.com/vitaliy-ukiru/fsm-telebot"
 )
 
 type chatKey struct {

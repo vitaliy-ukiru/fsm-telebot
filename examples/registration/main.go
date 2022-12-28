@@ -11,7 +11,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	fsm "github.com/vitaliy-ukiru/fsm-telebot"
+	"github.com/vitaliy-ukiru/fsm-telebot"
 	"github.com/vitaliy-ukiru/fsm-telebot/storages/memory"
 	tele "gopkg.in/telebot.v3"
 	"gopkg.in/telebot.v3/middleware"
