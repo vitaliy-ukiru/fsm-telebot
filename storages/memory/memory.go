@@ -58,16 +58,16 @@ func (r *record) resetData() {
 // do exec `call` and save modification to storage.
 // It helps not to copy the code.
 func (m *Storage) do(key chatKey, call func(*record)) {
-	m.l.Lock()
-	defer m.l.Unlock()
+	m.l.RLock()
+	defer m.l.RUnlock()
 	r := m.storage[key]
 	call(&r)
 	m.storage[key] = r
 }
 
 func (m *Storage) GetState(chatId, userId int64) fsm.State {
-	m.l.RLock()
-	defer m.l.RUnlock()
+	m.l.Lock()
+	defer m.l.Unlock()
 	return m.storage[newKey(chatId, userId)].state
 }
 
@@ -95,8 +95,8 @@ func (m *Storage) UpdateData(chatId, userId int64, key string, data interface{})
 }
 
 func (m *Storage) GetData(chatId, userId int64, key string) (interface{}, error) {
-	m.l.RLock()
-	defer m.l.RUnlock()
+	m.l.Lock()
+	defer m.l.Unlock()
 	v, ok := m.storage[newKey(chatId, userId)].data[key]
 	if !ok {
 		return nil, fsm.ErrNotFound
@@ -105,8 +105,8 @@ func (m *Storage) GetData(chatId, userId int64, key string) (interface{}, error)
 }
 
 func (m *Storage) Close() error {
-	m.l.Lock()
-	defer m.l.Unlock()
+	m.l.RLock()
+	defer m.l.RUnlock()
 	m.storage = nil
 	return nil
 }
