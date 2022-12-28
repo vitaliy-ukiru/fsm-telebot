@@ -47,7 +47,7 @@ func main() {
 	storage := memory.NewStorage()
 	defer storage.Close()
 
-	manager := fsm.NewManager(bot.Group(), storage)
+	manager := fsm.NewManager(bot, nil, storage)
 
 	var (
 		regBtn    = tele.Btn{Text: "📝 Start input form"}
