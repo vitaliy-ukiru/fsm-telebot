@@ -25,7 +25,11 @@ func (m *Manager) ForState(want State, handler Handler) tele.HandlerFunc {
 // for current state to check for presence in given states.
 func (m *Manager) ForStates(h Handler, states ...State) tele.HandlerFunc {
 	return m.HandlerAdapter(func(c tele.Context, state Context) error {
-		if ContainsState(state.State(), states...) {
+		s, err := state.State()
+		if err != nil {
+			return err
+		}
+		if ContainsState(s, states...) {
 			return h(c, state)
 		}
 		return nil

@@ -66,7 +66,11 @@ func main() {
 	manager.Bind("/cancel", fsm.AnyState, OnCancelForm(regBtn))
 
 	manager.Bind("/state", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
-		return c.Send(state.State().String())
+		s, err := state.State()
+		if err != nil {
+			return c.Send(fmt.Sprintf("can't get state: %s", err))
+		}
+		return c.Send(s.String())
 	})
 
 	// buttons

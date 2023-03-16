@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -39,7 +40,11 @@ func main() {
 	// It also for any states. Because manager don't filter this handler
 	bot.Handle("/state",
 		m.HandlerAdapter(func(c tele.Context, state fsm.Context) error {
-			return c.Send("your state: " + state.State().String())
+			s, err := state.State()
+			if err != nil {
+				return c.Send(fmt.Sprintf("can't get state: %s", err))
+			}
+			return c.Send("your state: " + s.String())
 		}),
 	)
 
