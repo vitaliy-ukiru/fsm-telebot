@@ -37,6 +37,17 @@ func ContainsState(s State, other ...State) bool {
 	return false
 }
 
+// StateIndex returns the index of the given state in given states.
+// Returns -1 if state is not found.
+func StateIndex(s State, other ...State) int {
+	for i, state := range other {
+		if Is(s, state) {
+			return i
+		}
+	}
+	return -1
+}
+
 // StateGroup storages states with custom prefix.
 //
 // It can use in filter like:
@@ -60,4 +71,24 @@ func (s *StateGroup) New(name string) (state State) {
 	state = State(s.Prefix + "@" + name)
 	s.States = append(s.States, state)
 	return
+}
+
+// Previous returns previous state relative to current.
+// Returns DefaultState if current state is first or not found.
+func (s *StateGroup) Previous(current State) State {
+	currentIndex := StateIndex(current, s.States...)
+	if currentIndex == 0 || currentIndex == -1 {
+		return DefaultState
+	}
+	return s.States[currentIndex-1]
+}
+
+// Next returns next state relative to current.
+// Returns DefaultState if current state is last or not found.
+func (s *StateGroup) Next(current State) State {
+	currentIndex := StateIndex(current, s.States...)
+	if currentIndex >= len(s.States)-1 || currentIndex == -1 {
+		return DefaultState
+	}
+	return s.States[currentIndex+1]
 }
