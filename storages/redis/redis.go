@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/vitaliy-ukiru/fsm-telebot"
@@ -19,19 +20,37 @@ const (
 )
 
 type Storage struct {
-	rds    *redis.Client
+	rds      *redis.Client
+	prefix   string
+	ttlState time.Duration
+	ttlData  time.Duration
+}
+
+type StorageSettings struct {
+	// Prefix for records in Redis.
+	// Default is "fsm".
 	prefix string
+
+	// TTL for state.
+	// Default is 0.
+	ttlState time.Duration
+
+	// TTL for state data.
+	// Default is 0.
+	ttlData time.Duration
 }
 
 // NewStorage returns new redis storage.
-// Default prefix is "fsm".
-func NewStorage(client *redis.Client, prefix string) fsm.Storage {
-	if prefix == "" {
-		prefix = "fsm"
+func NewStorage(client *redis.Client, pref StorageSettings) fsm.Storage {
+	if pref.prefix == "" {
+		pref.prefix = "fsm"
 	}
+
 	return &Storage{
-		rds:    client,
-		prefix: prefix,
+		rds:      client,
+		prefix:   pref.prefix,
+		ttlState: pref.ttlState,
+		ttlData:  pref.ttlData,
 	}
 }
 
@@ -48,7 +67,7 @@ func (s *Storage) GetState(chatId, userId int64) (fsm.State, error) {
 }
 
 func (s *Storage) SetState(chatId, userId int64, state fsm.State) error {
-	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateKey), string(state), 0).Err()
+	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateKey), string(state), s.ttlState).Err()
 }
 
 func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
@@ -91,7 +110,7 @@ func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{})
 		return fmt.Errorf("marshal state data: %w", err)
 	}
 
-	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateDataKey), stateDataBytes, 0).Err()
+	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateDataKey), stateDataBytes, s.ttlData).Err()
 }
 
 func (s *Storage) GetData(chatId, userId int64, key string) (interface{}, error) {
