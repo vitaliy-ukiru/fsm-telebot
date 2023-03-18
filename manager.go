@@ -1,6 +1,7 @@
 package fsm
 
 import (
+	"github.com/pkg/errors"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -82,13 +83,13 @@ func (m *Manager) Storage() Storage {
 }
 
 // GetState returns state for given user in given chat.
-func (m *Manager) GetState(chat, user int64) State {
+func (m *Manager) GetState(chat, user int64) (State, error) {
 	return m.s.GetState(chat, user)
 }
 
 // SetState sets state for given user in given chat.
-func (m *Manager) SetState(chat, user int64, state State) {
-	m.s.SetState(chat, user, state)
+func (m *Manager) SetState(chat, user int64, state State) error {
+	return m.s.SetState(chat, user, state)
 }
 
 // add handler to storage, just shortcut.
@@ -103,7 +104,11 @@ func (m handlerStorage) add(endpoint string, h Handler, states []State) {
 // getHandler returns handler what filters queries and execute correct handler.
 func (m handlerStorage) getHandler(endpoint string) Handler {
 	return func(c tele.Context, fsm Context) error {
-		state := fsm.State()
+		state, err := fsm.State()
+		if err != nil {
+			return errors.Wrapf(err, "fsm-telebot: get state for endpoint %s", endpoint)
+		}
+
 		for _, group := range m[endpoint] {
 			if ContainsState(state, group.states...) {
 				return group.handler(c, fsm)

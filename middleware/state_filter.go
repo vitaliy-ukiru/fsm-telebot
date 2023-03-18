@@ -11,7 +11,10 @@ import (
 func StateFilterMiddleware(storage fsm.Storage, want fsm.State) tele.MiddlewareFunc {
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
 		return func(c tele.Context) error {
-			currentState := storage.GetState(c.Chat().ID, c.Sender().ID)
+			currentState, err := storage.GetState(c.Chat().ID, c.Sender().ID)
+			if err != nil {
+				return err
+			}
 			if fsm.Is(currentState, want) {
 				return next(c)
 			}

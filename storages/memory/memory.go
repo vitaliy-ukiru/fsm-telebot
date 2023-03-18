@@ -65,16 +65,17 @@ func (m *Storage) do(key chatKey, call func(*record)) {
 	m.storage[key] = r
 }
 
-func (m *Storage) GetState(chatId, userId int64) fsm.State {
+func (m *Storage) GetState(chatId, userId int64) (fsm.State, error) {
 	m.l.Lock()
 	defer m.l.Unlock()
-	return m.storage[newKey(chatId, userId)].state
+	return m.storage[newKey(chatId, userId)].state, nil
 }
 
-func (m *Storage) SetState(chatId, userId int64, state fsm.State) {
+func (m *Storage) SetState(chatId, userId int64, state fsm.State) error {
 	m.do(newKey(chatId, userId), func(r *record) {
 		r.state = state
 	})
+	return nil
 }
 
 func (m *Storage) ResetState(chatId, userId int64, withData bool) error {

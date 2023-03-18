@@ -10,10 +10,10 @@ type Context interface {
 	Bot() *tele.Bot
 
 	// State returns current state for sender.
-	State() State
+	State() (State, error)
 
 	// Set state for sender.
-	Set(state State)
+	Set(state State) error
 
 	// Finish state for sender and deletes data if set true.
 	Finish(deleteData bool) error
@@ -48,12 +48,12 @@ func (f *fsmContext) Bot() *tele.Bot {
 	return f.c.Bot()
 }
 
-func (f *fsmContext) State() State {
+func (f *fsmContext) State() (State, error) {
 	return f.s.GetState(f.chat, f.user)
 }
 
-func (f *fsmContext) Set(state State) {
-	f.s.SetState(f.chat, f.user, state)
+func (f *fsmContext) Set(state State) error {
+	return f.s.SetState(f.chat, f.user, state)
 }
 
 func (f *fsmContext) Finish(deleteData bool) error {
