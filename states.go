@@ -65,7 +65,7 @@ func (s *StateGroup) New(name string) (state State) {
 // Previous returns previous state relative to current.
 // Returns DefaultState if current state is first or not found.
 func (s *StateGroup) Previous(current State) State {
-	currentIndex := stateIndex(current, s.States...)
+	currentIndex := stateIndex(current, s.States)
 	if currentIndex == 0 || currentIndex == -1 {
 		return DefaultState
 	}
@@ -75,7 +75,7 @@ func (s *StateGroup) Previous(current State) State {
 // Next returns next state relative to current.
 // Returns DefaultState if current state is last or not found.
 func (s *StateGroup) Next(current State) State {
-	currentIndex := stateIndex(current, s.States...)
+	currentIndex := stateIndex(current, s.States)
 	if currentIndex >= len(s.States)-1 || currentIndex == -1 {
 		return DefaultState
 	}
@@ -84,7 +84,7 @@ func (s *StateGroup) Next(current State) State {
 
 // stateIndex returns the index of the given state in given states.
 // Returns -1 if state is not found.
-func stateIndex(s State, other ...State) int {
+func stateIndex(s State, other []State) int {
 	for i, state := range other {
 		if Is(s, state) {
 			return i
