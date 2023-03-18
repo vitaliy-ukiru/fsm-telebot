@@ -66,7 +66,7 @@ func (s *StateGroup) New(name string) (state State) {
 // Returns DefaultState if current state is first or not found.
 func (s *StateGroup) Previous(current State) State {
 	currentIndex := stateIndex(current, s.States)
-	if currentIndex == 0 || currentIndex == -1 {
+	if currentIndex <= 0 {
 		return DefaultState
 	}
 	return s.States[currentIndex-1]
