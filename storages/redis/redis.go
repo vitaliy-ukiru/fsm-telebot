@@ -2,10 +2,12 @@
 package redis
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
+	"encoding/gob"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -20,10 +22,11 @@ const (
 )
 
 type Storage struct {
-	rds      *redis.Client
-	prefix   string
-	ttlState time.Duration
-	ttlData  time.Duration
+	rds                *redis.Client
+	prefix             string
+	ttlState           time.Duration
+	ttlData            time.Duration
+	resetDataBatchSize int64
 }
 
 type StorageSettings struct {
@@ -32,12 +35,16 @@ type StorageSettings struct {
 	prefix string
 
 	// TTL for state.
-	// Default is 0.
+	// Default is 0 (no ttl).
 	ttlState time.Duration
 
 	// TTL for state data.
-	// Default is 0.
+	// Default is 0 (no ttl).
 	ttlData time.Duration
+
+	// Batch size for reset data.
+	// Default is 0 (no batching).
+	resetDataBatchSize int64
 }
 
 // NewStorage returns new redis storage.
@@ -47,10 +54,11 @@ func NewStorage(client *redis.Client, pref StorageSettings) fsm.Storage {
 	}
 
 	return &Storage{
-		rds:      client,
-		prefix:   pref.prefix,
-		ttlState: pref.ttlState,
-		ttlData:  pref.ttlData,
+		rds:                client,
+		prefix:             pref.prefix,
+		ttlState:           pref.ttlState,
+		ttlData:            pref.ttlData,
+		resetDataBatchSize: pref.resetDataBatchSize,
 	}
 }
 
@@ -76,71 +84,89 @@ func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
 	}
 
 	if withData {
-		return s.rds.Del(context.TODO(), s.generateKey(chatId, userId, stateDataKey)).Err()
+		s.resetData(chatId, userId)
 	}
 	return nil
 }
 
-func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
-	stateDataBytes, err := s.rds.Get(context.TODO(), s.generateKey(chatId, userId, stateDataKey)).Bytes()
-	if err != nil {
-		if errors.Is(err, redis.Nil) {
-			stateDataBytes = []byte("{}")
-		} else {
-			return fmt.Errorf("get state data: %w", err)
+func (s *Storage) resetData(chatId, userId int64) error {
+	var cursor uint64
+	var keys []string
+
+	for {
+		var err error
+		keys, cursor, err = s.rds.Scan(
+			context.TODO(),
+			cursor,
+			s.generateKey(chatId, userId, stateDataKey, "*"),
+			s.resetDataBatchSize,
+		).Result()
+		if err != nil {
+			return err
+		}
+
+		if len(keys) > 0 {
+			if err := s.rds.Del(context.TODO(), keys...).Err(); err != nil {
+				return err
+			}
+		}
+
+		if cursor == 0 {
+			break
 		}
 	}
 
-	// unmarshal state data
-	var stateData map[string]interface{}
-	if err := json.Unmarshal(stateDataBytes, &stateData); err != nil {
-		return fmt.Errorf("unmarshal state data: %w", err)
-	}
-
-	// set or delete data
-	if data == nil {
-		delete(stateData, key)
-	} else {
-		stateData[key] = data
-	}
-
-	// marshal state data
-	stateDataBytes, err = json.Marshal(stateData)
-	if err != nil {
-		return fmt.Errorf("marshal state data: %w", err)
-	}
-
-	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateDataKey), stateDataBytes, s.ttlData).Err()
+	return nil
 }
 
-func (s *Storage) GetData(chatId, userId int64, key string) (interface{}, error) {
-	stateDataBytes, err := s.rds.Get(context.TODO(), s.generateKey(chatId, userId, stateDataKey)).Bytes()
+func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
+	if data == nil {
+		return s.rds.Del(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key)).Err()
+	}
+
+	encodedData, err := s.encode(data)
+	if err != nil {
+		return err
+	}
+	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key), encodedData, s.ttlData).Err()
+}
+
+func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
+	dataBytes, err := s.rds.Get(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key)).Bytes()
 	if errors.Is(err, redis.Nil) {
-		return nil, fsm.ErrNotFound
+		return fsm.ErrNotFound
 	}
 	if err != nil {
-		return nil, fmt.Errorf("get state data: %w", err)
+		return fmt.Errorf("get data: %w", err)
 	}
 
-	// unmarshal state data
-	var stateData map[string]interface{}
-	if err := json.Unmarshal(stateDataBytes, &stateData); err != nil {
-		return nil, fmt.Errorf("unmarshal state data: %w", err)
-	}
-
-	// get data
-	res, ok := stateData[key]
-	if !ok {
-		return nil, fsm.ErrNotFound
-	}
-
-	return res, nil
+	return s.decode(dataBytes, to)
 }
 
 func (s *Storage) Close() error {
 	return s.rds.Close()
 }
 
-func (s *Storage) generateKey(chat, user int64, keyType keyType) string {
-	return fmt.Sprintf("%s:%d:%d:%s", s.prefix, chat, user, keyType)
+func (s *Storage) generateKey(chat, user int64, keyType keyType, keys ...string) string {
+	res := fmt.Sprintf("%s:%d:%d:%s", s.prefix, chat, user, keyType)
+	if keys != nil {
+		res += ":" + strings.Join(keys, ":")
+	}
+	return res
+}
+
+func (s *Storage) encode(data interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	encoder := gob.NewEncoder(&buf)
+
+	if err := encoder.Encode(data); err != nil {
+		return nil, err
+	}
+
+	return buf.Bytes(), nil
+}
+
+func (s *Storage) decode(data []byte, to interface{}) error {
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	return decoder.Decode(to)
 }

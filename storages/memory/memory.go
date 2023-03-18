@@ -2,6 +2,8 @@
 package memory
 
 import (
+	"fmt"
+	"reflect"
 	"sync"
 
 	"github.com/vitaliy-ukiru/fsm-telebot"
@@ -95,14 +97,23 @@ func (m *Storage) UpdateData(chatId, userId int64, key string, data interface{})
 	return nil
 }
 
-func (m *Storage) GetData(chatId, userId int64, key string) (interface{}, error) {
+func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
 	m.l.Lock()
 	defer m.l.Unlock()
 	v, ok := m.storage[newKey(chatId, userId)].data[key]
 	if !ok {
-		return nil, fsm.ErrNotFound
+		return fsm.ErrNotFound
 	}
-	return v, nil
+
+	elem := reflect.ValueOf(to).Elem()
+	elemType := elem.Type()
+	vType := reflect.TypeOf(v)
+	if !vType.AssignableTo(elemType) {
+		return fmt.Errorf("wrong types, can't assign %s to %s", vType, elemType)
+	}
+	elem.Set(reflect.ValueOf(v))
+
+	return nil
 }
 
 func (m *Storage) Close() error {
