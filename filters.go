@@ -1,6 +1,9 @@
 package fsm
 
-import tele "gopkg.in/telebot.v3"
+import (
+	"github.com/pkg/errors"
+	tele "gopkg.in/telebot.v3"
+)
 
 // Filter object. Needs for graceful works with state filters.
 type Filter struct {
@@ -27,7 +30,7 @@ func (m *Manager) ForStates(h Handler, states ...State) tele.HandlerFunc {
 	return m.HandlerAdapter(func(c tele.Context, state Context) error {
 		s, err := state.State()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "fsm-telebot: get state in Manager.ForStates")
 		}
 		if ContainsState(s, states...) {
 			return h(c, state)
