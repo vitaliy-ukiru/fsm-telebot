@@ -32,33 +32,33 @@ type Storage struct {
 type StorageSettings struct {
 	// Prefix for records in Redis.
 	// Default is "fsm".
-	prefix string
+	Prefix string
 
 	// TTL for state.
 	// Default is 0 (no ttl).
-	ttlState time.Duration
+	TTLState time.Duration
 
 	// TTL for state data.
 	// Default is 0 (no ttl).
-	ttlData time.Duration
+	TTLData time.Duration
 
 	// Batch size for reset data.
 	// Default is 0 (no batching).
-	resetDataBatchSize int64
+	ResetDataBatchSize int64
 }
 
 // NewStorage returns new redis storage.
-func NewStorage(client *redis.Client, pref StorageSettings) fsm.Storage {
-	if pref.prefix == "" {
-		pref.prefix = "fsm"
+func NewStorage(client *redis.Client, pref StorageSettings) *Storage {
+	if pref.Prefix == "" {
+		pref.Prefix = "fsm"
 	}
 
 	return &Storage{
 		rds:                client,
-		prefix:             pref.prefix,
-		ttlState:           pref.ttlState,
-		ttlData:            pref.ttlData,
-		resetDataBatchSize: pref.resetDataBatchSize,
+		prefix:             pref.Prefix,
+		ttlState:           pref.TTLState,
+		ttlData:            pref.TTLData,
+		resetDataBatchSize: pref.ResetDataBatchSize,
 	}
 }
 
