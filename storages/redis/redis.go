@@ -7,6 +7,7 @@ import (
 	"encoding/gob"
 	"errors"
 	"fmt"
+	pkg_errors "github.com/pkg/errors"
 	"strings"
 	"time"
 
@@ -68,23 +69,29 @@ func (s *Storage) GetState(chatId, userId int64) (fsm.State, error) {
 		if errors.Is(err, redis.Nil) {
 			return fsm.DefaultState, nil
 		}
-		return fsm.DefaultState, err
+		return fsm.DefaultState, wrapError(err, "get")
 	}
 
 	return fsm.State(val), nil
 }
 
 func (s *Storage) SetState(chatId, userId int64, state fsm.State) error {
-	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateKey), string(state), s.ttlState).Err()
+	err := s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateKey), string(state), s.ttlState).Err()
+	if err != nil {
+		return wrapError(err, "set")
+	}
+	return nil
 }
 
 func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
 	if err := s.SetState(chatId, userId, fsm.DefaultState); err != nil {
-		return err
+		return wrapError(err, "set state to default")
 	}
 
 	if withData {
-		s.resetData(chatId, userId)
+		if err := s.resetData(chatId, userId); err != nil {
+			return wrapError(err, "reset data")
+		}
 	}
 	return nil
 }
@@ -102,12 +109,12 @@ func (s *Storage) resetData(chatId, userId int64) error {
 			s.resetDataBatchSize,
 		).Result()
 		if err != nil {
-			return err
+			return pkg_errors.Wrap(err, "scan")
 		}
 
 		if len(keys) > 0 {
 			if err := s.rds.Del(context.TODO(), keys...).Err(); err != nil {
-				return err
+				return pkg_errors.Wrap(err, "delete keys")
 			}
 		}
 
@@ -121,14 +128,22 @@ func (s *Storage) resetData(chatId, userId int64) error {
 
 func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
 	if data == nil {
-		return s.rds.Del(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key)).Err()
+		err := s.rds.Del(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key)).Err()
+		if err != nil {
+			return wrapError(err, "delete data")
+		}
 	}
 
 	encodedData, err := s.encode(data)
 	if err != nil {
-		return err
+		return wrapError(err, "encode data")
 	}
-	return s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key), encodedData, s.ttlData).Err()
+
+	err = s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key), encodedData, s.ttlData).Err()
+	if err != nil {
+		return wrapError(err, "set data")
+	}
+	return nil
 }
 
 func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
@@ -137,10 +152,13 @@ func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 		return fsm.ErrNotFound
 	}
 	if err != nil {
-		return fmt.Errorf("get data: %w", err)
+		return wrapError(err, "get data")
 	}
 
-	return s.decode(dataBytes, to)
+	if err := s.decode(dataBytes, to); err != nil {
+		return wrapError(err, "decode data")
+	}
+	return nil
 }
 
 func (s *Storage) Close() error {
@@ -169,4 +187,8 @@ func (s *Storage) encode(data interface{}) ([]byte, error) {
 func (s *Storage) decode(data []byte, to interface{}) error {
 	decoder := gob.NewDecoder(bytes.NewReader(data))
 	return decoder.Decode(to)
+}
+
+func wrapError(err error, msg string) error {
+	return pkg_errors.Wrap(err, fmt.Sprintf("fsm-telebot/storage/redis: %s", msg))
 }
