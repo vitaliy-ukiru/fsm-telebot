@@ -58,9 +58,10 @@ func main() {
 
 	m.Handle(fsm.F(tele.OnText, MyState),
 		func(c tele.Context, state fsm.Context) error {
-			payload, _ := state.Get("payload")
+			var payload string
+			state.Get("payload", &payload)
 			_ = state.Update("payload", time.Now().Format(time.RFC850)+"  "+c.Text())
-			return c.Send("prev payload: " + (payload).(string))
+			return c.Send("prev payload: " + payload)
 		},
 	)
 

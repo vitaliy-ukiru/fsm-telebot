@@ -143,14 +143,21 @@ func OnInputHobby(confirmBtn, resetBtn, cancelBtn tele.Btn) fsm.Handler {
 		go state.Update("hobby", c.Message().Text)
 		go state.Set(InputConfirmState)
 
+		var (
+			senderName string
+			senderAge  int
+		)
+		state.MustGet("name", &senderName)
+		state.MustGet("age", &senderAge)
+
 		c.Send("Wow, interesting!")
 		return c.Send(fmt.Sprintf(
 			"Now check your form:\n"+
 				"<i>Name</i>: %q\n"+
 				"<i>Age</i>: %d\n"+
 				"<i>Hobby</i>: %q\n",
-			state.MustGet("name"),
-			state.MustGet("age"),
+			senderName,
+			senderAge,
 			c.Message().Text,
 		), m)
 	}
@@ -159,10 +166,13 @@ func OnInputHobby(confirmBtn, resetBtn, cancelBtn tele.Btn) fsm.Handler {
 func OnInputConfirm(c tele.Context, state fsm.Context) error {
 	defer state.Finish(true)
 	var (
-		senderName  = state.MustGet("name")
-		senderAge   = state.MustGet("age")
-		senderHobby = state.MustGet("hobby")
+		senderName  string
+		senderAge   int
+		senderHobby string
 	)
+	state.MustGet("name", &senderName)
+	state.MustGet("age", &senderAge)
+	state.MustGet("hobby", &senderHobby)
 
 	data, _ := json.Marshal(map[string]interface{}{
 		"name":  senderName,
