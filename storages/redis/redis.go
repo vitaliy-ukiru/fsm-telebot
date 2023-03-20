@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
-	"errors"
 	"fmt"
-	pkg_errors "github.com/pkg/errors"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/vitaliy-ukiru/fsm-telebot"
@@ -190,5 +190,5 @@ func (s *Storage) decode(data []byte, to interface{}) error {
 }
 
 func wrapError(err error, msg string) error {
-	return pkg_errors.Wrap(err, fmt.Sprintf("fsm-telebot/storage/redis: %s", msg))
+	return errors.Wrapf(err, "fsm-telebot/storage/redis: %s", msg)
 }
