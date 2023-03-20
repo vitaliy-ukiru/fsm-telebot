@@ -109,12 +109,12 @@ func (s *Storage) resetData(chatId, userId int64) error {
 			s.resetDataBatchSize,
 		).Result()
 		if err != nil {
-			return pkg_errors.Wrap(err, "scan")
+			return wrapError(err, "scan")
 		}
 
 		if len(keys) > 0 {
 			if err := s.rds.Del(context.TODO(), keys...).Err(); err != nil {
-				return pkg_errors.Wrap(err, "delete keys")
+				return wrapError(err, "delete keys")
 			}
 		}
 
