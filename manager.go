@@ -19,24 +19,33 @@ type fsmHandler struct {
 // handlerStorage contains handlers group separated by endpoint.
 type handlerStorage map[string][]fsmHandler
 
+// ContextMakerFunc alias for function for create new context.
+// You can use custom Context implementation.
+type ContextMakerFunc = func(ctx tele.Context, storage Storage) Context // TODO: add error to return values
+
 // Manager is object for managing FSM, binding handlers.
 type Manager struct {
-	bot      *tele.Bot
-	group    *tele.Group // handlers will add to group
-	store    Storage
-	handlers handlerStorage
+	bot          *tele.Bot
+	group        *tele.Group // handlers will add to group
+	store        Storage
+	handlers     handlerStorage
+	contextMaker ContextMakerFunc
 }
 
 // NewManager returns new Manger.
-func NewManager(b *tele.Bot, g *tele.Group, s Storage) *Manager {
+func NewManager(b *tele.Bot, g *tele.Group, s Storage, ctxMaker ContextMakerFunc) *Manager {
 	if g == nil {
 		g = b.Group()
 	}
+	if ctxMaker == nil {
+		ctxMaker = NewFSMContext
+	}
 	return &Manager{
-		bot:      b,
-		group:    g,
-		store:    s,
-		handlers: make(handlerStorage),
+		bot:          b,
+		group:        g,
+		store:        s,
+		contextMaker: ctxMaker,
+		handlers:     make(handlerStorage),
 	}
 }
 
@@ -47,11 +56,17 @@ func (m *Manager) Group() *tele.Group {
 
 func (m *Manager) With(g *tele.Group) *Manager {
 	return &Manager{
-		bot:      m.bot,
-		group:    g,
-		store:    m.store,
-		handlers: m.handlers,
+		bot:          m.bot,
+		group:        g,
+		store:        m.store,
+		handlers:     m.handlers,
+		contextMaker: m.contextMaker,
 	}
+}
+
+// SetContextMaker sets new context maker to current Manager instance.
+func (m *Manager) SetContextMaker(contextMaker ContextMakerFunc) {
+	m.contextMaker = contextMaker
 }
 
 func (m *Manager) NewGroup() *Manager {
@@ -83,7 +98,7 @@ func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc
 // HandlerAdapter create telebot.HandlerFunc object for Handler with FSM FSMContext.
 func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	return func(c tele.Context) error {
-		return handler(c, NewFSMContext(c, m.s))
+		return handler(c, m.contextMaker(c, m.store))
 	}
 }
 
