@@ -21,10 +21,10 @@ type handlerStorage map[string][]fsmHandler
 
 // Manager is object for managing FSM, binding handlers.
 type Manager struct {
-	b *tele.Bot
-	g *tele.Group
-	s Storage
-	h handlerStorage
+	bot      *tele.Bot
+	group    *tele.Group // handlers will add to group
+	store    Storage
+	handlers handlerStorage
 }
 
 // NewManager returns new Manger.
@@ -32,25 +32,35 @@ func NewManager(b *tele.Bot, g *tele.Group, s Storage) *Manager {
 	if g == nil {
 		g = b.Group()
 	}
-	return &Manager{b: b, g: g, s: s, h: make(handlerStorage)}
+	return &Manager{
+		bot:      b,
+		group:    g,
+		store:    s,
+		handlers: make(handlerStorage),
+	}
 }
 
 // Group handlers for manger.
 func (m *Manager) Group() *tele.Group {
-	return m.g
+	return m.group
 }
 
 func (m *Manager) With(g *tele.Group) *Manager {
-	return NewManager(m.b, g, m.s)
+	return &Manager{
+		bot:      m.bot,
+		group:    g,
+		store:    m.store,
+		handlers: m.handlers,
+	}
 }
 
 func (m *Manager) NewGroup() *Manager {
-	return m.With(m.b.Group())
+	return m.With(m.bot.Group())
 }
 
 // Use add middlewares to group.
 func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
-	m.g.Use(middlewares...)
+	m.group.Use(middlewares...)
 }
 
 // Bind adds handler (with FSMContext) with filter on state.
@@ -65,8 +75,8 @@ func (m *Manager) Bind(end interface{}, state State, h Handler, middlewares ...t
 // Allowed use more handler for one endpoint.
 func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc) {
 	endpoint := f.CallbackUnique()
-	m.h.add(endpoint, h, f.States)
-	m.g.Handle(endpoint, m.HandlerAdapter(m.h.getHandler(endpoint)), middlewares...)
+	m.handlers.add(endpoint, h, f.States)
+	m.group.Handle(endpoint, m.HandlerAdapter(m.handlers.getHandler(endpoint)), middlewares...)
 
 }
 
@@ -79,17 +89,17 @@ func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 
 // Storage returns manger storage instance.
 func (m *Manager) Storage() Storage {
-	return m.s
+	return m.store
 }
 
 // GetState returns state for given user in given chat.
 func (m *Manager) GetState(chat, user int64) (State, error) {
-	return m.s.GetState(chat, user)
+	return m.store.GetState(chat, user)
 }
 
 // SetState sets state for given user in given chat.
 func (m *Manager) SetState(chat, user int64, state State) error {
-	return m.s.SetState(chat, user, state)
+	return m.store.SetState(chat, user, state)
 }
 
 // add handler to storage, just shortcut.
