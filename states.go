@@ -10,7 +10,7 @@ const (
 	AnyState     State = "*"
 )
 
-func (s State) String() string {
+func (s State) GoString() string {
 	switch s {
 	case DefaultState:
 		return "State(nil)"
