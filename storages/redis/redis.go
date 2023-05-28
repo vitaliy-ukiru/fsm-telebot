@@ -167,7 +167,7 @@ func (s *Storage) Close() error {
 
 func (s *Storage) generateKey(chat, user int64, keyType keyType, keys ...string) string {
 	res := fmt.Sprintf("%s:%d:%d:%s", s.prefix, chat, user, keyType)
-	if keys != nil {
+	if len(keys) > 0 {
 		res += ":" + strings.Join(keys, ":")
 	}
 	return res
