@@ -10,10 +10,8 @@ import (
 )
 
 type chatKey struct {
-	// c is Chat ID
-	c int64
-	// u is User ID
-	u int64
+	c int64 // c is Chat ID
+	u int64 // u is User ID
 }
 
 // record in storage
