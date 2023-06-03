@@ -23,11 +23,8 @@ const (
 )
 
 type Storage struct {
-	rds                *redis.Client
-	prefix             string
-	ttlState           time.Duration
-	ttlData            time.Duration
-	resetDataBatchSize int64
+	rds  *redis.Client
+	pref StorageSettings
 }
 
 type StorageSettings struct {
@@ -55,11 +52,8 @@ func NewStorage(client *redis.Client, pref StorageSettings) *Storage {
 	}
 
 	return &Storage{
-		rds:                client,
-		prefix:             pref.Prefix,
-		ttlState:           pref.TTLState,
-		ttlData:            pref.TTLData,
-		resetDataBatchSize: pref.ResetDataBatchSize,
+		rds:  client,
+		pref: pref,
 	}
 }
 
@@ -76,11 +70,13 @@ func (s *Storage) GetState(chatId, userId int64) (fsm.State, error) {
 }
 
 func (s *Storage) SetState(chatId, userId int64, state fsm.State) error {
-	err := s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateKey), string(state), s.ttlState).Err()
-	if err != nil {
-		return wrapError(err, "set")
-	}
-	return nil
+	err := s.rds.Set(
+		context.TODO(),
+		s.generateKey(chatId, userId, stateKey),
+		string(state),
+		s.pref.TTLState,
+	).Err()
+	return wrapError(err, "set")
 }
 
 func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
@@ -100,13 +96,15 @@ func (s *Storage) resetData(chatId, userId int64) error {
 	var cursor uint64
 	var keys []string
 
+	redisKey := s.generateKey(chatId, userId, stateDataKey, "*")
+
 	for {
 		var err error
 		keys, cursor, err = s.rds.Scan(
 			context.TODO(),
 			cursor,
-			s.generateKey(chatId, userId, stateDataKey, "*"),
-			s.resetDataBatchSize,
+			redisKey,
+			s.pref.ResetDataBatchSize,
 		).Result()
 		if err != nil {
 			return errors.Wrap(err, "scan")
@@ -127,11 +125,12 @@ func (s *Storage) resetData(chatId, userId int64) error {
 }
 
 func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
+	ctx := context.TODO()
+	redisKey := s.generateKey(chatId, userId, stateDataKey, key)
+
 	if data == nil {
-		err := s.rds.Del(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key)).Err()
-		if err != nil {
-			return wrapError(err, "delete data")
-		}
+		err := s.rds.Del(ctx, redisKey).Err()
+		return wrapError(err, "delete data")
 	}
 
 	encodedData, err := s.encode(data)
@@ -139,11 +138,14 @@ func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{})
 		return wrapError(err, "encode data")
 	}
 
-	err = s.rds.Set(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key), encodedData, s.ttlData).Err()
-	if err != nil {
-		return wrapError(err, "set data")
-	}
-	return nil
+	err = s.rds.Set(
+		ctx,
+		redisKey,
+		encodedData,
+		s.pref.TTLData,
+	).Err()
+
+	return wrapError(err, "set data")
 }
 
 func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
@@ -166,7 +168,7 @@ func (s *Storage) Close() error {
 }
 
 func (s *Storage) generateKey(chat, user int64, keyType keyType, keys ...string) string {
-	res := fmt.Sprintf("%s:%d:%d:%s", s.prefix, chat, user, keyType)
+	res := fmt.Sprintf("%s:%d:%d:%s", s.pref.Prefix, chat, user, keyType)
 	if len(keys) > 0 {
 		res += ":" + strings.Join(keys, ":")
 	}
