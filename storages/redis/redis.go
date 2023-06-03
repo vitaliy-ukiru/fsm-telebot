@@ -100,12 +100,9 @@ func (s *Storage) resetData(chatId, userId int64) error {
 
 	for {
 		var err error
-		keys, cursor, err = s.rds.Scan(
-			context.TODO(),
-			cursor,
-			redisKey,
-			s.pref.ResetDataBatchSize,
-		).Result()
+		keys, cursor, err = s.rds.
+			Scan(context.TODO(), cursor, redisKey, s.pref.ResetDataBatchSize).
+			Result()
 		if err != nil {
 			return errors.Wrap(err, "scan")
 		}
@@ -138,18 +135,18 @@ func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{})
 		return wrapError(err, "encode data")
 	}
 
-	err = s.rds.Set(
-		ctx,
-		redisKey,
-		encodedData,
-		s.pref.TTLData,
-	).Err()
+	err = s.rds.
+		Set(ctx, redisKey, encodedData, s.pref.TTLData).
+		Err()
 
 	return wrapError(err, "set data")
 }
 
 func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
-	dataBytes, err := s.rds.Get(context.TODO(), s.generateKey(chatId, userId, dataKey, key)).Bytes()
+	dataBytes, err := s.rds.
+		Get(context.TODO(), s.generateKey(chatId, userId, dataKey, key)).
+		Bytes()
+
 	if errors.Is(err, redis.Nil) {
 		return fsm.ErrNotFound
 	}
