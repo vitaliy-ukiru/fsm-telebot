@@ -103,13 +103,14 @@ func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 		return fsm.ErrNotFound
 	}
 
-	elem := reflect.ValueOf(to).Elem()
-	elemType := elem.Type()
+	destElem := reflect.ValueOf(to).Elem()
+	destType := destElem.Type()
+
 	vType := reflect.TypeOf(v)
-	if !vType.AssignableTo(elemType) {
-		return fmt.Errorf("wrong types, can't assign %s to %s", vType, elemType)
+	if !vType.AssignableTo(destType) {
+		return fmt.Errorf("wrong types, can't assign %s to %s", vType, destType)
 	}
-	elem.Set(reflect.ValueOf(v))
+	destElem.Set(reflect.ValueOf(v))
 
 	return nil
 }
