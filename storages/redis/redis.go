@@ -18,8 +18,8 @@ import (
 type keyType string
 
 const (
-	stateKey     keyType = "state"
-	stateDataKey keyType = "data"
+	stateKey keyType = "state"
+	dataKey  keyType = "data"
 )
 
 type Storage struct {
@@ -96,7 +96,7 @@ func (s *Storage) resetData(chatId, userId int64) error {
 	var cursor uint64
 	var keys []string
 
-	redisKey := s.generateKey(chatId, userId, stateDataKey, "*")
+	redisKey := s.generateKey(chatId, userId, dataKey, "*")
 
 	for {
 		var err error
@@ -126,7 +126,7 @@ func (s *Storage) resetData(chatId, userId int64) error {
 
 func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
 	ctx := context.TODO()
-	redisKey := s.generateKey(chatId, userId, stateDataKey, key)
+	redisKey := s.generateKey(chatId, userId, dataKey, key)
 
 	if data == nil {
 		err := s.rds.Del(ctx, redisKey).Err()
@@ -149,7 +149,7 @@ func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{})
 }
 
 func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
-	dataBytes, err := s.rds.Get(context.TODO(), s.generateKey(chatId, userId, stateDataKey, key)).Bytes()
+	dataBytes, err := s.rds.Get(context.TODO(), s.generateKey(chatId, userId, dataKey, key)).Bytes()
 	if errors.Is(err, redis.Nil) {
 		return fsm.ErrNotFound
 	}
