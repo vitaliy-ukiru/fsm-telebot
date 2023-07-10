@@ -1,12 +1,12 @@
 package fsm
 
-type hashset map[State]struct{}
+type statesHashset map[State]struct{}
 
-func newHashset() hashset {
-	return make(hashset)
+func newHashset() statesHashset {
+	return make(statesHashset)
 }
 
-func newHashsetFromSlice(states []State) hashset {
+func newHashsetFromSlice(states []State) statesHashset {
 	h := newHashset()
 	for _, state := range states {
 		h.Add(state)
@@ -14,19 +14,19 @@ func newHashsetFromSlice(states []State) hashset {
 	return h
 }
 
-func (h hashset) Add(s State) {
+func (h statesHashset) Add(s State) {
 	h[s] = struct{}{}
 }
 
-func (h hashset) Has(state State) bool {
+func (h statesHashset) Has(state State) bool {
 	_, ok := h[state]
 	return ok
 }
 
-func (h hashset) Delete(state State) {
+func (h statesHashset) Delete(state State) {
 	delete(h, state)
 }
 
-func (h hashset) Size() int {
+func (h statesHashset) Size() int {
 	return len(h)
 }

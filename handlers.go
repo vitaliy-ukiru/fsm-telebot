@@ -14,7 +14,7 @@ type handlerStorage map[string]*list.List
 // Because telebot uses rule: 1 endpoint = 1 handler. But for 1 endpoint allowed more states.
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
-	states  hashset
+	states  statesHashset
 	handler Handler
 }
 
