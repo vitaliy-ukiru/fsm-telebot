@@ -4,7 +4,6 @@ import (
 	"container/list"
 
 	"github.com/pkg/errors"
-	"github.com/vitaliy-ukiru/fsm-telebot/internal"
 	"gopkg.in/telebot.v3"
 )
 
@@ -15,7 +14,7 @@ type handlerStorage map[string]*list.List
 // Because telebot uses rule: 1 endpoint = 1 handler. But for 1 endpoint allowed more states.
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
-	states  internal.Hashset
+	states  hashset
 	handler Handler
 }
 
@@ -26,7 +25,7 @@ func (h handlerEntry) match(state State) bool {
 
 // add handler to storage, just shortcut.
 func (m handlerStorage) add(endpoint string, h Handler, states []State) {
-	statesSet := internal.NewHashsetFromSlice(states)
+	statesSet := newHashsetFromSlice(states)
 	m.insert(endpoint, handlerEntry{states: statesSet, handler: h})
 }
 
