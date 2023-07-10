@@ -29,6 +29,15 @@ var (
 
 var debug = flag.Bool("debug", false, "log debug info")
 
+var (
+	regBtn    = tele.Btn{Text: "📝 Start input form"}
+	cancelBtn = tele.Btn{Text: "❌ Cancel Form"}
+
+	confirmBtn      = tele.Btn{Text: "✅ Confirm and send", Unique: "confirm"}
+	resetFormBtn    = tele.Btn{Text: "🔄 Reset form", Unique: "reset"}
+	cancelInlineBtn = tele.Btn{Text: "❌ Cancel Form", Unique: "cancel"}
+)
+
 func main() {
 	flag.Parse()
 
@@ -49,41 +58,32 @@ func main() {
 
 	manager := fsm.NewManager(bot, nil, storage, nil)
 
-	var (
-		regBtn    = tele.Btn{Text: "📝 Start input form"}
-		cancelBtn = tele.Btn{Text: "❌ Cancel Form"}
-
-		confirmBtn      = tele.Btn{Text: "✅ Confirm and send", Unique: "confirm"}
-		resetFormBtn    = tele.Btn{Text: "🔄 Reset form", Unique: "reset"}
-		cancelInlineBtn = tele.Btn{Text: "❌ Cancel Form", Unique: "cancel"}
-	)
-
 	bot.Use(middleware.AutoRespond())
 
 	// commands
 	bot.Handle("/start", OnStart(regBtn))
-	manager.Bind("/reg", fsm.DefaultState, OnStartRegister(cancelBtn))
-	manager.Bind("/cancel", fsm.AnyState, OnCancelForm(regBtn))
+	manager.Bind("/reg", fsm.DefaultState, OnStartRegister)
+	manager.Bind("/cancel", fsm.AnyState, OnCancelForm)
 
 	manager.Bind("/state", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
 		s, err := state.State()
 		if err != nil {
 			return c.Send(fmt.Sprintf("can't get state: %s", err))
 		}
-		return c.Send(s.String())
+		return c.Send(s.GoString())
 	})
 
 	// buttons
-	manager.Bind(&regBtn, fsm.DefaultState, OnStartRegister(cancelBtn))
-	manager.Bind(&cancelBtn, fsm.AnyState, OnCancelForm(regBtn))
+	manager.Bind(&regBtn, fsm.DefaultState, OnStartRegister)
+	manager.Bind(&cancelBtn, fsm.AnyState, OnCancelForm)
 
 	// form
 	manager.Bind(tele.OnText, InputNameState, OnInputName)
 	manager.Bind(tele.OnText, InputAgeState, OnInputAge)
-	manager.Bind(tele.OnText, InputHobbyState, OnInputHobby(confirmBtn, resetFormBtn, cancelInlineBtn))
+	manager.Bind(tele.OnText, InputHobbyState, OnInputHobby)
 	manager.Bind(&confirmBtn, InputConfirmState, OnInputConfirm, EditFormMessage("Now check y", "Y"))
 	manager.Bind(&resetFormBtn, InputConfirmState, OnInputResetForm, EditFormMessage("Now check your", "Your old"))
-	manager.Bind(&cancelInlineBtn, InputConfirmState, OnCancelForm(regBtn), DeleteAfterHandler)
+	manager.Bind(&cancelInlineBtn, InputConfirmState, OnCancelForm, DeleteAfterHandler)
 
 	log.Println("Handlers configured")
 	bot.Start()
@@ -103,15 +103,13 @@ func OnStart(startReg tele.Btn) tele.HandlerFunc {
 	}
 }
 
-func OnStartRegister(cancelBtn tele.Btn) fsm.Handler {
+func OnStartRegister(c tele.Context, state fsm.Context) error {
 	menu := &tele.ReplyMarkup{}
 	menu.Reply(menu.Row(cancelBtn))
 	menu.ResizeKeyboard = true
 
-	return func(c tele.Context, state fsm.Context) error {
-		state.Set(InputNameState)
-		return c.Send("Great! How your name?", menu)
-	}
+	state.Set(InputNameState)
+	return c.Send("Great! How your name?", menu)
 }
 
 func OnInputName(c tele.Context, state fsm.Context) error {
@@ -132,35 +130,33 @@ func OnInputAge(c tele.Context, state fsm.Context) error {
 	return c.Send("Great! What is your hobby?")
 }
 
-func OnInputHobby(confirmBtn, resetBtn, cancelBtn tele.Btn) fsm.Handler {
+func OnInputHobby(c tele.Context, state fsm.Context) error {
 	m := &tele.ReplyMarkup{}
 	m.Inline(
 		m.Row(confirmBtn),
-		m.Row(resetBtn, cancelBtn),
+		m.Row(resetFormBtn, cancelInlineBtn),
 	)
 
-	return func(c tele.Context, state fsm.Context) error {
-		go state.Update("hobby", c.Message().Text)
-		go state.Set(InputConfirmState)
+	go state.Update("hobby", c.Message().Text)
+	go state.Set(InputConfirmState)
 
-		var (
-			senderName string
-			senderAge  int
-		)
-		state.MustGet("name", &senderName)
-		state.MustGet("age", &senderAge)
+	var (
+		senderName string
+		senderAge  int
+	)
+	state.MustGet("name", &senderName)
+	state.MustGet("age", &senderAge)
 
-		c.Send("Wow, interesting!")
-		return c.Send(fmt.Sprintf(
-			"Now check your form:\n"+
-				"<i>Name</i>: %q\n"+
-				"<i>Age</i>: %d\n"+
-				"<i>Hobby</i>: %q\n",
-			senderName,
-			senderAge,
-			c.Message().Text,
-		), m)
-	}
+	c.Send("Wow, interesting!")
+	return c.Send(fmt.Sprintf(
+		"Now check your form:\n"+
+			"<i>Name</i>: %q\n"+
+			"<i>Age</i>: %d\n"+
+			"<i>Hobby</i>: %q\n",
+		senderName,
+		senderAge,
+		c.Message().Text,
+	), m)
 }
 
 func OnInputConfirm(c tele.Context, state fsm.Context) error {
@@ -206,15 +202,13 @@ func OnInputConfirm(c tele.Context, state fsm.Context) error {
 	return c.Send("Form accepted", tele.RemoveKeyboard)
 }
 
-func OnCancelForm(regBtn tele.Btn) fsm.Handler {
+func OnCancelForm(c tele.Context, state fsm.Context) error {
 	menu := &tele.ReplyMarkup{}
 	menu.Reply(menu.Row(regBtn))
 	menu.ResizeKeyboard = true
 
-	return func(c tele.Context, state fsm.Context) error {
-		go state.Finish(true)
-		return c.Send("Form entry canceled. Your input data has been deleted.", menu)
-	}
+	go state.Finish(true)
+	return c.Send("Form entry canceled. Your input data has been deleted.", menu)
 }
 
 func OnInputResetForm(c tele.Context, state fsm.Context) error {
