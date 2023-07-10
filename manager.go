@@ -98,6 +98,10 @@ func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	}
 }
 
+func (m *Manager) NewContext(teleCtx tele.Context) Context {
+	return m.contextMaker(teleCtx, m.store)
+}
+
 // Storage returns manger storage instance.
 func (m *Manager) Storage() Storage {
 	return m.store
