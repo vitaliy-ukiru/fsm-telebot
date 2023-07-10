@@ -34,7 +34,7 @@ type Storage struct {
 }
 
 // NewStorage returns new storage in memory.
-func NewStorage() fsm.Storage {
+func NewStorage() *Storage {
 	return &Storage{
 		storage: make(map[chatKey]record),
 	}
