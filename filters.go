@@ -19,14 +19,14 @@ func F(endpoint interface{}, states ...State) Filter {
 	return Filter{Endpoint: endpoint, States: states}
 }
 
-// ForState creates handler with local filter for given state.
-func (m *Manager) ForState(want State, handler Handler) tele.HandlerFunc {
-	return m.ForStates(handler, want)
+// TelebotHandlerForState creates tele.Handler with local filter for given state.
+func (m *Manager) TelebotHandlerForState(want State, handler Handler) tele.HandlerFunc {
+	return m.TelebotHandlerForStates(handler, want)
 }
 
-// ForStates  creates a handler with local filter
+// TelebotHandlerForStates creates a handler with local filter
 // for current state to check for presence in given states.
-func (m *Manager) ForStates(h Handler, states ...State) tele.HandlerFunc {
+func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.HandlerFunc {
 	return m.HandlerAdapter(func(c tele.Context, state Context) error {
 		s, err := state.State()
 		if err != nil {
