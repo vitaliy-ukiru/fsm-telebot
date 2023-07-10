@@ -1,23 +1,11 @@
 package fsm
 
 import (
-	"github.com/pkg/errors"
 	tele "gopkg.in/telebot.v3"
 )
 
 // Handler is object for handling  updates with FSM FSMContext
 type Handler func(c tele.Context, state Context) error
-
-// fsmHandler representation handler with states, needed for add endpoints correct
-// Because telebot uses rule: 1 endpoint = 1 handler. But for 1 endpoint allowed more states.
-// We can use switch-case in handler for check states, but I think not best practice.
-type fsmHandler struct {
-	states  []State
-	handler Handler
-}
-
-// handlerStorage contains handlers group separated by endpoint.
-type handlerStorage map[string][]fsmHandler
 
 // ContextMakerFunc alias for function for create new context.
 // You can use custom Context implementation.
@@ -33,17 +21,22 @@ type Manager struct {
 }
 
 // NewManager returns new Manger.
-func NewManager(b *tele.Bot, g *tele.Group, s Storage, ctxMaker ContextMakerFunc) *Manager {
-	if g == nil {
-		g = b.Group()
+func NewManager(
+	bot *tele.Bot,
+	group *tele.Group,
+	storage Storage,
+	ctxMaker ContextMakerFunc,
+) *Manager {
+	if group == nil {
+		group = bot.Group()
 	}
 	if ctxMaker == nil {
 		ctxMaker = NewFSMContext
 	}
 	return &Manager{
-		bot:          b,
-		group:        g,
-		store:        s,
+		bot:          bot,
+		group:        group,
+		store:        storage,
 		contextMaker: ctxMaker,
 		handlers:     make(handlerStorage),
 	}
@@ -91,8 +84,11 @@ func (m *Manager) Bind(end interface{}, state State, h Handler, middlewares ...t
 func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc) {
 	endpoint := f.CallbackUnique()
 	m.handlers.add(endpoint, h, f.States)
-	m.group.Handle(endpoint, m.HandlerAdapter(m.handlers.getHandler(endpoint)), middlewares...)
-
+	m.group.Handle(
+		endpoint,
+		m.HandlerAdapter(m.handlers.forEndpoint(endpoint)),
+		middlewares...,
+	)
 }
 
 // HandlerAdapter create telebot.HandlerFunc object for Handler with FSM FSMContext.
