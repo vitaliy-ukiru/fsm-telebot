@@ -6,7 +6,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.0.2
 	github.com/stretchr/testify v1.8.1
-	github.com/vitaliy-ukiru/fsm-telebot v0.4.1 // NOTE: sync with breaking-change commits
+	github.com/vitaliy-ukiru/fsm-telebot v1.1 // NOTE: sync with breaking-change commits
 )
 
 require (
