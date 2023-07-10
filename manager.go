@@ -84,15 +84,15 @@ func (m *Manager) Bind(end interface{}, state State, h Handler, middlewares ...t
 // Allowed use more handler for one endpoint.
 // If you pass empty slice of states it converters to DefaultState
 // Binding some states to one handler
-//		var ( // types of variables
-//			endpoint interface{} // string | tele.CallbackEndpoint
-//			states []State
-//			handlerFunc fsm.Handler
-//		)
-
-// manager.Handle(fsm.F(endpoint, states...), handlerFunc)
-// // or
-// manager.Handle(fsm.Filter{endpoint, states}, handlerFunc)
+//
+//	var ( // types of variables
+//		endpoint interface{} // string | tele.CallbackEndpoint
+//		states []State
+//		handlerFunc fsm.Handler
+//	)
+//	manager.Handle(fsm.F(endpoint, states...), handlerFunc)
+//	// or
+//	manager.Handle(fsm.Filter{endpoint, states}, handlerFunc)
 func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc) {
 	endpoint := f.CallbackUnique()
 	if len(f.States) == 0 {
