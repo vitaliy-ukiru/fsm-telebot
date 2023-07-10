@@ -18,11 +18,6 @@ type handlerEntry struct {
 	handler Handler
 }
 
-func (h handlerEntry) match(state State) bool {
-	_, ok := h.states[state]
-	return ok
-}
-
 // add handler to storage, just shortcut.
 func (m handlerStorage) add(endpoint string, h Handler, states []State) {
 	statesSet := newHashsetFromSlice(states)
