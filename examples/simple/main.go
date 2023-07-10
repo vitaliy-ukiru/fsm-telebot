@@ -44,11 +44,11 @@ func main() {
 			if err != nil {
 				return c.Send(fmt.Sprintf("can't get state: %s", err))
 			}
-			return c.Send("your state: " + s.String())
+			return c.Send("your state: " + s.GoString())
 		}),
 	)
 
-	bot.Handle("/set", m.ForState(fsm.DefaultState,
+	bot.Handle("/set", m.TelebotHandlerForState(fsm.DefaultState,
 		func(c tele.Context, state fsm.Context) error {
 			state.Set(MyState)
 			_ = state.Update("payload", time.Now().Format(time.RFC850))
