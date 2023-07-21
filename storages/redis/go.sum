@@ -39,8 +39,8 @@ github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
-github.com/vitaliy-ukiru/fsm-telebot v0.4.1 h1:ZTvT10brXXuUKWMB9kALs0Gi8XEqPzyQe4IJLSi3GtY=
-github.com/vitaliy-ukiru/fsm-telebot v0.4.1/go.mod h1:M/y5bch6ZthSK376T1tGxr/GUnXWmozlkUDXBVz5naE=
+github.com/vitaliy-ukiru/fsm-telebot v1.1.1 h1:MKTqp4kAN0+wTQlTOhH83jXJl4KHCGoH19myB548wFw=
+github.com/vitaliy-ukiru/fsm-telebot v1.1.1/go.mod h1:M/y5bch6ZthSK376T1tGxr/GUnXWmozlkUDXBVz5naE=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=
 golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3/go.mod h1:t9HGtf8HONx5eT2rtn7q6eTqICYqUVnKs3thJo3Qplg=
