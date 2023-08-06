@@ -2,8 +2,8 @@ package fsm
 
 import (
 	"container/list"
+	"fmt"
 
-	"github.com/pkg/errors"
 	"gopkg.in/telebot.v3"
 )
 
@@ -37,7 +37,7 @@ func (m handlerStorage) forEndpoint(endpoint string) Handler {
 	return func(teleCtx telebot.Context, fsmCtx Context) error {
 		state, err := fsmCtx.State()
 		if err != nil {
-			return errors.Wrapf(err, "fsm-telebot: get state for endpoint %s", endpoint)
+			return fmt.Errorf("fsm-telebot: get state for endpoint %s: %w", endpoint, err)
 		}
 
 		l := m[endpoint]
