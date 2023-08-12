@@ -188,5 +188,5 @@ func (s *Storage) decode(data []byte, to interface{}) error {
 }
 
 func wrapError(err error, msg string) error {
-	return fmt.Errorf("fsm-telebot/storage/redis: %w: %s", err, msg)
+	return fmt.Errorf("fsm-telebot/storage/redis: %s: %w", msg, err)
 }
