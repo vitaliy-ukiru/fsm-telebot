@@ -5,11 +5,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/vitaliy-ukiru/fsm-telebot"
@@ -104,12 +103,12 @@ func (s *Storage) resetData(chatId, userId int64) error {
 			Scan(context.TODO(), cursor, redisKey, s.pref.ResetDataBatchSize).
 			Result()
 		if err != nil {
-			return errors.Wrap(err, "scan")
+			return fmt.Errorf("scan: %w", err)
 		}
 
 		if len(keys) > 0 {
 			if err := s.rds.Del(context.TODO(), keys...).Err(); err != nil {
-				return errors.Wrap(err, "delete keys")
+				return fmt.Errorf("delete keys: %w", err)
 			}
 		}
 
@@ -189,5 +188,5 @@ func (s *Storage) decode(data []byte, to interface{}) error {
 }
 
 func wrapError(err error, msg string) error {
-	return errors.Wrapf(err, "fsm-telebot/storage/redis: %s", msg)
+	return fmt.Errorf("fsm-telebot/storage/redis: %s: %w", msg, err)
 }
