@@ -62,8 +62,16 @@ func (m *Manager) SetContextMaker(contextMaker ContextMakerFunc) {
 	m.contextMaker = contextMaker
 }
 
+// NewGroup returns manager with new tele.Group.
+//
+// Deprecated: Should use instead FSMGroup.
 func (m *Manager) NewGroup() *Manager {
 	return m.With(m.bot.Group())
+}
+
+// FSMGroup creates FSM safe group for using middleware.
+func (m *Manager) FSMGroup() *Group {
+	return &Group{m: m}
 }
 
 // Use add middlewares to group.
