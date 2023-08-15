@@ -4,7 +4,8 @@ import (
 	"container/list"
 	"fmt"
 
-	"gopkg.in/telebot.v3"
+	"github.com/vitaliy-ukiru/fsm-telebot/internal"
+	tele "gopkg.in/telebot.v3"
 )
 
 // handlerStorage contains handlers group separated by endpoint.
@@ -34,10 +35,10 @@ func (m handlerStorage) insert(endpoint string, entry handlerEntry) {
 
 // forEndpoint returns handler what filters queries and execute correct handler.
 func (m handlerStorage) forEndpoint(endpoint string) Handler {
-	return func(teleCtx telebot.Context, fsmCtx Context) error {
+	return func(teleCtx tele.Context, fsmCtx Context) error {
 		state, err := fsmCtx.State()
 		if err != nil {
-			return fmt.Errorf("fsm-telebot: get state for endpoint %s: %w", endpoint, err)
+			return &ErrHandlerState{Handler: endpoint, Err: err}
 		}
 
 		l := m[endpoint]
@@ -49,7 +50,21 @@ func (m handlerStorage) forEndpoint(endpoint string) Handler {
 				return h.handler(teleCtx, fsmCtx)
 			}
 		}
-
 		return nil
 	}
+}
+
+type ErrHandlerState struct {
+	Handler string
+	Err     error
+}
+
+func (e ErrHandlerState) Unwrap() error { return e.Err }
+
+func (e ErrHandlerState) Error() string {
+	return fmt.Sprintf(
+		"fsm-telebot: get state at handler %s: %v",
+		internal.EndpointFormat(e.Handler),
+		e.Err,
+	)
 }

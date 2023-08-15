@@ -1,8 +1,6 @@
 package fsm
 
 import (
-	"fmt"
-
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -31,7 +29,7 @@ func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.Handl
 	return m.HandlerAdapter(func(c tele.Context, state Context) error {
 		s, err := state.State()
 		if err != nil {
-			return fmt.Errorf("fsm-telebot: get state in Manager.ForStates: %w", err)
+			return &ErrHandlerState{Handler: "Manager.ForStates", Err: err}
 		}
 		if ContainsState(s, states...) {
 			return h(c, state)
