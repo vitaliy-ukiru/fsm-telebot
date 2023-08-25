@@ -214,9 +214,9 @@ func CommandEnd(c tele.Context, state fsm.Context) error {
 }
 
 type snap struct {
-	Now   time.Time `json:"now	"`
-	User  int64     `json:"user,omitempty"`
-	Input float64   `json:"input,omitempty"`
+	Now   time.Time `json:"now"`
+	User  int64     `json:"user"`
+	Input float64   `json:"input"`
 }
 
 func CommandComplex(c tele.Context, state fsm.Context) error {
