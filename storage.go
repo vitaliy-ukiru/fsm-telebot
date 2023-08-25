@@ -1,6 +1,6 @@
 package fsm
 
-import "github.com/pkg/errors"
+import "errors"
 
 // ErrNotFound returns if data not found.
 var ErrNotFound = errors.New("fsm/storage: not found")
