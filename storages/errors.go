@@ -1,9 +1,12 @@
 package storages
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
+
+var ErrNotPointer = errors.New("fsm/storage: dest argument must be pointer")
 
 type ErrWrongTypeAssign struct {
 	Expect reflect.Type
@@ -11,5 +14,5 @@ type ErrWrongTypeAssign struct {
 }
 
 func (e ErrWrongTypeAssign) Error() string {
-	return fmt.Sprintf("wrong types, can't assign %s to %s", e.Expect, e.Got)
+	return fmt.Sprintf("fsm/storage: wrong types, can't assign %s to %s", e.Expect, e.Got)
 }
