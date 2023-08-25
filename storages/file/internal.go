@@ -1,9 +1,9 @@
 package file
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
+
+	"github.com/vitaliy-ukiru/fsm-telebot/storages"
 )
 
 func (r *record) updateData(key string, data interface{}) {
@@ -39,7 +39,7 @@ func (s *Storage) do(chat, user int64, call func(*record)) {
 func (d *dataCache) get(to interface{}, p Provider) error {
 	destValue := reflect.ValueOf(to)
 	if destValue.Kind() != reflect.Pointer {
-		return errors.New("dest argument must be pointer")
+		return storages.ErrNotPointer
 	}
 
 	destElem := destValue.Elem()
@@ -48,7 +48,10 @@ func (d *dataCache) get(to interface{}, p Provider) error {
 	if d.loaded != nil {
 		vType := reflect.TypeOf(d.loaded)
 		if !vType.AssignableTo(destType) {
-			return fmt.Errorf("wrong types, can't assign %s to %s", vType, destType)
+			return &storages.ErrWrongTypeAssign{
+				Expect: vType,
+				Got:    destType,
+			}
 		}
 
 		destElem.Set(reflect.ValueOf(d.loaded))

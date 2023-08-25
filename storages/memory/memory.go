@@ -105,7 +105,12 @@ func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 		return fsm.ErrNotFound
 	}
 
-	destElem := reflect.ValueOf(to).Elem()
+	destValue := reflect.ValueOf(to)
+	if destValue.Kind() != reflect.Pointer {
+		return storages.ErrNotPointer
+	}
+
+	destElem := destValue.Elem()
 	destType := destElem.Type()
 
 	vType := reflect.TypeOf(v)
