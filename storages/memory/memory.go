@@ -2,11 +2,11 @@
 package memory
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 
 	"github.com/vitaliy-ukiru/fsm-telebot"
+	"github.com/vitaliy-ukiru/fsm-telebot/storages"
 )
 
 type chatKey struct {
@@ -110,7 +110,10 @@ func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 
 	vType := reflect.TypeOf(v)
 	if !vType.AssignableTo(destType) {
-		return fmt.Errorf("wrong types, can't assign %s to %s", vType, destType)
+		return &storages.ErrWrongTypeAssign{
+			Expect: vType,
+			Got:    destType,
+		}
 	}
 	destElem.Set(reflect.ValueOf(v))
 
