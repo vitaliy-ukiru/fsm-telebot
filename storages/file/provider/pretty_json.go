@@ -10,27 +10,23 @@ import (
 )
 
 // PrettyJson provides json format with pretty encoding data values (file.Record Data fields).
+//
 // Default json package encodes []byte as base64 string.
 // This provider allows use json.RawMessage. But it's not free.
 // The structure is copied to the new one to keep the data safe.
-//
-// The provider allows you to add indentation to the Encode method
-// using the IndentInEncodeMethod flag.
-//
-// Use TryDecodeBase64String to try to decode base64 strings
-// (try to backward compatibility with Json).
-//
-// But the package does not take responsibility for decoding strings
-// if you use base64 for your own purposes.
 //
 // Un export fields will be ignoring (json package behavior)
 type PrettyJson struct {
 	JsonSettings
 
-	// TryDecodeBase64String tries to decode strings from base64.
+	// TryDecodeBase64String tries to decode any strings values from base64.
+	// (try to backward compatibility with Json).
+	//
+	// But the package does not take responsibility for decoding strings
+	// if you use base64 for your own purposes.
 	TryDecodeBase64String bool
 
-	// IndentInEncodeMethod adds Indent in Encode.
+	// IndentInEncodeMethod adds indent in Encode.
 	// If Indent is set when Save is called, the indent
 	// will be added regardless of this parameter
 	IndentInEncodeMethod bool

@@ -9,6 +9,7 @@ import (
 
 // JsonSettings configures json encoder and decoder.
 // Un export fields will be ignoring (json package behavior)
+//
 // Zero value configures as default json.Encoder and json.Decoder.
 type JsonSettings struct {
 	Prefix                string
