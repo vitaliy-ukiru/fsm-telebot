@@ -42,17 +42,13 @@ func NewStorage() *Storage {
 
 func (r *record) updateData(key string, data interface{}) {
 	if r.data == nil {
-		r.resetData()
+		r.data = make(map[string]interface{})
 	}
 	if data == nil {
 		delete(r.data, key)
 	} else {
 		r.data[key] = data
 	}
-}
-
-func (r *record) resetData() {
-	r.data = make(map[string]interface{})
 }
 
 // do exec `call` and save modification to storage.
@@ -84,7 +80,9 @@ func (m *Storage) ResetState(chatId, userId int64, withData bool) error {
 	m.do(chatId, userId, func(r *record) {
 		r.state = ""
 		if withData {
-			r.resetData()
+			for s := range r.data {
+				delete(r.data, s)
+			}
 		}
 	})
 	return nil
@@ -126,8 +124,5 @@ func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 }
 
 func (m *Storage) Close() error {
-	m.l.Lock()
-	defer m.l.Unlock()
-	m.storage = nil
 	return nil
 }
