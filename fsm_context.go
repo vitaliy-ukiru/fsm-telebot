@@ -72,5 +72,5 @@ func (f *fsmContext) Get(key string, to interface{}) error {
 }
 
 func (f *fsmContext) MustGet(key string, to interface{}) {
-	f.s.GetData(f.chat, f.user, key, to)
+	_ = f.s.GetData(f.chat, f.user, key, to)
 }
