@@ -37,7 +37,7 @@ type fsmContext struct {
 	chat, user int64
 }
 
-// NewFSMContext returns new FSMContext
+// NewFSMContext returns new builtin FSM Context.
 func NewFSMContext(c tele.Context, storage Storage) Context {
 	return &fsmContext{
 		c:    c,

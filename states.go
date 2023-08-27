@@ -39,8 +39,9 @@ func ContainsState(s State, other ...State) bool {
 
 // StateGroup storages states with custom prefix.
 //
-// It can use in filter like:
-// 	group := fsm.NewStateGroup("adm", "State0", "State1")
+// It can use in filter like and handled via Manager.Handle:
+//
+//	group := fsm.NewStateGroup("adm", "State0", "State1")
 //	filter := fsm.F("/cmd", group.States...)
 type StateGroup struct {
 	Prefix string

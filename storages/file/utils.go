@@ -25,7 +25,10 @@ func ExistsWriter(w io.WriteCloser) WriterFunc {
 }
 
 // OpenReaderFile opens file for read.
-// If file not exists will return nil values. OldFileStorage supported this case (see OldFileStorage.Init).
+//
+// If file not exists will return nil values.
+// Storage supported this case (see Storage.Init).
+//
 // Also function returns io.ReadCloser for closing file in user code.
 func OpenReaderFile(path string) (io.ReadCloser, error) {
 	file, err := os.Open(path)

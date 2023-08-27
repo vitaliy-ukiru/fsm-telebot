@@ -6,11 +6,12 @@ import "errors"
 var ErrNotFound = errors.New("fsm/storage: not found")
 
 // Storage is object what uses for save information for FSM.
+// It can be client for DBMS, file or just in memory storage.
 //
-// It can be client for DBMS, file or just in memory storage (like storage.MemoryStorage)
-// You can contribute your implementations to pull requests.
+// In package storages you can find some implementation.
 //
-// For correct works as address of users uses chat id and user id (group support)
+// You can contribute your implementations to pull requests or create your repository.
+//
 // Not recommended works with storage from handlers.
 type Storage interface {
 	// GetState returns State for target. Default state is empty string
