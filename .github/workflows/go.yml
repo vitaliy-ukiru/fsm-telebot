@@ -1,6 +1,12 @@
 name: Go
 
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - v*
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
 
 jobs:
   lint:
