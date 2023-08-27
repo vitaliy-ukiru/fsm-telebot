@@ -1,4 +1,3 @@
 // Package storages contains implementations of state storage.
-// Available now:
-// - in-memory storage
+// More details in README file
 package storages
