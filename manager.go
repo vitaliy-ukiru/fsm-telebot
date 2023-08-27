@@ -114,6 +114,9 @@ func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	}
 }
 
+// NewContext creates new FSM Context.
+//
+// It calls provided ContextMakerFunc.
 func (m *Manager) NewContext(teleCtx tele.Context) Context {
 	return m.contextMaker(teleCtx, m.store)
 }

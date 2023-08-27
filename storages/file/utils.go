@@ -5,6 +5,8 @@ import (
 	"os"
 )
 
+// OpenWriter opens file for write and truncate old data.
+// File opens on call resulting function.
 func OpenWriter(filename string) WriterFunc {
 	return func() (io.WriteCloser, error) {
 		return os.Create(filename)

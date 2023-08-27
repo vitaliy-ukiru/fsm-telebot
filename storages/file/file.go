@@ -114,6 +114,9 @@ func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 	return d.get(to, s.p)
 }
 
+// Close saves storage data to writer from writer function.
+//
+// Also, the method closes writer, minimum once time.
 func (s *Storage) Close() error {
 	w, err := s.writerFn()
 	if err != nil {
@@ -127,6 +130,8 @@ func (s *Storage) Close() error {
 	return w.Close()
 }
 
+// SaveTo saves storage data to writer.
+// You can use this method to create dumps in runtime.
 func (s *Storage) SaveTo(w io.Writer) error {
 	return s.save(w)
 }

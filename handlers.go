@@ -54,9 +54,15 @@ func (m handlerStorage) forEndpoint(endpoint string) Handler {
 	}
 }
 
+// ErrHandlerState indicates what manager gets error while tired
+// get user state in handler.
 type ErrHandlerState struct {
+	// Handler is the endpoint of the handler
+	// where the error occurred.
 	Handler string
-	Err     error
+
+	// Error what occurred.
+	Err error
 }
 
 func (e ErrHandlerState) Unwrap() error { return e.Err }
