@@ -50,6 +50,9 @@ type StateGroup struct {
 
 // NewStateGroup returns new StateGroup.
 func NewStateGroup(prefix string, states ...State) *StateGroup {
+	for i := 0; i < len(states); i++ {
+		states[i] = State(prefix) + "@" + states[i]
+	}
 	return &StateGroup{
 		Prefix: prefix,
 		States: states,
