@@ -47,6 +47,9 @@ func (m *Manager) Group() *tele.Group {
 	return m.group
 }
 
+// With return copy of manager with group.
+//
+// Deprecated: Incorrect behavior with separated groups.
 func (m *Manager) With(g *tele.Group) *Manager {
 	return &Manager{
 		bot:          m.bot,
@@ -62,6 +65,9 @@ func (m *Manager) SetContextMaker(contextMaker ContextMakerFunc) {
 	m.contextMaker = contextMaker
 }
 
+// NewGroup returns Manager copy with new tele.Group.
+//
+// Deprecated: Incorrect behavior with separated groups.
 func (m *Manager) NewGroup() *Manager {
 	return m.With(m.bot.Group())
 }
