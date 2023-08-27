@@ -69,7 +69,13 @@ func (m *Manager) SetContextMaker(contextMaker ContextMakerFunc) {
 //
 // Deprecated: Incorrect behavior with separated groups.
 func (m *Manager) NewGroup() *Manager {
-	return m.With(m.bot.Group())
+	return &Manager{
+		bot:          m.bot,
+		group:        m.bot.Group(),
+		store:        m.store,
+		handlers:     m.handlers,
+		contextMaker: m.contextMaker,
+	}
 }
 
 // Use add middlewares to group.
