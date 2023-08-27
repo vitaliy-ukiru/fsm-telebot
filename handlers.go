@@ -18,6 +18,7 @@ type handlerStorage map[string]*list.List
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
 	states  statesHashset
+	matchFn StateMatchFunc
 	handler Handler
 }
 
@@ -25,6 +26,9 @@ type handlerEntry struct {
 func (m handlerStorage) add(endpoint string, h Handler, states []State) {
 	statesSet := newHashsetFromSlice(states)
 	m.insert(endpoint, handlerEntry{states: statesSet, handler: h})
+}
+func (m handlerStorage) addFunc(endpoint string, h Handler, matchFunc StateMatchFunc) {
+	m.insert(endpoint, handlerEntry{matchFn: matchFunc, handler: h})
 }
 
 func (m handlerStorage) insert(endpoint string, entry handlerEntry) {
@@ -48,7 +52,10 @@ func (m handlerStorage) forEndpoint(endpoint string) Handler {
 		for e := l.Front(); e != nil; e = e.Next() {
 			h := e.Value.(handlerEntry)
 
-			if h.states.Has(state) || h.states.Has(AnyState) {
+			matchState := (h.matchFn != nil && h.matchFn(state)) ||
+				(h.states.Has(state) || h.states.Has(AnyState))
+
+			if matchState {
 				return h.handler(teleCtx, fsmCtx)
 			}
 		}

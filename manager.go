@@ -83,6 +83,22 @@ func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 	m.group.Use(middlewares...)
 }
 
+// StateMatchFunc matches state for handler.
+// The function must handle the AnyState case custom.
+// Package won't call with AnyState argument.
+type StateMatchFunc func(state State) bool
+
+// BindFunc binds handler with matchFunc as checker.
+func (m *Manager) BindFunc(end interface{}, matchFunc StateMatchFunc, h Handler, middlewares ...tele.MiddlewareFunc) {
+	endpoint := callbackUnique(end)
+	m.handlers.addFunc(endpoint, h, matchFunc)
+	m.group.Handle(
+		endpoint,
+		m.HandlerAdapter(m.handlers.forEndpoint(endpoint)),
+		middlewares...,
+	)
+}
+
 // Bind adds handler (with FSMContext) with filter on state.
 //
 // Difference between Bind and Handle methods what Handle require Filter objects.
