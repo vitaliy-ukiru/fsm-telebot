@@ -1,0 +1,55 @@
+name: Go
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    # copy from github.com/mymmrac/telego
+    name: Linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+          check-latest: true
+
+      - name: Gofmt check
+        run: diff -u <(echo -n) <(gofmt -d .)
+
+      - name: golangci Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+  test_go_mod:
+    name: Test at go.mod go version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+          check-latest: true
+
+      - name: Test
+        run: go test -v -cover ./...
+
+  test_go_stable:
+    name: Test at stable go version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 'stable'
+          check-latest: true
+
+      - name: Test
+        run: go test -v -cover ./...
