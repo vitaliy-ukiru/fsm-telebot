@@ -11,13 +11,7 @@ func OpenWriter(filename string) WriterFunc {
 	}
 }
 
-func OpenFileCache(filename string) WriterFunc {
-	file, err := os.Create(filename)
-	return func() (io.WriteCloser, error) {
-		return file, err
-	}
-}
-
+// ExistsWriter just return writer.
 func ExistsWriter(w io.WriteCloser) WriterFunc {
 	return func() (io.WriteCloser, error) {
 		return w, nil
