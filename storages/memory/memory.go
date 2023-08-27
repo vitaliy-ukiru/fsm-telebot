@@ -106,7 +106,7 @@ func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 	}
 
 	destValue := reflect.ValueOf(to)
-	if destValue.Kind() != reflect.Pointer {
+	if destValue.Kind() != reflect.Ptr {
 		return storages.ErrNotPointer
 	}
 

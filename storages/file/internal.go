@@ -38,7 +38,7 @@ func (s *Storage) do(chat, user int64, call func(*record)) {
 // get value from data. Priority on loaded value.
 func (d *dataCache) get(to interface{}, p Provider) error {
 	destValue := reflect.ValueOf(to)
-	if destValue.Kind() != reflect.Pointer {
+	if destValue.Kind() != reflect.Ptr {
 		return storages.ErrNotPointer
 	}
 
