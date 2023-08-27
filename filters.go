@@ -1,6 +1,8 @@
 package fsm
 
 import (
+	"strings"
+
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -39,7 +41,11 @@ func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.Handl
 }
 
 func (f Filter) CallbackUnique() string {
-	switch end := f.Endpoint.(type) {
+	return callbackUnique(f.Endpoint)
+}
+
+func callbackUnique(endpoint interface{}) string {
+	switch end := endpoint.(type) {
 	case string:
 		return end
 	case tele.CallbackEndpoint:
@@ -47,4 +53,18 @@ func (f Filter) CallbackUnique() string {
 	default:
 		panic("fsm: telebot: unsupported endpoint")
 	}
+}
+
+// PrefixFilter filters state on have prefix
+// with separated symbol.
+func PrefixFilter(prefix string) StateMatchFunc {
+	prefix = prefix + "@"
+	return func(state State) bool {
+		return strings.HasPrefix(string(state), prefix)
+	}
+}
+
+// MatchAnyState matches any state.
+func MatchAnyState(_ State) bool {
+	return true
 }
