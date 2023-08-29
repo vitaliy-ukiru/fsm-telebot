@@ -18,6 +18,15 @@ func (g *Group) with(m []tele.MiddlewareFunc) []tele.MiddlewareFunc {
 	return append(g.middlewares, m...)
 }
 
+func (g *Group) Copy() *Group {
+	copyMiddlewares := make([]tele.MiddlewareFunc, len(g.middlewares))
+	copy(copyMiddlewares, g.middlewares)
+	return &Group{
+		m:           g.m,
+		middlewares: copyMiddlewares,
+	}
+}
+
 func (g *Group) Bind(end interface{}, state State, h Handler, middlewares ...tele.MiddlewareFunc) {
 	g.m.Bind(end, state, h, g.with(middlewares)...)
 }
