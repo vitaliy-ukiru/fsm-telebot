@@ -78,6 +78,11 @@ func (m *Manager) NewGroup() *Manager {
 	}
 }
 
+// NewFSMGroup creates FSM safe group for using middleware.
+func (m *Manager) NewFSMGroup() *Group {
+	return &Group{m: m}
+}
+
 // Use add middlewares to group.
 func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 	m.group.Use(middlewares...)
