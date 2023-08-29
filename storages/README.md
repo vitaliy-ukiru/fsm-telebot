@@ -24,12 +24,11 @@ in [#5](https://github.com/vitaliy-ukiru/fsm-telebot/pull/5#issuecomment-1666682
 
 ## File storage
 
-Данное хранилище сохраняется в файлы и может
-восстанавливать своё состояние из файлов.
+This storage is stored in files and can restore its state from files.
 
 For universality, saving data in the format is moved to the Provider interface.
 This allows you not to think at the storage level about how the data will be stored.
-The file/provider sub-package implements providers for such formats as:
+The _file/provider_ sub-package implements providers for such formats as:
 - json (+ pretty version)
 - gob
 - base64 based at any provider

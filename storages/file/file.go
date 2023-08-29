@@ -1,3 +1,7 @@
+// Package file implemented storage what stored in files and can restore its state from files.
+//
+// For universality, saving data in the format is moved to the Provider interface.
+// This allows you not to think at the storage level about how the data will be stored.
 package file
 
 import (
@@ -49,7 +53,12 @@ type dataCache struct {
 	raw []byte
 }
 
-// Storage is storage based on RAM. Drops if you stop script.
+// Storage is file storage. In run time data storages in RAM.
+// On save (Close) and restore (Init) data will edit
+// by result of Provider.
+//
+// For safe format operations storage serialization
+// to special format - ChatsStorage.
 type Storage struct {
 	rw       sync.RWMutex
 	data     map[chatKey]record
@@ -61,6 +70,11 @@ func NewStorage(p Provider, writerFn WriterFunc) *Storage {
 	return &Storage{p: p, writerFn: writerFn, data: make(map[chatKey]record)}
 }
 
+// Init storage set from readr.
+//
+// If the reader is equal to "nil",
+// function will finish without an error.
+// But the storage state will not change too.
 func (s *Storage) Init(r io.Reader) error {
 	if r == nil {
 		return nil
