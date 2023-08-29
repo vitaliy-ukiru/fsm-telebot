@@ -69,8 +69,8 @@ func (m *Manager) NewGroup() *Manager {
 	return m.With(m.bot.Group())
 }
 
-// FSMGroup creates FSM safe group for using middleware.
-func (m *Manager) FSMGroup() *Group {
+// NewFSMGroup creates FSM safe group for using middleware.
+func (m *Manager) NewFSMGroup() *Group {
 	return &Group{m: m}
 }
 
