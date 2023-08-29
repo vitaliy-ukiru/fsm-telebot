@@ -90,7 +90,9 @@ func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
 	s.do(chatId, userId, func(r *record) {
 		r.state = ""
 		if withData {
-			r.resetData()
+			for key := range r.data {
+				delete(r.data, key)
+			}
 		}
 	})
 	return nil

@@ -17,12 +17,6 @@ func (r *record) updateData(key string, data interface{}) {
 	}
 }
 
-func (r *record) resetData() {
-	for key := range r.data {
-		delete(r.data, key)
-	}
-}
-
 // do exec `call` and save modification to storage.
 // It helps not to copy the code.
 func (s *Storage) do(chat, user int64, call func(*record)) {
