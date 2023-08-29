@@ -38,23 +38,20 @@ There are two providers for JSON: _Json_ and _PrettyJson_.
 What is their difference?
 
 By the name, you can say that the second makes JSON readable, and in part this is true.
-
 Both providers can return indented JSON. 
 All kinds of `json.Encoder` and `json.Decoder` configurations via _JsonSettings_.
-
 However, there is another difference as well.
 
 To preserve type correctness in files, the data is stored as `map[string][]byte`.
-The encoded value is stored as the value.
-
-The encoding/json package turns `[]byte` into a base64 string.
+The encoded value is stored as the value. 
+The _encoding/json_ package turns `[]byte` into a base64 string.
 This is exactly what "repairs" _PrettyJson_.
 
 **But it's not free.**
 The structure is copied to the new one to keep the data safe.
 
 Also, _PrettyJson_ can have backward compatibility with _Json_. 
-See PrettyJson docs for details.
+See _PrettyJson_ docs for details.
 
 
 ### base64
