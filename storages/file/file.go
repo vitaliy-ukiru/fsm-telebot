@@ -16,13 +16,13 @@ type WriterFunc func() (io.WriteCloser, error)
 
 // Provider saves data to files (or streams). With custom format.
 // Some providers (json, gob, base64) are already implemented in
-// the `provider` sub-package
+// the `provider` sub-package.
 type Provider interface {
 	ProviderName() string
 	Save(w io.Writer, data ChatsStorage) error
 	Read(r io.Reader) (ChatsStorage, error)
-	Encode(v interface{}) ([]byte, error)
-	Decode(data []byte, v interface{}) error
+	Encode(v any) ([]byte, error)
+	Decode(data []byte, v any) error
 }
 
 // chatKey represents  pair {c: chat id, u: user id}
@@ -48,7 +48,7 @@ type record struct {
 type dataCache struct {
 	// loaded decoded content from raw via provider
 	// see dataCache.get in ./internal
-	loaded interface{}
+	loaded any
 	// raw content from file.
 	raw []byte
 }
@@ -112,14 +112,14 @@ func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
 	return nil
 }
 
-func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
+func (s *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 	s.do(chatId, userId, func(r *record) {
 		r.updateData(key, data)
 	})
 	return nil
 }
 
-func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
+func (s *Storage) GetData(chatId, userId int64, key string, to any) error {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	d, ok := s.data[newKey(chatId, userId)].data[key]

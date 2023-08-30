@@ -6,12 +6,12 @@ import (
 
 // Filter object. Needs for graceful works with state filters.
 type Filter struct {
-	Endpoint interface{}
+	Endpoint any
 	States   []State
 }
 
 // F returns new Filter object.
-func F(endpoint interface{}, states ...State) Filter {
+func F(endpoint any, states ...State) Filter {
 	if len(states) == 0 {
 		states = []State{DefaultState}
 	}

@@ -9,8 +9,8 @@ import (
 type Callbacks struct {
 	OnSave   func(p file.Provider, w io.Writer, data file.ChatsStorage) error
 	OnRead   func(p file.Provider, r io.Reader) (file.ChatsStorage, error)
-	OnEncode func(p file.Provider, v interface{}) ([]byte, error)
-	OnDecode func(p file.Provider, data []byte, v interface{}) error
+	OnEncode func(p file.Provider, v any) ([]byte, error)
+	OnDecode func(p file.Provider, data []byte, v any) error
 }
 
 // Middleware adds functional for middlewares in file.Provider
@@ -20,7 +20,7 @@ type Callbacks struct {
 //
 //	var p file.Provider
 //	m := NewMiddleware(p, Callbacks{
-//		OnEncode: func(p file.Provider, v interface{}) ([]byte, error) {
+//		OnEncode: func(p file.Provider, v any) ([]byte, error) {
 //			// actions before encoding
 //			data, err := p.Encode(v)
 //			// actions after encoding
@@ -80,7 +80,7 @@ func (m Middleware) Read(r io.Reader) (file.ChatsStorage, error) {
 	return fn(m.p, r)
 }
 
-func (m Middleware) Encode(v interface{}) ([]byte, error) {
+func (m Middleware) Encode(v any) ([]byte, error) {
 	fn := file.Provider.Encode
 	if c := m.c.OnEncode; c != nil {
 		fn = c
@@ -88,7 +88,7 @@ func (m Middleware) Encode(v interface{}) ([]byte, error) {
 	return fn(m.p, v)
 }
 
-func (m Middleware) Decode(data []byte, v interface{}) error {
+func (m Middleware) Decode(data []byte, v any) error {
 	fn := file.Provider.Decode
 	if c := m.c.OnDecode; c != nil {
 		fn = c

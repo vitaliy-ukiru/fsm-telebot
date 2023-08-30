@@ -40,7 +40,7 @@ const prettyJson = "pretty_json"
 
 func (j PrettyJson) ProviderName() string { return prettyJson }
 
-func (j PrettyJson) Encode(v interface{}) ([]byte, error) {
+func (j PrettyJson) Encode(v any) ([]byte, error) {
 	buff := new(bytes.Buffer)
 
 	e := json.NewEncoder(buff)
@@ -54,7 +54,7 @@ func (j PrettyJson) Encode(v interface{}) ([]byte, error) {
 	return buff.Bytes(), nil
 }
 
-func (j PrettyJson) Decode(data []byte, v interface{}) error {
+func (j PrettyJson) Decode(data []byte, v any) error {
 	buff := bytes.NewReader(data)
 
 	d := json.NewDecoder(buff)

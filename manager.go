@@ -88,7 +88,7 @@ func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 // Difference between Bind and Handle methods what Handle require Filter objects.
 // And this method can work with only one state.
 // If you bind some states see docs to Handle.
-func (m *Manager) Bind(end interface{}, state State, h Handler, middlewares ...tele.MiddlewareFunc) {
+func (m *Manager) Bind(end any, state State, h Handler, middlewares ...tele.MiddlewareFunc) {
 	m.Handle(F(end, state), h, middlewares...)
 }
 
@@ -98,7 +98,7 @@ func (m *Manager) Bind(end interface{}, state State, h Handler, middlewares ...t
 // Binding some states to one handler
 //
 //	var ( // types of variables
-//		endpoint interface{} // string | tele.CallbackEndpoint
+//		endpoint any // string | tele.CallbackEndpoint
 //		states []State
 //		handlerFunc fsm.Handler
 //	)

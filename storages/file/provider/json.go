@@ -27,7 +27,7 @@ func NewJson(jsonSettings JsonSettings) *Json {
 	return &Json{JsonSettings: jsonSettings}
 }
 
-func (j Json) Encode(v interface{}) ([]byte, error) {
+func (j Json) Encode(v any) ([]byte, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return nil, newError("json", "encode", err)
@@ -35,7 +35,7 @@ func (j Json) Encode(v interface{}) ([]byte, error) {
 	return data, nil
 }
 
-func (j Json) Decode(data []byte, v interface{}) error {
+func (j Json) Decode(data []byte, v any) error {
 	return newError("json", "decode", json.Unmarshal(data, v))
 }
 

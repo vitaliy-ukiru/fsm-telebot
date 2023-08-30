@@ -22,7 +22,7 @@ func NewBase64(enc *b64.Encoding, base file.Provider) *Base64 {
 	return &Base64{enc: enc, base: base}
 }
 
-func (b Base64) Encode(v interface{}) ([]byte, error) {
+func (b Base64) Encode(v any) ([]byte, error) {
 	src, err := b.base.Encode(v)
 	if err != nil {
 		return nil, newError("base64", "encode", err)
@@ -33,7 +33,7 @@ func (b Base64) Encode(v interface{}) ([]byte, error) {
 	return buff, nil
 }
 
-func (b Base64) Decode(data []byte, v interface{}) error {
+func (b Base64) Decode(data []byte, v any) error {
 	buff := make([]byte, b.enc.DecodedLen(len(data)))
 	n, err := b.enc.Decode(buff, data)
 	if err != nil {
