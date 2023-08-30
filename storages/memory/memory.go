@@ -80,9 +80,7 @@ func (m *Storage) ResetState(chatId, userId int64, withData bool) error {
 	m.do(chatId, userId, func(r *record) {
 		r.state = ""
 		if withData {
-			for s := range r.data {
-				delete(r.data, s)
-			}
+			clear(r.data)
 		}
 	})
 	return nil
