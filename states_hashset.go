@@ -2,12 +2,8 @@ package fsm
 
 type statesHashset map[State]struct{}
 
-func newHashset() statesHashset {
-	return make(statesHashset)
-}
-
 func newHashsetFromSlice(states []State) statesHashset {
-	h := newHashset()
+	h := make(statesHashset)
 	for _, state := range states {
 		h.Add(state)
 	}
