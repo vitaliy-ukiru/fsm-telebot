@@ -114,7 +114,7 @@ type record struct {
 	Data  map[string]json.RawMessage `json:"data"`
 }
 
-func (j PrettyJson) tryDecodeB64(enc *b64.Encoding, src []byte) ([]byte, bool) {
+func (PrettyJson) tryDecodeB64(enc *b64.Encoding, src []byte) ([]byte, bool) {
 	if src[0] != '"' && src[len(src)-1] != '"' {
 		return nil, false
 	}
@@ -128,7 +128,7 @@ func (j PrettyJson) tryDecodeB64(enc *b64.Encoding, src []byte) ([]byte, bool) {
 	return buf[:n], true
 }
 
-func (j PrettyJson) convertTo(storage file.ChatsStorage) jsonStorage {
+func (PrettyJson) convertTo(storage file.ChatsStorage) jsonStorage {
 	result := make(jsonStorage)
 	for chatId, usersStorage := range storage {
 		usersData := make(map[int64]record)
