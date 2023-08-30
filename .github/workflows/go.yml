@@ -4,9 +4,10 @@ on:
   push:
     tags:
       - v*
-    branches: [master, main]
+    branches:
+      - master
+      - main
   pull_request:
-    branches: [master, main]
 
 jobs:
   test_go_mod:
