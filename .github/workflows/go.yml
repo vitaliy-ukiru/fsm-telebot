@@ -10,7 +10,7 @@ on:
   pull_request:
 
 jobs:
-  test_go_mod:
+  test_go_mod_version:
     name: Test at go.mod go version
     runs-on: ubuntu-latest
     steps:
@@ -25,7 +25,7 @@ jobs:
       - name: Test
         run: go test -v -cover ./...
 
-  test_go_stable:
+  test_go_stable_version:
     name: Test at stable go version
     runs-on: ubuntu-latest
     steps:
