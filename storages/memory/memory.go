@@ -17,7 +17,7 @@ type chatKey struct {
 // record in storage
 type record struct {
 	state fsm.State
-	data  map[string]interface{}
+	data  map[string]any
 }
 
 func newKey(chat, user int64) chatKey {
@@ -40,9 +40,9 @@ func NewStorage() *Storage {
 	}
 }
 
-func (r *record) updateData(key string, data interface{}) {
+func (r *record) updateData(key string, data any) {
 	if r.data == nil {
-		r.data = make(map[string]interface{})
+		r.data = make(map[string]any)
 	}
 	if data == nil {
 		delete(r.data, key)
@@ -80,22 +80,20 @@ func (m *Storage) ResetState(chatId, userId int64, withData bool) error {
 	m.do(chatId, userId, func(r *record) {
 		r.state = ""
 		if withData {
-			for s := range r.data {
-				delete(r.data, s)
-			}
+			clear(r.data)
 		}
 	})
 	return nil
 }
 
-func (m *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
+func (m *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 	m.do(chatId, userId, func(r *record) {
 		r.updateData(key, data)
 	})
 	return nil
 }
 
-func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
+func (m *Storage) GetData(chatId, userId int64, key string, to any) error {
 	m.l.RLock()
 	defer m.l.RUnlock()
 	v, ok := m.storage[newKey(chatId, userId)].data[key]

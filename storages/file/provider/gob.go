@@ -18,7 +18,7 @@ func NewGob() *Gob {
 
 func (Gob) ProviderName() string { return "gob" }
 
-func (Gob) Encode(v interface{}) ([]byte, error) {
+func (Gob) Encode(v any) ([]byte, error) {
 	buff := new(bytes.Buffer)
 	if err := gob.NewEncoder(buff).Encode(v); err != nil {
 		return nil, newError("gob", "encode", err)
@@ -26,7 +26,7 @@ func (Gob) Encode(v interface{}) ([]byte, error) {
 	return buff.Bytes(), nil
 }
 
-func (Gob) Decode(data []byte, to interface{}) error {
+func (Gob) Decode(data []byte, to any) error {
 	buff := bytes.NewReader(data)
 	return newError("gob", "decode", gob.NewDecoder(buff).Decode(to))
 }

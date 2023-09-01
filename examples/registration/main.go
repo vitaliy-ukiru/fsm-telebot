@@ -170,7 +170,7 @@ func OnInputConfirm(c tele.Context, state fsm.Context) error {
 	state.MustGet("age", &senderAge)
 	state.MustGet("hobby", &senderHobby)
 
-	data, _ := json.Marshal(map[string]interface{}{
+	data, _ := json.Marshal(tele.M{
 		"name":  senderName,
 		"age":   senderAge,
 		"hobby": senderHobby,

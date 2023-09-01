@@ -19,16 +19,16 @@ type Context interface {
 	Finish(deleteData bool) error
 
 	// Update data in storage.
-	Update(key string, data interface{}) error
+	Update(key string, data any) error
 
 	// Get data from storage and save it to `to`.
 	// `to` must be a pointer.
 	// Data will be nil if storage not contains object with given key and error will be ErrNotFound
-	Get(key string, to interface{}) error
+	Get(key string, to any) error
 
 	// MustGet returns data from storage and save it to `to` ignoring errors.
 	// `to` must be a pointer.
-	MustGet(key string, to interface{})
+	MustGet(key string, to any)
 }
 
 type fsmContext struct {
@@ -63,14 +63,14 @@ func (f *fsmContext) Finish(deleteData bool) error {
 	return f.s.ResetState(f.chat, f.user, deleteData)
 }
 
-func (f *fsmContext) Update(key string, data interface{}) error {
+func (f *fsmContext) Update(key string, data any) error {
 	return f.s.UpdateData(f.chat, f.user, key, data)
 }
 
-func (f *fsmContext) Get(key string, to interface{}) error {
+func (f *fsmContext) Get(key string, to any) error {
 	return f.s.GetData(f.chat, f.user, key, to)
 }
 
-func (f *fsmContext) MustGet(key string, to interface{}) {
+func (f *fsmContext) MustGet(key string, to any) {
 	_ = f.s.GetData(f.chat, f.user, key, to)
 }

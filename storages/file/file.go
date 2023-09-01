@@ -5,6 +5,7 @@
 package file
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"sync"
@@ -16,13 +17,13 @@ type WriterFunc func() (io.WriteCloser, error)
 
 // Provider saves data to files (or streams). With custom format.
 // Some providers (json, gob, base64) are already implemented in
-// the `provider` sub-package
+// the `provider` sub-package.
 type Provider interface {
 	ProviderName() string
 	Save(w io.Writer, data ChatsStorage) error
 	Read(r io.Reader) (ChatsStorage, error)
-	Encode(v interface{}) ([]byte, error)
-	Decode(data []byte, v interface{}) error
+	Encode(v any) ([]byte, error)
+	Decode(data []byte, v any) error
 }
 
 // chatKey represents  pair {c: chat id, u: user id}
@@ -48,7 +49,7 @@ type record struct {
 type dataCache struct {
 	// loaded decoded content from raw via provider
 	// see dataCache.get in ./internal
-	loaded interface{}
+	loaded any
 	// raw content from file.
 	raw []byte
 }
@@ -112,14 +113,14 @@ func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
 	return nil
 }
 
-func (s *Storage) UpdateData(chatId, userId int64, key string, data interface{}) error {
+func (s *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 	s.do(chatId, userId, func(r *record) {
 		r.updateData(key, data)
 	})
 	return nil
 }
 
-func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) error {
+func (s *Storage) GetData(chatId, userId int64, key string, to any) error {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	d, ok := s.data[newKey(chatId, userId)].data[key]
@@ -133,17 +134,19 @@ func (s *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 // Close saves storage data to writer from writer function.
 //
 // Also, the method closes writer, minimum once time.
-func (s *Storage) Close() error {
+func (s *Storage) Close() (err error) {
 	w, err := s.writerFn()
 	if err != nil {
 		return err
 	}
-	defer w.Close()
 
-	if err := s.save(w); err != nil {
-		return err
-	}
-	return w.Close()
+	defer func(w io.WriteCloser) {
+		errClose := w.Close()
+		err = errors.Join(err, errClose)
+	}(w)
+
+	err = s.save(w)
+	return
 }
 
 // SaveTo saves storage data to writer.
@@ -158,7 +161,16 @@ func (s *Storage) save(w io.Writer) error {
 		return err
 	}
 
-	return s.p.Save(w, dump)
+	return s.p.Save(&wrapWriter{w}, dump)
+}
+
+// wrapWriter protects base wrapper from type assertions.
+type wrapWriter struct {
+	w io.Writer
+}
+
+func (w *wrapWriter) Write(p []byte) (n int, err error) {
+	return w.w.Write(p)
 }
 
 type ProviderError struct {

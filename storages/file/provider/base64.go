@@ -2,6 +2,7 @@ package provider
 
 import (
 	b64 "encoding/base64"
+	"errors"
 	"io"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/storages/file"
@@ -22,7 +23,7 @@ func NewBase64(enc *b64.Encoding, base file.Provider) *Base64 {
 	return &Base64{enc: enc, base: base}
 }
 
-func (b Base64) Encode(v interface{}) ([]byte, error) {
+func (b Base64) Encode(v any) ([]byte, error) {
 	src, err := b.base.Encode(v)
 	if err != nil {
 		return nil, newError("base64", "encode", err)
@@ -33,7 +34,7 @@ func (b Base64) Encode(v interface{}) ([]byte, error) {
 	return buff, nil
 }
 
-func (b Base64) Decode(data []byte, v interface{}) error {
+func (b Base64) Decode(data []byte, v any) error {
 	buff := make([]byte, b.enc.DecodedLen(len(data)))
 	n, err := b.enc.Decode(buff, data)
 	if err != nil {
@@ -48,14 +49,16 @@ func (b Base64) ProviderName() string {
 	return "base64:" + b.base.ProviderName()
 }
 
-func (b Base64) Save(w io.Writer, data file.ChatsStorage) error {
+func (b Base64) Save(w io.Writer, data file.ChatsStorage) (err error) {
 	encoder := b64.NewEncoder(b.enc, w)
-	defer encoder.Close()
 
-	if err := b.base.Save(encoder, data); err != nil {
-		return newError("base64", "save", err)
-	}
-	return newError("base64", "save:close", encoder.Close())
+	defer func(encoder io.WriteCloser) {
+		errClose := newError("base64", "save:close", encoder.Close())
+		err = errors.Join(err, errClose)
+	}(encoder)
+
+	err = newError("base64", "save", b.base.Save(encoder, data))
+	return
 }
 
 func (b Base64) Read(r io.Reader) (file.ChatsStorage, error) {
