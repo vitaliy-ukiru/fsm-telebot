@@ -1,7 +1,6 @@
 package fsm
 
 import (
-	"container/list"
 	"fmt"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/internal"
@@ -9,7 +8,7 @@ import (
 )
 
 // handlerStorage contains handlers group separated by endpoint.
-type handlerStorage map[string]*list.List
+type handlerStorage map[string]*internal.List[handlerEntry]
 
 // handlerEntry representation handler with states, needed for add endpoints correct
 // Because telebot uses rule: 1 endpoint = 1 handler.
@@ -17,22 +16,22 @@ type handlerStorage map[string]*list.List
 //
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
-	states  statesHashset
+	states  internal.HashSet[State]
 	handler Handler
 }
 
 // add handler to storage, just shortcut.
 func (m handlerStorage) add(endpoint string, h Handler, states []State) {
-	statesSet := newHashsetFromSlice(states)
+	statesSet := internal.HashSetFromSlice(states)
 	m.insert(endpoint, handlerEntry{states: statesSet, handler: h})
 }
 
 func (m handlerStorage) insert(endpoint string, entry handlerEntry) {
 	if m[endpoint] == nil {
-		m[endpoint] = list.New()
+		m[endpoint] = new(internal.List[handlerEntry])
 	}
 
-	m[endpoint].PushBack(entry)
+	m[endpoint].Insert(entry)
 }
 
 // forEndpoint returns handler what filters queries and execute correct handler.
@@ -43,17 +42,28 @@ func (m handlerStorage) forEndpoint(endpoint string) Handler {
 			return &ErrHandlerState{Handler: endpoint, Err: err}
 		}
 
-		l := m[endpoint]
+		h, ok := m.findHandler(endpoint, state)
+		if !ok {
 
-		for e := l.Front(); e != nil; e = e.Next() {
-			h := e.Value.(handlerEntry)
-
-			if h.states.Has(state) || h.states.Has(AnyState) {
-				return h.handler(teleCtx, fsmCtx)
-			}
+			return nil
 		}
-		return nil
+		return h.handler(teleCtx, fsmCtx)
+
 	}
+}
+
+func (m handlerStorage) findHandler(endpoint string, state State) (handlerEntry, bool) {
+	l := m[endpoint]
+
+	for e := l.Front(); e != nil; e = e.Next() {
+		h := e.Value
+
+		if h.states.Has(state) || h.states.Has(AnyState) {
+			return h, true
+		}
+	}
+
+	return handlerEntry{}, false
 }
 
 // ErrHandlerState indicates what manager gets error while tired
