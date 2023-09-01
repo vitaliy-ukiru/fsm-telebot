@@ -89,7 +89,7 @@ func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 // And this method can work with only one state.
 // If you bind some states see docs to Handle.
 func (m *Manager) Bind(end any, state State, h Handler, middlewares ...tele.MiddlewareFunc) {
-	m.Handle(F(end, state), h, middlewares...)
+	m.handle(end, []State{state}, h, middlewares)
 }
 
 // Handle adds handler to group chain with filter on states.
@@ -106,16 +106,25 @@ func (m *Manager) Bind(end any, state State, h Handler, middlewares ...tele.Midd
 //	// or
 //	manager.Handle(fsm.Filter{endpoint, states}, handlerFunc)
 func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc) {
-	endpoint := f.CallbackUnique()
 	if len(f.States) == 0 {
 		f.States = []State{DefaultState}
 	}
 
-	m.handlers.add(endpoint, h, f.States)
+	m.handle(f.Endpoint, f.States, h, middlewares)
+}
+
+func (m *Manager) handle(
+	end any,
+	states []State,
+	h Handler,
+	ms []tele.MiddlewareFunc,
+) {
+	endpoint := getEndpoint(end)
+	m.handlers.add(endpoint, h, states)
 	m.group.Handle(
 		endpoint,
 		m.HandlerAdapter(m.handlers.forEndpoint(endpoint)),
-		middlewares...,
+		ms...,
 	)
 }
 
