@@ -37,9 +37,6 @@ func ContainsState(s State, other ...State) bool {
 		}
 	}
 
-	slices.ContainsFunc(other, func(state State) bool {
-		return Is(s, state)
-	})
 	return false
 }
 
