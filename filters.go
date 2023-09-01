@@ -48,7 +48,11 @@ func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.Handl
 }
 
 func (f Filter) CallbackUnique() string {
-	switch end := f.Endpoint.(type) {
+	return getEndpoint(f.Endpoint)
+}
+
+func getEndpoint(e any) string {
+	switch end := e.(type) {
 	case string:
 		return end
 	case tele.CallbackEndpoint:
