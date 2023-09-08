@@ -18,6 +18,7 @@ type Manager struct {
 	store        Storage
 	handlers     handlerStorage
 	contextMaker ContextMakerFunc
+	g            []tele.MiddlewareFunc
 }
 
 // NewManager returns new Manger.
@@ -57,6 +58,7 @@ func (m *Manager) With(g *tele.Group) *Manager {
 		store:        m.store,
 		handlers:     m.handlers,
 		contextMaker: m.contextMaker,
+		g:            m.g,
 	}
 }
 
@@ -75,12 +77,30 @@ func (m *Manager) NewGroup() *Manager {
 		store:        m.store,
 		handlers:     m.handlers,
 		contextMaker: m.contextMaker,
+		g:            m.g,
+	}
+}
+
+// Child returns copy of manager for independence
+// adds middlewares.
+//
+// NOTE: review name before release.
+func (m *Manager) Child() *Manager {
+	g := make([]tele.MiddlewareFunc, len(m.g))
+	copy(g, m.g)
+	return &Manager{
+		bot:          m.bot,
+		group:        m.group,
+		store:        m.store,
+		handlers:     m.handlers,
+		contextMaker: m.contextMaker,
+		g:            g,
 	}
 }
 
 // Use add middlewares to group.
 func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
-	m.group.Use(middlewares...)
+	m.g = append(m.g, middlewares...)
 }
 
 // Bind adds handler (with FSMContext) with filter on state.
@@ -126,6 +146,14 @@ func (m *Manager) handle(
 		m.HandlerAdapter(m.handlers.forEndpoint(endpoint)),
 		ms...,
 	)
+}
+
+func (m *Manager) withMiddleware(h tele.HandlerFunc, ms []tele.MiddlewareFunc) tele.HandlerFunc {
+	ms = append(m.g, ms...)
+
+	return func(c tele.Context) error {
+		return internal.ApplyMiddleware(h, ms)(c)
+	}
 }
 
 // HandlerAdapter create telebot.HandlerFunc object for Handler with FSM FSMContext.
