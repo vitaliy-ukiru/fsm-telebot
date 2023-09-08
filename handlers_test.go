@@ -7,7 +7,7 @@ import (
 	"github.com/vitaliy-ukiru/fsm-telebot/internal"
 )
 
-func Test_handlerStorage_findHandler(t *testing.T) {
+func Test_handlerStorage_find(t *testing.T) {
 	type args struct {
 		endpoint string
 		state    State
