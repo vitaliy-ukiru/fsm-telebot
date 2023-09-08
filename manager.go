@@ -141,11 +141,13 @@ func (m *Manager) handle(
 	ms []tele.MiddlewareFunc,
 ) {
 	endpoint := getEndpoint(end)
-	m.handlers.add(endpoint, h, states)
+
+	teleH := m.withMiddleware(m.adapter(h), ms)
+	m.handlers.add(endpoint, teleH, states)
+
 	m.group.Handle(
 		endpoint,
-		m.HandlerAdapter(m.handlers.forEndpoint(endpoint)),
-		ms...,
+		m.forEndpoint(endpoint),
 	)
 }
 
