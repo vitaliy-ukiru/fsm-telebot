@@ -51,7 +51,7 @@ func (m *Manager) forEndpoint(endpoint string) tele.HandlerFunc {
 
 		// middlewares must be executed inside
 		// this handler for right work.
-		return h.handler(internal.NewWrapperContext(teleCtx, fsmCtx))
+		return h.handler(&wrapperContext{teleCtx, fsmCtx})
 	}
 }
 

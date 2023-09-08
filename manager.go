@@ -176,7 +176,7 @@ func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 // wrap context.
 func (m *Manager) adapter(handler Handler) tele.HandlerFunc {
 	return func(c tele.Context) error {
-		fsmCtx, ok := internal.TryUnwrapContext(c)
+		fsmCtx, ok := tryUnwrapContext(c)
 		if ok {
 			return handler(c, fsmCtx)
 		}
