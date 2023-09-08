@@ -1,6 +1,7 @@
 package fsm
 
 import (
+	"github.com/vitaliy-ukiru/fsm-telebot/internal"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -16,7 +17,7 @@ type Manager struct {
 	bot          *tele.Bot
 	group        *tele.Group // handlers will add to group
 	store        Storage
-	handlers     handlerStorage
+	handlers     handlerMapping
 	contextMaker ContextMakerFunc
 	g            []tele.MiddlewareFunc
 }
@@ -39,7 +40,7 @@ func NewManager(
 		group:        group,
 		store:        storage,
 		contextMaker: ctxMaker,
-		handlers:     make(handlerStorage),
+		handlers:     make(handlerMapping),
 	}
 }
 
