@@ -44,17 +44,18 @@ func (m *Manager) forEndpoint(endpoint string) tele.HandlerFunc {
 			return &ErrHandlerState{Handler: endpoint, Err: err}
 		}
 
-		h, ok := m.findHandler(endpoint, state)
+		h, ok := m.handlers.find(endpoint, state)
 		if !ok {
-
 			return nil
 		}
-		return h.handler(teleCtx, fsmCtx)
 
+		// middlewares must be executed inside
+		// this handler for right work.
+		return h.handler(internal.NewWrapperContext(teleCtx, fsmCtx))
 	}
 }
 
-func (hm handlerMapping) findHandler(endpoint string, state State) (handlerEntry, bool) {
+func (hm handlerMapping) find(endpoint string, state State) (handlerEntry, bool) {
 	l := hm[endpoint]
 
 	for e := l.Front(); e != nil; e = e.Next() {
