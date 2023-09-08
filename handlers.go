@@ -7,8 +7,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// handlerStorage contains handlers group separated by endpoint.
-type handlerStorage map[string]*internal.List[handlerEntry]
+// handlerMapping contains handlers group separated by endpoint.
+type handlerMapping map[string]*internal.List[handlerEntry]
 
 // handlerEntry representation handler with states, needed for add endpoints correct
 // Because telebot uses rule: 1 endpoint = 1 handler.
@@ -17,43 +17,46 @@ type handlerStorage map[string]*internal.List[handlerEntry]
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
 	states  internal.HashSet[State]
-	handler Handler
+	handler tele.HandlerFunc
 }
 
 // add handler to storage, just shortcut.
-func (m handlerStorage) add(endpoint string, h Handler, states []State) {
+func (hm handlerMapping) add(endpoint string, h tele.HandlerFunc, states []State) {
 	statesSet := internal.HashSetFromSlice(states)
-	m.insert(endpoint, handlerEntry{states: statesSet, handler: h})
+	hm.insert(endpoint, handlerEntry{states: statesSet, handler: h})
 }
 
-func (m handlerStorage) insert(endpoint string, entry handlerEntry) {
-	if m[endpoint] == nil {
-		m[endpoint] = new(internal.List[handlerEntry])
+func (hm handlerMapping) insert(endpoint string, entry handlerEntry) {
+	if hm[endpoint] == nil {
+		hm[endpoint] = new(internal.List[handlerEntry])
 	}
 
-	m[endpoint].Insert(entry)
+	hm[endpoint].Insert(entry)
 }
 
 // forEndpoint returns handler what filters queries and execute correct handler.
-func (m handlerStorage) forEndpoint(endpoint string) Handler {
-	return func(teleCtx tele.Context, fsmCtx Context) error {
+func (m *Manager) forEndpoint(endpoint string) tele.HandlerFunc {
+	return func(teleCtx tele.Context) error {
+		fsmCtx := m.contextMaker(teleCtx, m.store)
+
 		state, err := fsmCtx.State()
 		if err != nil {
 			return &ErrHandlerState{Handler: endpoint, Err: err}
 		}
 
-		h, ok := m.findHandler(endpoint, state)
+		h, ok := m.handlers.find(endpoint, state)
 		if !ok {
-
 			return nil
 		}
-		return h.handler(teleCtx, fsmCtx)
 
+		// middlewares must be executed inside
+		// this handler for right work.
+		return h.handler(&wrapperContext{teleCtx, fsmCtx})
 	}
 }
 
-func (m handlerStorage) findHandler(endpoint string, state State) (handlerEntry, bool) {
-	l := m[endpoint]
+func (hm handlerMapping) find(endpoint string, state State) (handlerEntry, bool) {
+	l := hm[endpoint]
 
 	for e := l.Front(); e != nil; e = e.Next() {
 		h := e.Value
