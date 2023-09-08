@@ -68,25 +68,10 @@ func (m *Manager) SetContextMaker(contextMaker ContextMakerFunc) {
 	m.contextMaker = contextMaker
 }
 
-// NewGroup returns Manager copy with new tele.Group.
-//
-// Deprecated: Incorrect behavior with separated groups.
+// NewGroup returns manager child with copy
+// of middleware group. Adding middlewares in
+// new group doesn't affect the parent.
 func (m *Manager) NewGroup() *Manager {
-	return &Manager{
-		bot:          m.bot,
-		group:        m.bot.Group(),
-		store:        m.store,
-		handlers:     m.handlers,
-		contextMaker: m.contextMaker,
-		g:            m.g,
-	}
-}
-
-// Child returns copy of manager for independence
-// adds middlewares.
-//
-// NOTE: review name before release.
-func (m *Manager) Child() *Manager {
 	g := make([]tele.MiddlewareFunc, len(m.g))
 	copy(g, m.g)
 	return &Manager{
