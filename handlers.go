@@ -17,7 +17,7 @@ type handlerMapping map[string]*internal.List[handlerEntry]
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
 	states  internal.HashSet[State]
-	handler Handler
+	handler tele.HandlerFunc
 }
 
 // add handler to storage, just shortcut.
