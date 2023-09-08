@@ -142,8 +142,10 @@ func (m *Manager) handle(
 ) {
 	endpoint := getEndpoint(end)
 
-	teleH := m.withMiddleware(m.adapter(h), ms)
-	m.handlers.add(endpoint, teleH, states)
+	// we handles multi handlers in telebot,
+	// so need to use middleware here
+	wrappedHandler := m.withMiddleware(m.adapter(h), ms)
+	m.handlers.add(endpoint, wrappedHandler, states)
 
 	m.group.Handle(
 		endpoint,
@@ -151,9 +153,12 @@ func (m *Manager) handle(
 	)
 }
 
+// withMiddleware join handler middlewares with group middlewares.
 func (m *Manager) withMiddleware(h tele.HandlerFunc, ms []tele.MiddlewareFunc) tele.HandlerFunc {
 	ms = append(m.g, ms...)
 
+	// I didn’t understand why ApplyMiddleware is called
+	// inside the handler, just copied from telebot code.
 	return func(c tele.Context) error {
 		return internal.ApplyMiddleware(h, ms)(c)
 	}
