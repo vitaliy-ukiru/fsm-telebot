@@ -42,7 +42,6 @@ func Test_handlerStorage_findHandler(t *testing.T) {
 			name: "many handlers",
 			handlers: map[string][]handlerEntry{
 				"test": {
-
 					{states: set("test_many_1")},
 					{states: set("test_many_2")},
 					{states: set("test_many_3")},
@@ -54,7 +53,7 @@ func Test_handlerStorage_findHandler(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		m := make(handlerStorage)
+		m := make(handlerMapping)
 		for e, entries := range tt.handlers {
 			for _, entry := range entries {
 				m.insert(e, entry)
@@ -62,7 +61,7 @@ func Test_handlerStorage_findHandler(t *testing.T) {
 		}
 
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := m.findHandler(tt.args.endpoint, tt.args.state)
+			got, got1 := m.find(tt.args.endpoint, tt.args.state)
 			assert.Equalf(t, tt.want, got, "findHandler(%v, %v)", tt.args.endpoint, tt.args.state)
 			assert.Equalf(t, tt.wantOk, got1, "findHandler(%v, %v)", tt.args.endpoint, tt.args.state)
 		})
