@@ -7,8 +7,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// handlerStorage contains handlers group separated by endpoint.
-type handlerStorage map[string]*internal.List[handlerEntry]
+// handlerMapping contains handlers group separated by endpoint.
+type handlerMapping map[string]*internal.List[handlerEntry]
 
 // handlerEntry representation handler with states, needed for add endpoints correct
 // Because telebot uses rule: 1 endpoint = 1 handler.
@@ -21,12 +21,12 @@ type handlerEntry struct {
 }
 
 // add handler to storage, just shortcut.
-func (m handlerStorage) add(endpoint string, h Handler, states []State) {
+func (m handlerMapping) add(endpoint string, h tele.HandlerFunc, states []State) {
 	statesSet := internal.HashSetFromSlice(states)
 	m.insert(endpoint, handlerEntry{states: statesSet, handler: h})
 }
 
-func (m handlerStorage) insert(endpoint string, entry handlerEntry) {
+func (m handlerMapping) insert(endpoint string, entry handlerEntry) {
 	if m[endpoint] == nil {
 		m[endpoint] = new(internal.List[handlerEntry])
 	}
@@ -52,7 +52,7 @@ func (m handlerStorage) forEndpoint(endpoint string) Handler {
 	}
 }
 
-func (m handlerStorage) findHandler(endpoint string, state State) (handlerEntry, bool) {
+func (m handlerMapping) findHandler(endpoint string, state State) (handlerEntry, bool) {
 	l := m[endpoint]
 
 	for e := l.Front(); e != nil; e = e.Next() {
