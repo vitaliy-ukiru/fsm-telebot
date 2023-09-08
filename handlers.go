@@ -21,17 +21,17 @@ type handlerEntry struct {
 }
 
 // add handler to storage, just shortcut.
-func (m handlerMapping) add(endpoint string, h tele.HandlerFunc, states []State) {
+func (hm handlerMapping) add(endpoint string, h tele.HandlerFunc, states []State) {
 	statesSet := internal.HashSetFromSlice(states)
-	m.insert(endpoint, handlerEntry{states: statesSet, handler: h})
+	hm.insert(endpoint, handlerEntry{states: statesSet, handler: h})
 }
 
-func (m handlerMapping) insert(endpoint string, entry handlerEntry) {
-	if m[endpoint] == nil {
-		m[endpoint] = new(internal.List[handlerEntry])
+func (hm handlerMapping) insert(endpoint string, entry handlerEntry) {
+	if hm[endpoint] == nil {
+		hm[endpoint] = new(internal.List[handlerEntry])
 	}
 
-	m[endpoint].Insert(entry)
+	hm[endpoint].Insert(entry)
 }
 
 // forEndpoint returns handler what filters queries and execute correct handler.
@@ -52,8 +52,8 @@ func (m handlerStorage) forEndpoint(endpoint string) Handler {
 	}
 }
 
-func (m handlerMapping) findHandler(endpoint string, state State) (handlerEntry, bool) {
-	l := m[endpoint]
+func (hm handlerMapping) findHandler(endpoint string, state State) (handlerEntry, bool) {
+	l := hm[endpoint]
 
 	for e := l.Front(); e != nil; e = e.Next() {
 		h := e.Value
