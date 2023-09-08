@@ -35,8 +35,10 @@ func (hm handlerMapping) insert(endpoint string, entry handlerEntry) {
 }
 
 // forEndpoint returns handler what filters queries and execute correct handler.
-func (m handlerStorage) forEndpoint(endpoint string) Handler {
-	return func(teleCtx tele.Context, fsmCtx Context) error {
+func (m *Manager) forEndpoint(endpoint string) tele.HandlerFunc {
+	return func(teleCtx tele.Context) error {
+		fsmCtx := m.contextMaker(teleCtx, m.store)
+
 		state, err := fsmCtx.State()
 		if err != nil {
 			return &ErrHandlerState{Handler: endpoint, Err: err}
