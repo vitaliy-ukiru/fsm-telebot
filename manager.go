@@ -149,7 +149,12 @@ func (m *Manager) withMiddleware(h tele.HandlerFunc, ms []tele.MiddlewareFunc) t
 	}
 }
 
-// HandlerAdapter create telebot.HandlerFunc object for Handler with FSM FSMContext.
+// HandlerAdapter create telebot.HandlerFunc object
+// for Handler with FSM FSMContext.
+//
+// Used for external purposes only outside handlers chain.
+// Example: access to context without manager handlers.
+// Use only as directed and if you know what you are doing.
 func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	return func(c tele.Context) error {
 		return handler(c, m.contextMaker(c, m.store))
