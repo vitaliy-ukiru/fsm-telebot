@@ -164,6 +164,21 @@ func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	}
 }
 
+// adapter wraps internal Handler to telebot.
+// difference between HandlerAdapter in support
+// wrap context.
+func (m *Manager) adapter(handler Handler) tele.HandlerFunc {
+	return func(c tele.Context) error {
+		fsmCtx, ok := internal.TryUnwrapContext(c)
+		if ok {
+			return handler(c, fsmCtx)
+		}
+
+		// bad case, creating new context
+		return handler(c, m.contextMaker(c, m.store))
+	}
+}
+
 // NewContext creates new FSM Context.
 //
 // It calls provided ContextMakerFunc.
