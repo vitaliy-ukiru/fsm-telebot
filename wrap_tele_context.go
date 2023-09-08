@@ -4,10 +4,10 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// FsmInternalKey needed for catch
+// fsmInternalKey needed for catch
 // fsm context requests.
 // NOTE: may change to "fsm" for link with middleware/FSMContextMiddleware
-const FsmInternalKey = "__fsm"
+const fsmInternalKey = "__fsm"
 
 // wrapperContext wraps telebot context and adds fsm
 // context inside.
@@ -28,7 +28,7 @@ type wrapperContext struct {
 }
 
 func (w *wrapperContext) Get(key string) any {
-	if key == FsmInternalKey {
+	if key == fsmInternalKey {
 		return w.fsmCtx
 	}
 	return w.Context.Get(key)
@@ -43,6 +43,6 @@ func tryUnwrapContext(c tele.Context) (Context, bool) {
 		return wrapped.fsmCtx, true
 	}
 
-	ctx, ok := c.Get(FsmInternalKey).(Context)
+	ctx, ok := c.Get(fsmInternalKey).(Context)
 	return ctx, ok
 }
