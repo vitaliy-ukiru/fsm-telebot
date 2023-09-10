@@ -3,6 +3,7 @@ package fsm
 import "slices"
 
 // State objects just string for identification.
+//
 // Default state is empty string.
 // If state is "*" it corresponds to any state.
 type State string
@@ -70,7 +71,7 @@ func (s *StateGroup) New(name string) (state State) {
 }
 
 // Previous state relative to current.
-// Returns DefaultState if current state is first or not found.
+// Returns default state if current state is first or not found.
 func (s *StateGroup) Previous(current State) State {
 	currentIndex := slices.Index(s.States, current)
 	if currentIndex <= 0 {
@@ -80,7 +81,7 @@ func (s *StateGroup) Previous(current State) State {
 }
 
 // Next state relative to current.
-// Returns DefaultState if current state is last or not found.
+// Returns default state if current state is last or not found.
 func (s *StateGroup) Next(current State) State {
 	currentIndex := slices.Index(s.States, current)
 	if currentIndex >= len(s.States)-1 || currentIndex == -1 {

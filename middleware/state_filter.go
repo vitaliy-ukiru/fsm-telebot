@@ -6,8 +6,10 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// StateFilterMiddleware is filter base on states. Recommended uses only in groups.
-// It can be uses if you want handle many endpoints for one state
+// StateFilterMiddleware is filter base on states.
+// Recommended uses in groups.
+// It can be uses if you want handle many non-fsm endpoints
+// for one state without manager.
 func StateFilterMiddleware(storage fsm.Storage, want fsm.State) tele.MiddlewareFunc {
 	return func(next tele.HandlerFunc) tele.HandlerFunc {
 		return func(c tele.Context) error {
