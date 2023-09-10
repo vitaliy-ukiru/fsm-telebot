@@ -16,7 +16,7 @@ func TestStorage_GetData(t *testing.T) {
 		u int64 = 1 // user id
 	)
 
-	m := map[string]any{
+	m := map[string]interface{}{
 		"age":   23,
 		"right": true,
 		"foo":   "bar",
@@ -24,11 +24,11 @@ func TestStorage_GetData(t *testing.T) {
 
 	type args struct {
 		key string
-		to  any
+		to  interface{}
 	}
 	tests := []struct {
 		name    string
-		data    map[string]any
+		data    map[string]interface{}
 		args    args
 		wantErr assert.ErrorAssertionFunc
 	}{
