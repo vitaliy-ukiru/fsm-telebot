@@ -2,8 +2,7 @@
 
 ![GitHub go.mod Go version (branch & subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/vitaliy-ukiru/fsm-telebot/support%2Fv1.2.x-revert?style=flat-square&label=Go)
 [![Go Reference](https://pkg.go.dev/badge/github.com/vitaliy-ukiru/fsm-telebot.svg)](https://pkg.go.dev/github.com/vitaliy-ukiru/fsm-telebot)
-[![Go](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go.yml/badge.svg?branch=master&style=flat-square)](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go.yml)
-
+[![Go v1.2.x](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go-support-v1.2.x.yml/badge.svg)](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go-support-v1.2.x.yml)
 
 Finite State Machine for [telebot](https://gopkg.in/telebot.v3). 
 Based on [aiogram](https://github.com/aiogram/aiogram) FSM version.
