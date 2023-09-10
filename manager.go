@@ -83,7 +83,7 @@ func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 	m.group.Use(middlewares...)
 }
 
-// Bind adds handler (with FSMContext) with filter on state.
+// Bind adds handler (with FSM context argument) with filter on state.
 //
 // Difference between Bind and Handle methods what Handle require Filter objects.
 // And this method can work with only one state.
@@ -95,7 +95,7 @@ func (m *Manager) Bind(end interface{}, state State, h Handler, middlewares ...t
 // Handle adds handler to group chain with filter on states.
 // Allowed use more handler for one endpoint.
 // If you pass empty slice of states it converters to DefaultState
-// Binding some states to one handler
+// Binding some states to one handler.
 //
 //	var ( // types of variables
 //		endpoint interface{} // string | tele.CallbackEndpoint

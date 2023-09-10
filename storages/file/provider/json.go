@@ -8,7 +8,6 @@ import (
 )
 
 // JsonSettings configures json encoder and decoder.
-// Un export fields will be ignoring (json package behavior)
 //
 // Zero value configures as default json.Encoder and json.Decoder.
 type JsonSettings struct {
@@ -19,6 +18,8 @@ type JsonSettings struct {
 }
 
 // Json provides json format.
+//
+// // Unexported fields will be ignoring (json package behavior).
 type Json struct {
 	JsonSettings
 }

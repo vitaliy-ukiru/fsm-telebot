@@ -28,7 +28,7 @@ type PrettyJson struct {
 
 	// IndentInEncodeMethod adds indent in Encode.
 	// If Indent is set when Save is called, the indent
-	// will be added regardless of this parameter
+	// will be added regardless of this parameter.
 	IndentInEncodeMethod bool
 }
 
