@@ -15,7 +15,7 @@ import (
 // This provider allows use json.RawMessage. But it's not free.
 // The structure is copied to the new one to keep the data safe.
 //
-// Un export fields will be ignoring (json package behavior)
+// Unexported fields will be ignoring (json package behavior).
 type PrettyJson struct {
 	JsonSettings
 

@@ -55,7 +55,7 @@ See _PrettyJson_ docs for details.
 
 
 ### base64
-If more example than real provider.
+It more example than real provider.
 
 This provider works over other provider.
 It encodes overlays base64 over the result from base provider.

@@ -8,7 +8,7 @@ import (
 // ContextKey is key for telebot.Context storage what uses in middleware.
 var ContextKey = "fsm"
 
-// FSMContextMiddleware save FSM FSMContext in telebot.Context.
+// FSMContextMiddleware save FSM context in telebot.Context.
 // Recommend use without manager.
 func FSMContextMiddleware(storage fsm.Storage) tele.MiddlewareFunc {
 	return func(next tele.HandlerFunc) tele.HandlerFunc {

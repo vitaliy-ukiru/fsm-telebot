@@ -4,7 +4,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// Handler is object for handling  updates with FSM FSMContext
+// Handler is object for handling  updates with FSM context.
 type Handler func(c tele.Context, state Context) error
 
 // ContextMakerFunc alias for function for create new context.
@@ -119,7 +119,7 @@ func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc
 	)
 }
 
-// HandlerAdapter create telebot.HandlerFunc object for Handler with FSM FSMContext.
+// HandlerAdapter create telebot.HandlerFunc object for Handler with FSM context.
 func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	return func(c tele.Context) error {
 		return handler(c, m.contextMaker(c, m.store))

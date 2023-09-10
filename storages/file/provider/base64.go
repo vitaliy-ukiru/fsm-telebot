@@ -12,7 +12,7 @@ import (
 //
 // For example, how this works with Json
 // In first json encoder marshal to json, and writes result to base64 stream
-// and bas64 stream writes to io.Writer.
+// and base64 stream writes to io.Writer.
 type Base64 struct {
 	enc  *b64.Encoding
 	base file.Provider
