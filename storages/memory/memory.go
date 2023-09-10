@@ -108,7 +108,15 @@ func (m *Storage) GetData(chatId, userId int64, key string, to interface{}) erro
 		return storages.ErrNotPointer
 	}
 
+	if destValue.IsNil() || !destValue.IsValid() {
+		return storages.ErrInvalidValue
+	}
+
 	destElem := destValue.Elem()
+	if !destElem.IsValid() {
+		return storages.ErrNotPointer
+	}
+
 	destType := destElem.Type()
 
 	vType := reflect.TypeOf(v)

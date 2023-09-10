@@ -36,7 +36,15 @@ func (d *dataCache) get(to interface{}, p Provider) error {
 		return storages.ErrNotPointer
 	}
 
+	if destValue.IsNil() || !destValue.IsValid() {
+		return storages.ErrInvalidValue
+	}
+
 	destElem := destValue.Elem()
+	if !destElem.IsValid() {
+		return storages.ErrNotPointer
+	}
+
 	destType := destElem.Type()
 
 	if d.loaded != nil {
