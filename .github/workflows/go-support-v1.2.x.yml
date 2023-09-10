@@ -3,9 +3,9 @@ name: Go for fsm-telebot/v1.2
 on:
   push:
     tags:
-      - v1.2*
+      - v1.2.*
     branches:
-      - support/v1.2.x
+      - support/v1.2.x-revert
 jobs:
   test_go_mod_version:
     name: Test at go.mod go version
