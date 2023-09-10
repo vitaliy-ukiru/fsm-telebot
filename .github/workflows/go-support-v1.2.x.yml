@@ -1,0 +1,36 @@
+name: Go for fsm-telebot/v1.2
+
+on:
+  push:
+    tags:
+      - v1.2.*
+    branches:
+      - support/v1.2.x-revert
+jobs:
+  test_go_mod_version:
+    name: Test at go.mod go version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: "go.mod"
+
+      - name: Test
+        run: go test -v -cover ./...
+
+  test_go_stable_version:
+    name: Test at stable go version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 'stable'
+
+      - name: Test
+        run: go test -v -cover ./...
