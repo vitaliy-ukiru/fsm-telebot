@@ -24,9 +24,11 @@ func TestManagerOneEndpoint(t *testing.T) {
 
 	ctxMock := &MockContext{}
 
-	m := &Manager{
+	type withoutStorage struct{ Storage }
+
+	m := &Manager[*MockContext, withoutStorage]{
 		group:        bot.Group(),
-		contextMaker: func(_ tele.Context, _ Storage) Context { return ctxMock },
+		contextMaker: func(_ tele.Context, _ Storage) *MockContext { return ctxMock },
 		handlers:     handlerMapping{},
 	}
 
@@ -39,7 +41,7 @@ func TestManagerOneEndpoint(t *testing.T) {
 
 	type args struct {
 		states []State
-		h      Handler
+		h      Handler[*MockContext]
 		ms     []tele.MiddlewareFunc
 	}
 
@@ -148,13 +150,13 @@ type handlerMock struct {
 	ctx map[string]tele.Context
 }
 
-func (h *handlerMock) H1(c tele.Context, _ Context) error {
+func (h *handlerMock) H1(c tele.Context, _ *MockContext) error {
 	h.Called()
 	h.ctx["H1"] = c
 	return nil
 }
 
-func (h *handlerMock) H2(c tele.Context, _ Context) error {
+func (h *handlerMock) H2(c tele.Context, _ *MockContext) error {
 	h.Called()
 	h.ctx["H2"] = c
 	return nil

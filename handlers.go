@@ -35,7 +35,7 @@ func (hm handlerMapping) insert(endpoint string, entry handlerEntry) {
 }
 
 // forEndpoint returns handler what filters queries and execute correct handler.
-func (m *Manager) forEndpoint(endpoint string) tele.HandlerFunc {
+func (m *Manager[C, S]) forEndpoint(endpoint string) tele.HandlerFunc {
 	return func(teleCtx tele.Context) error {
 		fsmCtx := m.contextMaker(teleCtx, m.store)
 
@@ -51,7 +51,7 @@ func (m *Manager) forEndpoint(endpoint string) tele.HandlerFunc {
 
 		// middlewares must be executed inside
 		// this handler for right work.
-		return h.handler(&wrapperContext{teleCtx, fsmCtx})
+		return h.handler(&wrapperContext[C]{teleCtx, fsmCtx})
 	}
 }
 

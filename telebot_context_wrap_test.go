@@ -16,12 +16,12 @@ func Test_wrapperContext_Get(t *testing.T) {
 	teleCtx := B.NewContext(U)
 	teleCtx.Set("_fsm_", 56)
 
-	fsmCtx := Context(&fsmContext{
+	fsmCtx := &BuiltinContext{
 		c: teleCtx,
 		s: nil, // pass nil, because don't testing context methods
-	})
+	}
 
-	w := &wrapperContext{
+	w := &wrapperContext[*BuiltinContext]{
 		Context: teleCtx,
 		fsmCtx:  fsmCtx,
 	}
@@ -59,7 +59,7 @@ func Test_tryUnwrapContext(t *testing.T) {
 		c tele.Context
 	}
 	teleCtx := B.NewContext(U)
-	fsmCtx := Context(&fsmContext{c: teleCtx})
+	fsmCtx := &BuiltinContext{c: teleCtx}
 
 	teleCtx.Set(fsmInternalKey, fsmCtx)
 
@@ -71,7 +71,7 @@ func Test_tryUnwrapContext(t *testing.T) {
 	}{
 		{
 			name:  "wrapped context",
-			args:  args{&wrapperContext{teleCtx, fsmCtx}},
+			args:  args{&wrapperContext[*BuiltinContext]{teleCtx, fsmCtx}},
 			want:  fsmCtx,
 			want1: true,
 		},

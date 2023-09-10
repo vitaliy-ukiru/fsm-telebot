@@ -31,15 +31,15 @@ type Context interface {
 	MustGet(key string, to any)
 }
 
-type fsmContext struct {
+type BuiltinContext struct {
 	s          Storage
 	c          tele.Context
 	chat, user int64
 }
 
 // NewFSMContext returns new builtin FSM Context.
-func NewFSMContext(c tele.Context, storage Storage) Context {
-	return &fsmContext{
+func NewFSMContext(c tele.Context, storage Storage) *BuiltinContext {
+	return &BuiltinContext{
 		c:    c,
 		s:    storage,
 		chat: c.Chat().ID,
@@ -47,30 +47,30 @@ func NewFSMContext(c tele.Context, storage Storage) Context {
 	}
 }
 
-func (f *fsmContext) Bot() *tele.Bot {
+func (f *BuiltinContext) Bot() *tele.Bot {
 	return f.c.Bot()
 }
 
-func (f *fsmContext) State() (State, error) {
+func (f *BuiltinContext) State() (State, error) {
 	return f.s.GetState(f.chat, f.user)
 }
 
-func (f *fsmContext) Set(state State) error {
+func (f *BuiltinContext) Set(state State) error {
 	return f.s.SetState(f.chat, f.user, state)
 }
 
-func (f *fsmContext) Finish(deleteData bool) error {
+func (f *BuiltinContext) Finish(deleteData bool) error {
 	return f.s.ResetState(f.chat, f.user, deleteData)
 }
 
-func (f *fsmContext) Update(key string, data any) error {
+func (f *BuiltinContext) Update(key string, data any) error {
 	return f.s.UpdateData(f.chat, f.user, key, data)
 }
 
-func (f *fsmContext) Get(key string, to any) error {
+func (f *BuiltinContext) Get(key string, to any) error {
 	return f.s.GetData(f.chat, f.user, key, to)
 }
 
-func (f *fsmContext) MustGet(key string, to any) {
+func (f *BuiltinContext) MustGet(key string, to any) {
 	_ = f.s.GetData(f.chat, f.user, key, to)
 }

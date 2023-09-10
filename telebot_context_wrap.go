@@ -22,27 +22,27 @@ const fsmInternalKey = "__fsm"
 //
 // The developers of the package make no guarantee
 // of use outside of this package.
-type wrapperContext struct {
+type wrapperContext[C Context] struct {
 	tele.Context
-	fsmCtx Context
+	fsmCtx C
 }
 
-func (w *wrapperContext) Get(key string) any {
+func (w *wrapperContext[C]) Get(key string) any {
 	if key == fsmInternalKey {
 		return w.fsmCtx
 	}
 	return w.Context.Get(key)
 }
 
-func (w *wrapperContext) FSMContext() Context { return w.fsmCtx }
+func (w *wrapperContext[C]) FSMContext() C { return w.fsmCtx }
 
 // tryUnwrapContext tries get fsm.Context from telebot.Context.
-func tryUnwrapContext(c tele.Context) (Context, bool) {
-	wrapped, ok := c.(*wrapperContext)
+func tryUnwrapContext[C Context](c tele.Context) (C, bool) {
+	wrapped, ok := c.(*wrapperContext[C])
 	if ok {
 		return wrapped.fsmCtx, true
 	}
 
-	ctx, ok := c.Get(fsmInternalKey).(Context)
+	ctx, ok := c.Get(fsmInternalKey).(C)
 	return ctx, ok
 }
