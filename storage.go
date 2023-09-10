@@ -22,12 +22,12 @@ type Storage interface {
 	ResetState(chatId, userId int64, withData bool) error
 
 	// UpdateData sets, updates or deletes data for target. Set `data` as nil if you want delete.
-	UpdateData(chatId, userId int64, key string, data interface{}) error
+	UpdateData(chatId, userId int64, key string, data any) error
 
 	// GetData gets data for target and saves it to `to`.
 	// `to` must be a pointer.
 	// If error is not nil then data will be nil.
-	GetData(chatId, userId int64, key string, to interface{}) error
+	GetData(chatId, userId int64, key string, to any) error
 
 	// Close closes storage. Needs for correct work with storage connection.
 	Close() error

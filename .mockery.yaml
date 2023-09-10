@@ -1,0 +1,3 @@
+with-expecter: true
+inpackage: true
+testonly: true # yes, it deprecated

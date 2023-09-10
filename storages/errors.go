@@ -7,6 +7,7 @@ import (
 )
 
 var ErrNotPointer = errors.New("fsm/storage: dest argument must be pointer")
+var ErrInvalidValue = errors.New("fsm/storage: dest value is nil or invalid")
 
 type ErrWrongTypeAssign struct {
 	Expect reflect.Type

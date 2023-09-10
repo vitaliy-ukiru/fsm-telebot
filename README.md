@@ -3,7 +3,7 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/vitaliy-ukiru/fsm-telebot?style=flat-square)
 [![Go Reference](https://pkg.go.dev/badge/github.com/vitaliy-ukiru/fsm-telebot.svg)](https://pkg.go.dev/github.com/vitaliy-ukiru/fsm-telebot)
 [![Go](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go.yml/badge.svg?branch=master&style=flat-square)](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go.yml)
-
+[![golangci-lint](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/golangci-lint.yml/badge.svg?branch=master)](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/golangci-lint.yml)
 
 Finite State Machine for [telebot](https://gopkg.in/telebot.v3). 
 Based on [aiogram](https://github.com/aiogram/aiogram) FSM version.

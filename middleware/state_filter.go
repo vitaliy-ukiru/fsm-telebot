@@ -2,7 +2,7 @@
 package middleware
 
 import (
-	fsm "github.com/vitaliy-ukiru/fsm-telebot"
+	"github.com/vitaliy-ukiru/fsm-telebot"
 	tele "gopkg.in/telebot.v3"
 )
 

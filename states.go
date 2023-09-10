@@ -1,5 +1,7 @@
 package fsm
 
+import "slices"
+
 // State objects just string for identification.
 //
 // Default state is empty string.
@@ -35,6 +37,7 @@ func ContainsState(s State, other ...State) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -70,7 +73,7 @@ func (s *StateGroup) New(name string) (state State) {
 // Previous state relative to current.
 // Returns default state if current state is first or not found.
 func (s *StateGroup) Previous(current State) State {
-	currentIndex := stateIndex(current, s.States)
+	currentIndex := slices.Index(s.States, current)
 	if currentIndex <= 0 {
 		return DefaultState
 	}
@@ -80,20 +83,9 @@ func (s *StateGroup) Previous(current State) State {
 // Next state relative to current.
 // Returns default state if current state is last or not found.
 func (s *StateGroup) Next(current State) State {
-	currentIndex := stateIndex(current, s.States)
+	currentIndex := slices.Index(s.States, current)
 	if currentIndex >= len(s.States)-1 || currentIndex == -1 {
 		return DefaultState
 	}
 	return s.States[currentIndex+1]
-}
-
-// stateIndex returns the index of the given state in given states.
-// Returns -1 if state is not found.
-func stateIndex(s State, other []State) int {
-	for i, state := range other {
-		if Is(s, state) {
-			return i
-		}
-	}
-	return -1
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/vitaliy-ukiru/fsm-telebot/storages"
 )
 
-func (r *record) updateData(key string, data interface{}) {
+func (r *record) updateData(key string, data any) {
 	if r.data == nil {
 		r.data = make(map[string]dataCache)
 	}
@@ -30,13 +30,20 @@ func (s *Storage) do(chat, user int64, call func(*record)) {
 }
 
 // get value from data. Priority on loaded value.
-func (d *dataCache) get(to interface{}, p Provider) error {
+func (d *dataCache) get(to any, p Provider) error {
 	destValue := reflect.ValueOf(to)
 	if destValue.Kind() != reflect.Ptr {
 		return storages.ErrNotPointer
 	}
+	if destValue.IsNil() || !destValue.IsValid() {
+		return storages.ErrInvalidValue
+	}
 
 	destElem := destValue.Elem()
+	if !destElem.IsValid() {
+		return storages.ErrNotPointer
+	}
+
 	destType := destElem.Type()
 
 	if d.loaded != nil {
