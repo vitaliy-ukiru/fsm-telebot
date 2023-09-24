@@ -85,6 +85,11 @@ func (m *Manager) NewGroup() *Manager {
 }
 
 // Use add middlewares to group.
+//
+// If you want to add middleware to telebot group
+// you can use:
+//
+//	m.Group().Use()
 func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 	m.g = append(m.g, middlewares...)
 }
