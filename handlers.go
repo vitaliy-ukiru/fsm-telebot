@@ -10,20 +10,23 @@ import (
 // handlerMapping contains handlers group separated by endpoint.
 type handlerMapping map[string]*internal.List[handlerEntry]
 
+type StateMatcher interface {
+	MatchState(state State) bool
+}
+
 // handlerEntry representation handler with states, needed for add endpoints correct
 // Because telebot uses rule: 1 endpoint = 1 handler.
 // But for 1 endpoint allowed more states in our case.
 //
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
-	states  internal.HashSet[State]
+	matcher StateMatcher
 	handler tele.HandlerFunc
 }
 
 // add handler to storage, just shortcut.
-func (hm handlerMapping) add(endpoint string, h tele.HandlerFunc, states []State) {
-	statesSet := internal.HashSetFromSlice(states)
-	hm.insert(endpoint, handlerEntry{states: statesSet, handler: h})
+func (hm handlerMapping) add(endpoint string, h tele.HandlerFunc, matcher StateMatcher) {
+	hm.insert(endpoint, handlerEntry{matcher: matcher, handler: h})
 }
 
 func (hm handlerMapping) insert(endpoint string, entry handlerEntry) {
@@ -61,7 +64,7 @@ func (hm handlerMapping) find(endpoint string, state State) (handlerEntry, bool)
 	for e := l.Front(); e != nil; e = e.Next() {
 		h := e.Value
 
-		if h.states.Has(state) || h.states.Has(AnyState) {
+		if h.matcher.MatchState(state) {
 			return h, true
 		}
 	}
