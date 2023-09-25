@@ -103,6 +103,10 @@ func (m *Manager) Bind(end any, state State, h Handler, middlewares ...tele.Midd
 	m.handle(end, state, h, middlewares)
 }
 
+func (m *Manager) BindFunc(end any, matchFn StateMatchFunc, h Handler, middlewares ...tele.MiddlewareFunc) {
+	m.handle(end, matchFn, h, middlewares)
+}
+
 // Handle adds handler to group chain with filter on states.
 // Allowed use more handler for one endpoint.
 // If you pass empty slice of states it converters to DefaultState
@@ -122,6 +126,10 @@ func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc
 	}
 
 	m.handle(f.Endpoint, newStateMatcherSlice(f.States), h, middlewares)
+}
+
+func (m *Manager) On(end any, matcher StateMatcher, h Handler, middlewares ...tele.MiddlewareFunc) {
+	m.handle(end, matcher, h, middlewares)
 }
 
 func (m *Manager) handle(
