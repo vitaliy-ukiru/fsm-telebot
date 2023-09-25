@@ -100,7 +100,7 @@ func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
 // And this method can work with only one state.
 // If you bind some states see docs to Handle.
 func (m *Manager) Bind(end any, state State, h Handler, middlewares ...tele.MiddlewareFunc) {
-	m.handle(end, []State{state}, h, middlewares)
+	m.handle(end, state, h, middlewares)
 }
 
 // Handle adds handler to group chain with filter on states.
@@ -121,12 +121,12 @@ func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc
 		f.States = []State{DefaultState}
 	}
 
-	m.handle(f.Endpoint, f.States, h, middlewares)
+	m.handle(f.Endpoint, newStateMatcherSlice(f.States), h, middlewares)
 }
 
 func (m *Manager) handle(
 	end any,
-	states []State,
+	states StateMatcher,
 	h Handler,
 	ms []tele.MiddlewareFunc,
 ) {
