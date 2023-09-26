@@ -1,6 +1,8 @@
 package fsm
 
 import (
+	"strings"
+
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -45,6 +47,17 @@ func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.Handl
 		}
 		return nil
 	})
+}
+
+// MatchAnyState matches any state.
+func MatchAnyState(_ State) bool {
+	return true
+}
+
+func PrefixMatcher(prefix string) StateMatchFunc {
+	return func(state State) bool {
+		return strings.HasPrefix(string(state), prefix)
+	}
 }
 
 func (f Filter) CallbackUnique() string {
