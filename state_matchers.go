@@ -33,3 +33,9 @@ func (s setStatesMatcher) MatchState(state State) bool {
 func (s *StateGroup) Matcher() StateMatcher {
 	return newStateMatcherSlice(s.States)
 }
+
+// MatchStates returns matcher based on hashset. It
+// also will check match on [AnyState].
+func MatchStates(states ...State) StateMatcher {
+	return newStateMatcherSlice(states)
+}
