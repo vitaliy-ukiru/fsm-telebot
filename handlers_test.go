@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vitaliy-ukiru/fsm-telebot/internal"
 )
 
 func Test_handlerStorage_find(t *testing.T) {
@@ -13,9 +12,6 @@ func Test_handlerStorage_find(t *testing.T) {
 		state    State
 	}
 
-	set := func(s ...State) internal.HashSet[State] {
-		return internal.HashSetFromSlice(s)
-	}
 	tests := []struct {
 		name     string
 		handlers map[string][]handlerEntry
@@ -28,13 +24,13 @@ func Test_handlerStorage_find(t *testing.T) {
 			handlers: map[string][]handlerEntry{
 				"test": {
 					{
-						states: set("test_state"),
+						matcher: State("test_state"),
 					},
 				},
 			},
 			args: args{"test", "test_state"},
 			want: handlerEntry{
-				states: set("test_state"),
+				matcher: State("test_state"),
 			},
 			wantOk: true,
 		},
@@ -42,13 +38,13 @@ func Test_handlerStorage_find(t *testing.T) {
 			name: "many handlers",
 			handlers: map[string][]handlerEntry{
 				"test": {
-					{states: set("test_many_1")},
-					{states: set("test_many_2")},
-					{states: set("test_many_3")},
+					{matcher: State("test_many_1")},
+					{matcher: State("test_many_2")},
+					{matcher: State("test_many_3")},
 				},
 			},
 			args:   args{"test", "test_many_2"},
-			want:   handlerEntry{states: set("test_many_2")},
+			want:   handlerEntry{matcher: State("test_many_2")},
 			wantOk: true,
 		},
 	}
