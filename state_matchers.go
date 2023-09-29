@@ -1,15 +1,10 @@
 package fsm
 
 import (
-	"slices"
-	"strings"
-
 	"github.com/vitaliy-ukiru/fsm-telebot/internal"
 )
 
-func (s State) MatchState(state State) bool {
-	return Is(s, state)
-}
+func (s State) MatchState(state State) bool { return Is(s, state) }
 
 type StateMatchFunc func(state State) bool
 
@@ -29,8 +24,8 @@ func newStateMatcherSlice(states []State) setStatesMatcher {
 	return setStatesMatcher{states: hs}
 }
 
-func (m setStatesMatcher) MatchState(state State) bool {
-	return m.states.Has(state) || m.states.Has(AnyState)
+func (s setStatesMatcher) MatchState(state State) bool {
+	return s.states.Has(state) || s.states.Has(AnyState)
 }
 
 // Matcher returns new matcher object, what will
