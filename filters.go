@@ -14,9 +14,6 @@ type Filter struct {
 
 // F returns new Filter object.
 func F(endpoint any, states ...State) Filter {
-	if len(states) == 0 {
-		states = []State{DefaultState}
-	}
 	return Filter{Endpoint: endpoint, States: states}
 }
 
