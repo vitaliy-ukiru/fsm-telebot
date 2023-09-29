@@ -10,4 +10,7 @@
 // The example shows how to initialize the file storage, shows how to work with
 // user data, use helper function to get WriterFunc,
 // there is also a simple graceful shutdown.
+//
+// The "state_matcher" package contains example of use different state matchers and
+// implement custom matcher.
 package examples
