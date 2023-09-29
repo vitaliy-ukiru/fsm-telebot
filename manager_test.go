@@ -38,7 +38,7 @@ func TestManagerOneEndpoint(t *testing.T) {
 	h := &handlerMock{ctx: map[string]tele.Context{}}
 
 	type args struct {
-		states []State
+		states StateMatcher
 		h      Handler
 		ms     []tele.MiddlewareFunc
 	}
@@ -58,7 +58,7 @@ func TestManagerOneEndpoint(t *testing.T) {
 			name:      "first_state",
 			mockState: testState1,
 			args: args{
-				states: slice(testState1),
+				states: testState1,
 				h:      h.H1,
 				ms: slice(
 					middlewareSetCtx("a", 1),
@@ -82,7 +82,7 @@ func TestManagerOneEndpoint(t *testing.T) {
 			mockState: testState2,
 			group:     slice(middlewareSetCtx("g2", -2)),
 			args: args{
-				states: slice(testState2),
+				states: testState2,
 				h:      h.H2,
 				ms: slice(
 					middlewareSetCtx("c", 3),
