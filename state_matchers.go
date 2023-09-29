@@ -33,14 +33,8 @@ func (m setStatesMatcher) MatchState(state State) bool {
 	return m.states.Has(state) || m.states.Has(AnyState)
 }
 
-func (s *StateGroup) MatchState(state State) bool {
-	pref := s.Prefix + "@"
-
-	// fast way
-	if strings.HasPrefix(string(state), pref) {
-		return true
-	}
-
-	// slow way
-	return slices.Contains(s.States, state)
+// Matcher returns new matcher object, what will
+// match states from group.
+func (s *StateGroup) Matcher() StateMatcher {
+	return newStateMatcherSlice(s.States)
 }
