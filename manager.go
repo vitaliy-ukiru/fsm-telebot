@@ -109,6 +109,8 @@ func (m *Manager) Bind(end any, state State, h Handler, middlewares ...tele.Midd
 // The function must handle the AnyState case custom.
 type StateMatchFunc func(state State) bool
 
+// BindFunc adds handler with match function as filter for state.
+// All matching logic will in matcher func.
 func (m *Manager) BindFunc(end any, matchFn StateMatchFunc, h Handler, middlewares ...tele.MiddlewareFunc) {
 	m.handle(end, matchFn, h, middlewares)
 }
@@ -128,12 +130,29 @@ func (m *Manager) BindFunc(end any, matchFn StateMatchFunc, h Handler, middlewar
 //	manager.Handle(fsm.Filter{endpoint, states}, handlerFunc)
 func (m *Manager) Handle(f Filter, h Handler, middlewares ...tele.MiddlewareFunc) {
 	if len(f.States) == 0 {
-		f.States = []State{DefaultState}
+		// it old version we create a slice with one element,
+		// but it takes more fast.
+		m.handle(f.Endpoint, DefaultState, h, middlewares)
+		return
 	}
 
 	m.handle(f.Endpoint, newStateMatcherSlice(f.States), h, middlewares)
 }
 
+// On is universal handler binder. As state filter accepts StateMatcher object.
+//
+// You should use this method with using custom implementation of matcher.
+// In other case it not give any privilege.
+//
+// But if you don't want to create [Filter] object for [Manager.Handle]
+// you can call this method with result of [MatchStates].
+// The internal logic will be the same.
+//
+//	var ( // types of variables
+//		endpoint any // string | tele.CallbackEndpoint
+//		handler fsm.Handler
+//	)
+//	manager.On(endpoint, MatchStates("state1", "state2, "state_n"), handler)
 func (m *Manager) On(end any, matcher StateMatcher, h Handler, middlewares ...tele.MiddlewareFunc) {
 	m.handle(end, matcher, h, middlewares)
 }
