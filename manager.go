@@ -103,6 +103,12 @@ func (m *Manager) Bind(end any, state State, h Handler, middlewares ...tele.Midd
 	m.handle(end, state, h, middlewares)
 }
 
+// StateMatchFunc matches state for handler. It just
+// wrapper for [StateMatcher].
+//
+// The function must handle the AnyState case custom.
+type StateMatchFunc func(state State) bool
+
 func (m *Manager) BindFunc(end any, matchFn StateMatchFunc, h Handler, middlewares ...tele.MiddlewareFunc) {
 	m.handle(end, matchFn, h, middlewares)
 }

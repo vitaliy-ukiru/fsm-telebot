@@ -6,8 +6,6 @@ import (
 
 func (s State) MatchState(state State) bool { return Is(s, state) }
 
-type StateMatchFunc func(state State) bool
-
 func (m StateMatchFunc) MatchState(state State) bool {
 	return m(state)
 }
