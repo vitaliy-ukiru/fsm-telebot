@@ -7,34 +7,6 @@ import (
 )
 
 func TestList_Insert(t *testing.T) {
-	//type args[T any] struct {
-	//	d T
-	//}
-	//type testCase[T any] struct {
-	//	name string
-	//	l    List[T]
-	//	args args[T]
-	//}
-	//tests := []testCase[int]{
-	//	{
-	//
-	//	},
-	//}
-	//for _, tt := range tests {
-	//	t.Run(tt.name, func(t *testing.T) {
-	//		tt.l.Insert(tt.args.d)
-	//	})
-	//}
-	//t.Run("one element", func(t *testing.T) {
-	//	const x = 5
-	//	l := new(List[int])
-	//	e := l.Insert(x)
-	//
-	//	assert.Equal(t, 1, l.Len(), "list length")
-	//	assert.Equal(t, e, l.head, "list head value")
-	//	assert.Equal(t, e, l.tail, "list tail value")
-	//})
-
 	type testCase[T any] struct {
 		name  string
 		slice []T
