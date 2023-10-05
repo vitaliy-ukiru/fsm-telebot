@@ -9,24 +9,6 @@ import (
 	"github.com/vitaliy-ukiru/fsm-telebot/storages"
 )
 
-type chatKey struct {
-	c int64 // c is Chat ID
-	u int64 // u is User ID
-}
-
-// record in storage
-type record struct {
-	state fsm.State
-	data  map[string]any
-}
-
-func newKey(chat, user int64) chatKey {
-	return chatKey{
-		c: chat,
-		u: user,
-	}
-}
-
 // Storage is storage based on RAM. Drops if you stop script.
 type Storage struct {
 	l       sync.RWMutex
@@ -38,6 +20,21 @@ func NewStorage() *Storage {
 	return &Storage{
 		storage: make(map[chatKey]record),
 	}
+}
+
+// record in storage
+type record struct {
+	state fsm.State
+	data  map[string]any
+}
+
+type chatKey struct {
+	c int64 // c is Chat ID
+	u int64 // u is User ID
+}
+
+func newKey(chat, user int64) chatKey {
+	return chatKey{c: chat, u: user}
 }
 
 // do exec `call` and save modification to storage.
