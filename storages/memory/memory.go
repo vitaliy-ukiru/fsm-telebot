@@ -40,17 +40,6 @@ func NewStorage() *Storage {
 	}
 }
 
-func (r *record) updateData(key string, data any) {
-	if r.data == nil {
-		r.data = make(map[string]any)
-	}
-	if data == nil {
-		delete(r.data, key)
-	} else {
-		r.data[key] = data
-	}
-}
-
 // do exec `call` and save modification to storage.
 // It helps not to copy the code.
 func (m *Storage) do(chat, user int64, call func(*record)) {
@@ -89,7 +78,14 @@ func (m *Storage) ResetState(chatId, userId int64, withData bool) error {
 
 func (m *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 	m.do(chatId, userId, func(r *record) {
-		r.updateData(key, data)
+		if r.data == nil {
+			r.data = make(map[string]any)
+		}
+		if data == nil {
+			delete(r.data, key)
+		} else {
+			r.data[key] = data
+		}
 	})
 	return nil
 }

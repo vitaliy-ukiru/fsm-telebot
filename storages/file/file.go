@@ -116,7 +116,14 @@ func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
 
 func (s *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 	s.do(chatId, userId, func(r *record) {
-		r.updateData(key, data)
+		if r.data == nil {
+			r.data = make(map[string]dataCache)
+		}
+		if data == nil {
+			delete(r.data, key)
+		} else {
+			r.data[key] = dataCache{loaded: data}
+		}
 	})
 	return nil
 }
