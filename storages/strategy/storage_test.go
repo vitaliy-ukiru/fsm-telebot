@@ -11,14 +11,14 @@ func TestStrategy_apply(t *testing.T) {
 		c int64 = 66
 		u int64 = 88
 	)
-	type args struct {
+	type key struct {
 		chat int64
 		user int64
 	}
-	type want struct {
-		chat int64
-		user int64
-	}
+
+	type args key
+	type want key
+
 	tests := []struct {
 		name string
 		s    Strategy
