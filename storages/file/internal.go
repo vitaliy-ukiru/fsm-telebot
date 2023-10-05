@@ -35,23 +35,19 @@ func (d *dataCache) get(to any, p Provider) error {
 
 	destType := destElem.Type()
 
-	if d.loaded != nil {
-		vType := reflect.TypeOf(d.loaded)
-		if !vType.AssignableTo(destType) {
-			return &storages.ErrWrongTypeAssign{
-				Expect: vType,
-				Got:    destType,
-			}
+	if d.loaded == nil {
+		if err := p.Decode(d.raw, to); err != nil {
+			return err
 		}
-
-		destElem.Set(reflect.ValueOf(d.loaded))
+		d.loaded = destElem.Interface()
 		return nil
 	}
 
-	if err := p.Decode(d.raw, to); err != nil {
-		return err
+	vType := reflect.TypeOf(d.loaded)
+	if !vType.AssignableTo(destType) {
+		return &storages.ErrWrongTypeAssign{Expect: vType, Got: destType}
 	}
 
-	d.loaded = destElem.Interface()
+	destElem.Set(reflect.ValueOf(d.loaded))
 	return nil
 }
