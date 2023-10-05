@@ -90,7 +90,9 @@ func (m *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 func (m *Storage) GetData(chatId, userId int64, key string, to any) error {
 	m.l.RLock()
 	defer m.l.RUnlock()
-	v, ok := m.storage[newKey(chatId, userId)].data[key]
+
+	r := m.storage[newKey(chatId, userId)]
+	v, ok := r.data[key]
 	if !ok {
 		return fsm.ErrNotFound
 	}
