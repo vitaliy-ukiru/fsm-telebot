@@ -91,7 +91,8 @@ func (s *Storage) Init(r io.Reader) error {
 func (s *Storage) GetState(chatId, userId int64) (fsm.State, error) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	return s.data[newKey(chatId, userId)].state, nil
+	key := newKey(chatId, userId)
+	return s.data[key].state, nil
 }
 
 func (s *Storage) SetState(chatId, userId int64, state fsm.State) error {

@@ -66,7 +66,8 @@ func (m *Storage) do(chat, user int64, call func(*record)) {
 func (m *Storage) GetState(chatId, userId int64) (fsm.State, error) {
 	m.l.RLock()
 	defer m.l.RUnlock()
-	return m.storage[newKey(chatId, userId)].state, nil
+	key := newKey(chatId, userId)
+	return m.storage[key].state, nil
 }
 
 func (m *Storage) SetState(chatId, userId int64, state fsm.State) error {
