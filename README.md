@@ -11,9 +11,17 @@ Based on [aiogram](https://github.com/aiogram/aiogram) FSM version.
 It not a full implementation FSM. It just states manager for telegram bots.
 
 ## Install:
+
+Last release version (manually):
 ```
 go get -u github.com/vitaliy-ukiru/fsm-telebot@v1.2.1
 ```
+
+Last commit from master (unstable)
+```
+go get -u github.com/vitaliy-ukiru/fsm-telebot@master
+```
+
 
 
 ## Examples
