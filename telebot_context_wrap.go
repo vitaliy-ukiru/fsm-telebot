@@ -4,9 +4,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// fsmInternalKey needed for catch
-// fsm context requests.
-// NOTE: may change to "fsm" for link with middleware/FSMContextMiddleware
+// fsmInternalKey needed for catch context requests.
 const fsmInternalKey = "__fsm"
 
 // wrapperContext wraps telebot context and adds fsm
