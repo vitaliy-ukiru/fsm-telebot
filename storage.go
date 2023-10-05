@@ -16,8 +16,10 @@ var ErrNotFound = errors.New("fsm/storage: not found")
 type Storage interface {
 	// GetState returns State for target. Default state is empty string
 	GetState(chatId, userId int64) (State, error)
+
 	// SetState sets states for target.
 	SetState(chatId, userId int64, state State) error
+
 	// ResetState deletes state for target. If `withData` is true deletes user data from storage.
 	ResetState(chatId, userId int64, withData bool) error
 
