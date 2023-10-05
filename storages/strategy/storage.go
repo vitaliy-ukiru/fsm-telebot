@@ -11,6 +11,18 @@ const (
 	OnlyUser
 )
 
+func (s Strategy) String() string {
+	switch s {
+	case Default:
+		return "strategy.Default"
+	case OnlyUser:
+		return "strategy.OnlyUser"
+	case OnlyChat:
+		return "strategy.OnlyChat"
+	}
+	return "strategy.INVALID"
+}
+
 type Storage struct {
 	storage  fsm.Storage
 	strategy Strategy
