@@ -8,7 +8,9 @@ import (
 )
 
 // handlerMapping contains handlers group separated by endpoint.
-type handlerMapping map[string]*internal.List[handlerEntry]
+type handlerMapping map[string]*handlerList
+
+type handlerList = internal.List[handlerEntry]
 
 // handlerEntry representation handler with states, needed for add endpoints correct
 // Because telebot uses rule: 1 endpoint = 1 handler.
@@ -28,7 +30,7 @@ func (hm handlerMapping) add(endpoint string, h tele.HandlerFunc, states []State
 
 func (hm handlerMapping) insert(endpoint string, entry handlerEntry) {
 	if hm[endpoint] == nil {
-		hm[endpoint] = new(internal.List[handlerEntry])
+		hm[endpoint] = new(handlerList)
 	}
 
 	hm[endpoint].Insert(entry)
