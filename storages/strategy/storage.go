@@ -2,27 +2,47 @@ package strategy
 
 import "github.com/vitaliy-ukiru/fsm-telebot"
 
-type Strategy int
+// Strategy for addressing. It works as bit set.
+//
+// So far, you can only combine [User] and [Chat],
+// but with the support of forums in telebot, we plan to add them as well.
+//
+// Have "magic" value - [Empty]. It needs for safe support zero value.
+// This value must be just pass, without any logic.
+type Strategy byte
+
+// Empty strategy is unset value, but it supports like [Default] strategy
+const Empty Strategy = 0
 
 const (
-	// Default strategy is chat + user
-	Default Strategy = iota
-	OnlyChat
-	OnlyUser
+	_ Strategy = 1 << iota
+
+	// User addressing. It will make one state for one user in all chats.
+	User
+
+	// Chat addressing. It will make one state for all users in one chat.
+	Chat
+
+	// Default is contains user and chat addressing.
+	// It will make state for every user in every chat.
+	Default = User | Chat
 )
 
 func (s Strategy) String() string {
 	switch s {
+	case Empty:
+		return "strategy.Empty"
 	case Default:
 		return "strategy.Default"
-	case OnlyUser:
+	case User:
 		return "strategy.OnlyUser"
-	case OnlyChat:
+	case Chat:
 		return "strategy.OnlyChat"
 	}
 	return "strategy.INVALID"
 }
 
+// Storage works over base storage and applies strategy.
 type Storage struct {
 	storage  fsm.Storage
 	strategy Strategy
@@ -70,14 +90,17 @@ func (s *Storage) Close() error {
 }
 
 func (s Strategy) apply(chat, user int64) (int64, int64) {
-	switch s {
-	case OnlyChat:
-		return chat, 0
-	case OnlyUser:
-		return 0, user
-	case Default:
-		fallthrough
-	default:
+	if s == Empty {
 		return chat, user
 	}
+
+	if s&Chat == 0 {
+		chat = 0
+	}
+
+	if s&User == 0 {
+		user = 0
+	}
+
+	return chat, user
 }
