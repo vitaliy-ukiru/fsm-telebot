@@ -5,7 +5,6 @@
 package file
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"sync"
@@ -150,7 +149,14 @@ func (s *Storage) Close() (err error) {
 
 	defer func(w io.WriteCloser) {
 		errClose := w.Close()
-		err = errors.Join(err, errClose)
+		if errClose == nil {
+			return
+		}
+
+		if err != nil {
+			errClose = fmt.Errorf("close: %w: after: %w", errClose, err)
+		}
+		err = errClose
 	}(w)
 
 	err = s.save(w)
