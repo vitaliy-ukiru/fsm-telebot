@@ -19,6 +19,8 @@ func TestStrategy_apply(t *testing.T) {
 	type args key
 	type want key
 
+	arg := args{c, u}
+
 	tests := []struct {
 		name string
 		s    Strategy
@@ -28,25 +30,25 @@ func TestStrategy_apply(t *testing.T) {
 		{
 			name: "Default",
 			s:    Default,
-			args: args{c, u},
+			args: arg,
 			want: want{c, u},
 		},
 		{
 			name: "OnlyUser",
-			s:    OnlyUser,
-			args: args{c, u},
+			s:    User,
+			args: arg,
 			want: want{0, u},
 		},
 		{
 			name: "OnlyChat",
-			s:    OnlyChat,
-			args: args{c, u},
+			s:    Chat,
+			args: arg,
 			want: want{c, 0},
 		},
 		{
-			name: "unknown strategy (as default)",
-			s:    -1,
-			args: args{c, u},
+			name: "empty strategy (as default)",
+			s:    Empty,
+			args: arg,
 			want: want{c, u},
 		},
 	}
