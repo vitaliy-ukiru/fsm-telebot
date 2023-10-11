@@ -65,3 +65,10 @@ Scheme with json provider:
 Encoding: base64_encode(json_encode(data))
 Decoding: json_decode(base64_decode(data))
 ```
+
+
+## Strategy storage
+It is an abstraction over storage to support addressing with a specific strategy.
+
+For example, you can identify users only by chat. That is, the chat status will be the same for all users.
+Or you can make it so that one user has one state for all chats.
