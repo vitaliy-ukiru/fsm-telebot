@@ -110,7 +110,7 @@ func TestManagerOneEndpoint(t *testing.T) {
 
 			m.Use(tt.group...)
 			defer func() {
-				m.g = m.g[0:0]
+				m.list = m.list[0:0]
 			}()
 
 			// execute handler

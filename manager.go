@@ -19,7 +19,7 @@ type Manager struct {
 	store        Storage
 	handlers     handlerMapping
 	contextMaker ContextMakerFunc
-	g            []tele.MiddlewareFunc
+	list         []tele.MiddlewareFunc
 }
 
 // NewManager returns new Manger.
@@ -91,7 +91,7 @@ func (m *Manager) NewGroup() *Manager {
 //
 //	m.Group().Use()
 func (m *Manager) Use(middlewares ...tele.MiddlewareFunc) {
-	m.g = append(m.g, middlewares...)
+	m.list = append(m.list, middlewares...)
 }
 
 // Bind adds handler (with FSM context argument) with filter on state.
@@ -145,7 +145,7 @@ func (m *Manager) handle(
 
 // withMiddleware join handler middlewares with group middlewares.
 func (m *Manager) withMiddleware(h tele.HandlerFunc, ms []tele.MiddlewareFunc) tele.HandlerFunc {
-	ms = append(m.g, ms...)
+	ms = append(m.list, ms...)
 
 	// I didn’t understand why ApplyMiddleware is called
 	// inside the handler, just copied from telebot code.
