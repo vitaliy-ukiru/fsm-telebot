@@ -44,7 +44,7 @@ func NewManager(
 	}
 }
 
-// Group handlers for manger.
+// Group handlers for manager.
 func (m *Manager) Group() *tele.Group {
 	return m.group
 }
