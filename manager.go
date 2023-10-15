@@ -53,14 +53,9 @@ func (m *Manager) Group() *tele.Group {
 //
 // Deprecated: Incorrect behavior with separated groups.
 func (m *Manager) With(g *tele.Group) *Manager {
-	return &Manager{
-		bot:          m.bot,
-		group:        g,
-		store:        m.store,
-		handlers:     m.handlers,
-		contextMaker: m.contextMaker,
-		g:            m.g,
-	}
+	manager := *m
+	manager.group = g
+	return &manager
 }
 
 // SetContextMaker sets new context maker to current Manager instance.
@@ -72,16 +67,10 @@ func (m *Manager) SetContextMaker(contextMaker ContextMakerFunc) {
 // of middleware group. Adding middlewares in
 // new group doesn't affect the parent.
 func (m *Manager) NewGroup() *Manager {
-	g := make([]tele.MiddlewareFunc, len(m.g))
-	copy(g, m.g)
-	return &Manager{
-		bot:          m.bot,
-		group:        m.group,
-		store:        m.store,
-		handlers:     m.handlers,
-		contextMaker: m.contextMaker,
-		g:            g,
-	}
+	manager := *m
+	manager.list = make([]tele.MiddlewareFunc, len(m.list))
+	copy(manager.list, m.list)
+	return &manager
 }
 
 // Use add middlewares to group.
