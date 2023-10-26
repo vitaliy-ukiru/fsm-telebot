@@ -80,6 +80,7 @@ func (j PrettyJson) Save(w io.Writer, data file.ChatsStorage) error {
 		// copy buffer because will reuse buffer resources
 		compact := make([]byte, buff.Len())
 		copy(compact, buff.Bytes())
+
 		buff.Reset()
 		if err := json.Indent(buff, compact, j.Prefix, j.Indent); err != nil {
 			return newError(prettyJson, "save prettify", err)
@@ -93,14 +94,8 @@ func (j PrettyJson) Save(w io.Writer, data file.ChatsStorage) error {
 
 func (j PrettyJson) Read(r io.Reader) (file.ChatsStorage, error) {
 	d := json.NewDecoder(r)
+	j.setDecoder(d)
 
-	if j.DisallowUnknownFields {
-		d.DisallowUnknownFields()
-	}
-
-	if j.UseNumber {
-		d.UseNumber()
-	}
 	var dest jsonStorage
 	if err := d.Decode(&dest); err != nil {
 		return nil, newError(prettyJson, "read", err)

@@ -17,6 +17,16 @@ type JsonSettings struct {
 	DisallowUnknownFields bool
 }
 
+func (js JsonSettings) setDecoder(d *json.Decoder) {
+	if js.UseNumber {
+		d.UseNumber()
+	}
+
+	if js.DisallowUnknownFields {
+		d.DisallowUnknownFields()
+	}
+}
+
 // Json provides json format.
 //
 // // Unexported fields will be ignoring (json package behavior).
@@ -51,14 +61,7 @@ func (j Json) Save(w io.Writer, data file.ChatsStorage) error {
 }
 func (j Json) Read(r io.Reader) (file.ChatsStorage, error) {
 	d := json.NewDecoder(r)
-
-	if j.DisallowUnknownFields {
-		d.DisallowUnknownFields()
-	}
-
-	if j.UseNumber {
-		d.UseNumber()
-	}
+	j.setDecoder(d)
 	var dest file.ChatsStorage
 	if err := d.Decode(&dest); err != nil {
 		return nil, newError("json", "read", err)
