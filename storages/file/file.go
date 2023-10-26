@@ -169,16 +169,7 @@ func (s *Storage) save(w io.Writer) error {
 		return err
 	}
 
-	return s.p.Save(&wrapWriter{w}, dump)
-}
-
-// wrapWriter protects base wrapper from type assertions.
-type wrapWriter struct {
-	w io.Writer
-}
-
-func (w *wrapWriter) Write(p []byte) (n int, err error) {
-	return w.w.Write(p)
+	return s.p.Save(w, dump)
 }
 
 type ProviderError struct {
