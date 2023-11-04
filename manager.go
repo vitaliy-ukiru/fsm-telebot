@@ -119,7 +119,7 @@ func (m *Manager) handle(
 	h Handler,
 	ms []tele.MiddlewareFunc,
 ) {
-	endpoint := getEndpoint(end)
+	endpoint := internal.ExtractEndpoint(end)
 
 	// we handles multi handlers in telebot,
 	// so need to use middleware here

@@ -113,3 +113,14 @@ func endpointName(endpoint string) string {
 	}
 	return endpoint
 }
+
+func ExtractEndpoint(e any) string {
+	switch end := e.(type) {
+	case string:
+		return end
+	case tele.CallbackEndpoint:
+		return end.CallbackUnique()
+	default:
+		panic("fsm: telebot: unsupported endpoint")
+	}
+}

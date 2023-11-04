@@ -1,6 +1,7 @@
 package fsm
 
 import (
+	"github.com/vitaliy-ukiru/fsm-telebot/internal"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -48,16 +49,5 @@ func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.Handl
 }
 
 func (f Filter) CallbackUnique() string {
-	return getEndpoint(f.Endpoint)
-}
-
-func getEndpoint(e any) string {
-	switch end := e.(type) {
-	case string:
-		return end
-	case tele.CallbackEndpoint:
-		return end.CallbackUnique()
-	default:
-		panic("fsm: telebot: unsupported endpoint")
-	}
+	return internal.ExtractEndpoint(f.Endpoint)
 }
