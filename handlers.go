@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/internal"
+	"github.com/vitaliy-ukiru/fsm-telebot/internal/container"
 	tele "gopkg.in/telebot.v3"
 )
 
 // handlerMapping contains handlers group separated by endpoint.
 type handlerMapping map[string]*handlerList
 
-type handlerList = internal.List[handlerEntry]
+type handlerList = container.List[handlerEntry]
 
 // handlerEntry representation handler with states, needed for add endpoints correct
 // Because telebot uses rule: 1 endpoint = 1 handler.
@@ -18,13 +19,13 @@ type handlerList = internal.List[handlerEntry]
 //
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
-	states  internal.HashSet[State]
+	states  container.HashSet[State]
 	handler tele.HandlerFunc
 }
 
 // add handler to storage, just shortcut.
 func (hm handlerMapping) add(endpoint string, h tele.HandlerFunc, states []State) {
-	statesSet := internal.HashSetFromSlice(states)
+	statesSet := container.HashSetFromSlice(states)
 	hm.insert(endpoint, handlerEntry{states: statesSet, handler: h})
 }
 

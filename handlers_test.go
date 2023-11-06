@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vitaliy-ukiru/fsm-telebot/internal"
+	"github.com/vitaliy-ukiru/fsm-telebot/internal/container"
 )
 
 func Test_handlerStorage_find(t *testing.T) {
@@ -13,8 +13,8 @@ func Test_handlerStorage_find(t *testing.T) {
 		state    State
 	}
 
-	set := func(s ...State) internal.HashSet[State] {
-		return internal.HashSetFromSlice(s)
+	set := func(s ...State) container.HashSet[State] {
+		return container.HashSetFromSlice(s)
 	}
 	tests := []struct {
 		name     string

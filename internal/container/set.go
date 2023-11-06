@@ -1,4 +1,4 @@
-package internal
+package container
 
 type HashSet[K comparable] map[K]struct{}
 

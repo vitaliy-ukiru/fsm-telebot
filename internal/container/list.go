@@ -1,4 +1,4 @@
-package internal
+package container
 
 type Element[T any] struct {
 	Value T
