@@ -132,7 +132,8 @@ func (m *Manager) handle(
 	)
 }
 
-// withMiddleware join handler middlewares with group middlewares.
+// withMiddleware returns handler with join handler-scope
+// middlewares with global middlewares.
 func (m *Manager) withMiddleware(h tele.HandlerFunc, ms []tele.MiddlewareFunc) tele.HandlerFunc {
 	ms = internal.JoinMiddlewares(m.list, ms)
 
