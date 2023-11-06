@@ -134,7 +134,7 @@ func (m *Manager) handle(
 
 // withMiddleware join handler middlewares with group middlewares.
 func (m *Manager) withMiddleware(h tele.HandlerFunc, ms []tele.MiddlewareFunc) tele.HandlerFunc {
-	ms = append(m.list, ms...)
+	ms = internal.JoinMiddlewares(m.list, ms)
 
 	// I didn’t understand why ApplyMiddleware is called
 	// inside the handler, just copied from telebot code.
