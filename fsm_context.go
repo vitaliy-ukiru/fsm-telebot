@@ -4,7 +4,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-// Context is wrapper for work with FSM from handlers and related to telebot.Context.
+// Context is wrapper for work with FSM from handlers
+// and related to telebot.Context.
 type Context interface {
 	// Bot returns the bot instance.
 	Bot() *tele.Bot
@@ -15,19 +16,19 @@ type Context interface {
 	// Set state for sender.
 	Set(state State) error
 
-	// Finish state for sender and deletes data if set true.
+	// Finish state for sender and deletes data if arg provided.
 	Finish(deleteData bool) error
 
-	// Update data in storage.
+	// Update data in storage. When data argument is nil it must
+	// delete this item.
 	Update(key string, data any) error
 
-	// Get data from storage and save it to `to`.
-	// `to` must be a pointer.
-	// Data will be nil if storage not contains object with given key and error will be ErrNotFound
+	// Get data from storage and save it into `to` argument.
+	// Destination argument must be a valid pointer.
 	Get(key string, to any) error
 
-	// MustGet returns data from storage and save it to `to` ignoring errors.
-	// `to` must be a pointer.
+	// MustGet returns data from storage and save it into `to` ignoring errors.
+	// Destination argument must be a valid pointer.
 	MustGet(key string, to any)
 }
 
