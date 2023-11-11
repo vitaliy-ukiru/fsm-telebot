@@ -19,7 +19,7 @@ type handlerList = container.List[handlerEntry]
 //
 // We can use switch-case in handler for check states, but I think not best practice.
 type handlerEntry struct {
-	states  container.HashSet[State]
+	states  container.Set[State]
 	handler tele.HandlerFunc
 }
 

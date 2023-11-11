@@ -13,7 +13,7 @@ func Test_handlerStorage_find(t *testing.T) {
 		state    State
 	}
 
-	set := func(s ...State) container.HashSet[State] {
+	set := func(s ...State) container.Set[State] {
 		return container.HashSetFromSlice(s)
 	}
 	tests := []struct {

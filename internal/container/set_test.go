@@ -13,13 +13,13 @@ func TestHashSetFromSlice(t *testing.T) {
 	type testCase[K comparable] struct {
 		name string
 		args args[K]
-		want HashSet[K]
+		want Set[K]
 	}
 	tests := []testCase[int]{
 		{
 			name: "vanilla",
 			args: args[int]{[]int{1, 2, 3}},
-			want: HashSet[int]{
+			want: Set[int]{
 				1: {},
 				2: {},
 				3: {},
@@ -37,20 +37,20 @@ func TestHashSet_Has(t *testing.T) {
 
 	type testCase[K comparable] struct {
 		name string
-		h    HashSet[K]
+		h    Set[K]
 		arg  K
 		want bool
 	}
 	tests := []testCase[int]{
 		{
 			name: "exists key",
-			h:    HashSet[int]{5: {}},
+			h:    Set[int]{5: {}},
 			arg:  5,
 			want: true,
 		},
 		{
 			name: "not exists",
-			h:    HashSet[int]{1: struct{}{}},
+			h:    Set[int]{1: struct{}{}},
 			arg:  5,
 			want: false,
 		},
