@@ -15,7 +15,7 @@ It not a full implementation FSM. It just states manager for telegram bots.
 
 Last release version (manually):
 ```
-go get -u github.com/vitaliy-ukiru/fsm-telebot@v1.3.2
+go get -u github.com/vitaliy-ukiru/fsm-telebot@v1.4
 ```
 
 Last commit from master (unstable)
