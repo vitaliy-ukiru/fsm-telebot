@@ -58,12 +58,30 @@ func endpointName(endpoint string) string {
 		return "OnChannelPost"
 	case tele.OnEditedChannelPost:
 		return "OnEditedChannelPost"
+	case tele.OnTopicCreated:
+		return "OnTopicCreated"
+	case tele.OnTopicReopened:
+		return "OnTopicReopened"
+	case tele.OnTopicClosed:
+		return "OnTopicClosed"
+	case tele.OnTopicEdited:
+		return "OnTopicEdited"
+	case tele.OnGeneralTopicHidden:
+		return "OnGeneralTopicHidden"
+	case tele.OnGeneralTopicUnhidden:
+		return "OnGeneralTopicUnhidden"
+	case tele.OnWriteAccessAllowed:
+		return "OnWriteAccessAllowed"
 	case tele.OnAddedToGroup:
 		return "OnAddedToGroup"
 	case tele.OnUserJoined:
 		return "OnUserJoined"
 	case tele.OnUserLeft:
 		return "OnUserLeft"
+	case tele.OnUserShared:
+		return "OnUserShared"
+	case tele.OnChatShared:
+		return "OnChatShared"
 	case tele.OnNewGroupTitle:
 		return "OnNewGroupTitle"
 	case tele.OnNewGroupPhoto:
