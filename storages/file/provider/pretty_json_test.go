@@ -70,9 +70,11 @@ func TestPrettyJson_Save(t *testing.T) {
 	storage := file.ChatsStorage{
 		66: {
 			33: {
-				State: "input@text",
-				Data: map[string][]byte{
-					"number": []byte("14"),
+				0: {
+					State: "input@text",
+					Data: map[string][]byte{
+						"number": []byte("14"),
+					},
 				},
 			},
 		},
@@ -106,9 +108,11 @@ func TestPrettyJson_Save(t *testing.T) {
 				assert.NoError(t, e.Encode(jsonStorage{
 					66: {
 						33: {
-							State: "input@text",
-							Data: map[string]json.RawMessage{
-								"number": json.RawMessage("14"),
+							0: {
+								State: "input@text",
+								Data: map[string]json.RawMessage{
+									"number": json.RawMessage("14"),
+								},
 							},
 						},
 					},
@@ -156,9 +160,11 @@ func TestPrettyJson_convertFrom(t *testing.T) {
 			args: args{jsonStorage{
 				1: {
 					1: {
-						State: "test",
-						Data: map[string]json.RawMessage{
-							"key": json.RawMessage(`"value"`),
+						0: {
+							State: "test",
+							Data: map[string]json.RawMessage{
+								"key": json.RawMessage(`"value"`),
+							},
 						},
 					},
 				},
@@ -167,9 +173,11 @@ func TestPrettyJson_convertFrom(t *testing.T) {
 			want: file.ChatsStorage{
 				1: {
 					1: {
-						State: "test",
-						Data: map[string][]byte{
-							"key": []byte(`"value"`),
+						0: {
+							State: "test",
+							Data: map[string][]byte{
+								"key": []byte(`"value"`),
+							},
 						},
 					},
 				},
@@ -179,36 +187,36 @@ func TestPrettyJson_convertFrom(t *testing.T) {
 			name:   "base64 string",
 			fields: fields{TryDecodeBase64String: true},
 			args: args{jsonStorage{
-				1: {1: {
+				1: {1: {0: {
 					Data: map[string]json.RawMessage{
 						"key": jsonB64EncodeBytes(t, `"value"`),
 					},
-				}},
+				}}},
 			}},
 			want: file.ChatsStorage{
-				1: {1: {
+				1: {1: {0: {
 					Data: map[string][]byte{
 						"key": []byte(`"value"`),
 					},
-				}},
+				}}},
 			},
 		},
 		{
 			name:   "base64 object",
 			fields: fields{TryDecodeBase64String: true},
 			args: args{jsonStorage{
-				1: {1: {
+				1: {1: {0: {
 					Data: map[string]json.RawMessage{
 						"obj": jsonB64EncodeBytes(t, `{"foo": "test"}`),
 					},
-				}},
+				}}},
 			}},
 			want: file.ChatsStorage{
-				1: {1: {
+				1: {1: {0: {
 					Data: map[string][]byte{
 						"obj": []byte(`{"foo": "test"}`),
 					},
-				}},
+				}}},
 			},
 		},
 	}

@@ -103,7 +103,7 @@ func (j PrettyJson) Read(r io.Reader) (file.ChatsStorage, error) {
 	return j.convertFrom(dest), nil
 }
 
-type jsonStorage map[int64]map[int64]record
+type jsonStorage map[file.ChatID]map[file.UserID]map[file.ThreadID]record
 type record struct {
 	State string                     `json:"state"`
 	Data  map[string]json.RawMessage `json:"data"`
@@ -125,17 +125,21 @@ func (PrettyJson) tryDecodeB64(enc *b64.Encoding, src []byte) ([]byte, bool) {
 
 func (PrettyJson) convertTo(storage file.ChatsStorage) jsonStorage {
 	result := make(jsonStorage)
-	for chatId, usersStorage := range storage {
-		usersData := make(map[int64]record)
-		for userId, r := range usersStorage {
-			data := make(map[string]json.RawMessage)
-			for key, raw := range r.Data {
-				data[key] = raw
+	for chatId, users := range storage {
+		usersData := make(map[file.UserID]map[file.ThreadID]record)
+		for userId, threads := range users {
+			threadsData := make(map[file.ThreadID]record)
+			for threadId, r := range threads {
+				data := make(map[string]json.RawMessage)
+				for key, raw := range r.Data {
+					data[key] = raw
+				}
+				threadsData[threadId] = record{
+					State: r.State,
+					Data:  data,
+				}
 			}
-			usersData[userId] = record{
-				State: r.State,
-				Data:  data,
-			}
+			usersData[userId] = threadsData
 		}
 		result[chatId] = usersData
 	}
@@ -146,21 +150,25 @@ func (j PrettyJson) convertFrom(storage jsonStorage) file.ChatsStorage {
 	result := make(file.ChatsStorage)
 	for chatId, usersStorage := range storage {
 		usersData := make(file.UsersStorage)
-		for userId, r := range usersStorage {
-			data := make(map[string][]byte)
-			for key, raw := range r.Data {
-				if j.TryDecodeBase64String {
-					decoded, ok := j.tryDecodeB64(b64.StdEncoding, raw)
-					if ok {
-						raw = decoded
+		for userId, threadsStorage := range usersStorage {
+			threadsData := make(file.ThreadsStorage)
+			for threadId, r := range threadsStorage {
+				data := make(map[string][]byte)
+				for key, raw := range r.Data {
+					if j.TryDecodeBase64String {
+						decoded, ok := j.tryDecodeB64(b64.StdEncoding, raw)
+						if ok {
+							raw = decoded
+						}
 					}
+					data[key] = raw
 				}
-				data[key] = raw
+				threadsData[threadId] = file.Record{
+					State: r.State,
+					Data:  data,
+				}
 			}
-			usersData[userId] = file.Record{
-				State: r.State,
-				Data:  data,
-			}
+			usersData[userId] = threadsData
 		}
 		result[chatId] = usersData
 	}
