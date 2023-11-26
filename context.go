@@ -1,7 +1,7 @@
 package fsm
 
 import (
-	tele "gopkg.in/telebot.v3"
+	"context"
 )
 
 // Context is wrapper for work with FSM from handlers
@@ -30,45 +30,38 @@ type Context interface {
 }
 
 type fsmContext struct {
-	s          Storage
-	c          tele.Context
-	chat, user int64
+	storage Storage
+	key     StorageKey
 }
 
 // NewFSMContext returns new builtin FSM Context.
-func NewFSMContext(c tele.Context, storage Storage) Context {
+func NewFSMContext(storage Storage, key StorageKey) Context {
 	return &fsmContext{
-		c:    c,
-		s:    storage,
-		chat: c.Chat().ID,
-		user: c.Sender().ID,
+		storage: storage,
+		key:     key,
 	}
 }
 
-func (f *fsmContext) Bot() *tele.Bot {
-	return f.c.Bot()
+func (f *fsmContext) State(ctx context.Context) (State, error) {
+	return f.storage.GetState(ctx, f.key)
 }
 
-func (f *fsmContext) State() (State, error) {
-	return f.s.GetState(f.chat, f.user)
+func (f *fsmContext) SetState(ctx context.Context, state State) error {
+	return f.storage.SetState(ctx, f.key, state)
 }
 
-func (f *fsmContext) Set(state State) error {
-	return f.s.SetState(f.chat, f.user, state)
+func (f *fsmContext) Finish(ctx context.Context, deleteData bool) error {
+	return f.storage.ResetState(ctx, f.key, deleteData)
 }
 
-func (f *fsmContext) Finish(deleteData bool) error {
-	return f.s.ResetState(f.chat, f.user, deleteData)
+func (f *fsmContext) Update(ctx context.Context, key string, data any) error {
+	return f.storage.UpdateData(ctx, f.key, key, data)
 }
 
-func (f *fsmContext) Update(key string, data any) error {
-	return f.s.UpdateData(f.chat, f.user, key, data)
+func (f *fsmContext) Data(ctx context.Context, key string, to any) error {
+	return f.storage.GetData(ctx, f.key, key, to)
 }
 
-func (f *fsmContext) Get(key string, to any) error {
-	return f.s.GetData(f.chat, f.user, key, to)
-}
-
-func (f *fsmContext) MustGet(key string, to any) {
-	_ = f.s.GetData(f.chat, f.user, key, to)
+func (f *fsmContext) MustGet(ctx context.Context, key string, to any) {
+	_ = f.storage.GetData(ctx, f.key, key, to)
 }
