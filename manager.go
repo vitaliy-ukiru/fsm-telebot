@@ -52,15 +52,6 @@ func (m *Manager) Group() *tele.Group {
 	return m.group
 }
 
-// With return copy of manager with group.
-//
-// Deprecated: Incorrect behavior with separated groups.
-func (m *Manager) With(g *tele.Group) *Manager {
-	manager := *m
-	manager.group = g
-	return &manager
-}
-
 // SetContextMaker sets new context maker to current Manager instance.
 func (m *Manager) SetContextMaker(contextMaker ContextMakerFunc) {
 	m.contextMaker = contextMaker
