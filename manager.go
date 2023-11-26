@@ -155,7 +155,7 @@ func (m *Manager) withMiddleware(h tele.HandlerFunc, ms []tele.MiddlewareFunc) t
 // Use only as directed and if you know what you are doing.
 func (m *Manager) HandlerAdapter(handler Handler) tele.HandlerFunc {
 	return func(c tele.Context) error {
-		return handler(c, m.contextMaker(c, m.store))
+		return handler(c, m.newContext(c))
 	}
 }
 
@@ -170,7 +170,7 @@ func (m *Manager) adapter(handler Handler) tele.HandlerFunc {
 		}
 
 		// bad case, creating new context
-		return handler(c, m.contextMaker(c, m.store))
+		return handler(c, m.newContext(c))
 	}
 }
 
@@ -178,7 +178,12 @@ func (m *Manager) adapter(handler Handler) tele.HandlerFunc {
 //
 // It calls provided ContextMakerFunc.
 func (m *Manager) NewContext(teleCtx tele.Context) Context {
-	return m.contextMaker(teleCtx, m.store)
+	return m.newContext(teleCtx)
+}
+
+func (m *Manager) newContext(ctx tele.Context) Context {
+	key := ExtractKeyWithStrategy(ctx, m.strategy)
+	return m.contextMaker(m.store, key)
 }
 
 // Storage returns manger storage instance.
