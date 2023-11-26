@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
@@ -79,17 +80,23 @@ func TestStorage_GetData(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.TODO()
 			m := &Storage{
-				storage: map[chatKey]record{
-					newKey(c, u): {
+				storage: map[fsm.StorageKey]record{
+					{ChatID: c, UserID: u}: {
 						data: tt.data,
 					},
 				},
 			}
 			tt.wantErr(
 				t,
-				m.GetData(c, u, tt.args.key, tt.args.to),
-				fmt.Sprintf("GetData(%v, %v, %v, %v)", c, u, tt.args.key, tt.args.to),
+				m.GetData(
+					ctx,
+					fsm.StorageKey{ChatID: c, UserID: u},
+					tt.args.key,
+					tt.args.to,
+				),
+				fmt.Sprintf("GetData(%v, %v, %v, %v, %v)", ctx, c, u, tt.args.key, tt.args.to),
 			)
 		})
 	}

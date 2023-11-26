@@ -120,7 +120,15 @@ func TestManagerOneEndpoint(t *testing.T) {
 				h.On(tt.wantCallFunc).Return()
 
 				bot.ProcessUpdate(tele.Update{
-					Message: &tele.Message{Text: "test"}, // for jump to tele.OnText
+					Message: &tele.Message{
+						Text: "test",
+						Chat: &tele.Chat{
+							ID: 1,
+						},
+						Sender: &tele.User{
+							ID: 1,
+						},
+					}, // for jump to tele.OnText
 				})
 
 				h.AssertCalled(t, tt.wantCallFunc)
