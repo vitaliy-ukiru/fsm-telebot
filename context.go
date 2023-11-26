@@ -7,29 +7,26 @@ import (
 // Context is wrapper for work with FSM from handlers
 // and related to telebot.Context.
 type Context interface {
-	// Bot returns the bot instance.
-	Bot() *tele.Bot
-
 	// State returns current state for sender.
-	State() (State, error)
+	State(ctx context.Context) (State, error)
 
-	// Set state for sender.
-	Set(state State) error
+	// SetState state for sender.
+	SetState(ctx context.Context, state State) error
 
 	// Finish state for sender and deletes data if arg provided.
-	Finish(deleteData bool) error
+	Finish(ctx context.Context, deleteData bool) error
 
 	// Update data in storage. When data argument is nil it must
 	// delete this item.
-	Update(key string, data any) error
+	Update(ctx context.Context, key string, data any) error
 
-	// Get data from storage and save it into `to` argument.
+	// Data gets from storage and save it into `to` argument.
 	// Destination argument must be a valid pointer.
-	Get(key string, to any) error
+	Data(ctx context.Context, key string, to any) error
 
 	// MustGet returns data from storage and save it into `to` ignoring errors.
 	// Destination argument must be a valid pointer.
-	MustGet(key string, to any)
+	MustGet(ctx context.Context, key string, to any)
 }
 
 type fsmContext struct {
