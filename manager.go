@@ -17,6 +17,7 @@ type Manager struct {
 	bot          *tele.Bot
 	group        *tele.Group // handlers will add to group
 	store        Storage
+	strategy     Strategy
 	handlers     handlerMapping
 	contextMaker ContextMakerFunc
 	list         []tele.MiddlewareFunc
@@ -27,6 +28,7 @@ func NewManager(
 	bot *tele.Bot,
 	group *tele.Group,
 	storage Storage,
+	strategy Strategy,
 	ctxMaker ContextMakerFunc,
 ) *Manager {
 	if group == nil {
@@ -39,6 +41,7 @@ func NewManager(
 		bot:          bot,
 		group:        group,
 		store:        storage,
+		strategy:     strategy,
 		contextMaker: ctxMaker,
 		handlers:     make(handlerMapping),
 	}
