@@ -31,8 +31,6 @@ type record struct {
 	data  map[string]any
 }
 
-type chatKey string
-
 // do exec `call` and save modification to storage.
 // It helps not to copy the code.
 func (m *Storage) do(key fsm.StorageKey, call func(*record)) {
