@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -56,7 +57,7 @@ func main() {
 	storage := memory.NewStorage()
 	defer storage.Close()
 
-	manager := fsm.NewManager(bot, nil, storage, nil)
+	manager := fsm.NewManager(bot, nil, storage, fsm.StrategyDefault, nil)
 
 	bot.Use(middleware.AutoRespond())
 
@@ -66,7 +67,8 @@ func main() {
 	manager.Bind("/cancel", fsm.AnyState, OnCancelForm)
 
 	manager.Bind("/state", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
-		s, err := state.State()
+		ctx := context.TODO()
+		s, err := state.State(ctx)
 		if err != nil {
 			return c.Send(fmt.Sprintf("can't get state: %s", err))
 		}
@@ -108,14 +110,16 @@ func OnStartRegister(c tele.Context, state fsm.Context) error {
 	menu.Reply(menu.Row(cancelBtn))
 	menu.ResizeKeyboard = true
 
-	state.Set(InputNameState)
+	ctx := context.TODO()
+	state.SetState(ctx, InputNameState)
 	return c.Send("Great! How your name?", menu)
 }
 
 func OnInputName(c tele.Context, state fsm.Context) error {
 	name := c.Message().Text
-	go state.Update("name", name)
-	go state.Set(InputAgeState)
+	ctx := context.TODO()
+	go state.Update(ctx, "name", name)
+	go state.SetState(ctx, InputAgeState)
 	return c.Send(fmt.Sprintf("Okay, %s. How old are you?", name))
 }
 
@@ -124,8 +128,10 @@ func OnInputAge(c tele.Context, state fsm.Context) error {
 	if err != nil || age <= 0 || age > 200 {
 		return c.Send("Incorrect age. Retry again.")
 	}
-	go state.Update("age", age)
-	go state.Set(InputHobbyState)
+
+	ctx := context.TODO()
+	go state.Update(ctx, "age", age)
+	go state.SetState(ctx, InputHobbyState)
 
 	return c.Send("Great! What is your hobby?")
 }
@@ -137,15 +143,17 @@ func OnInputHobby(c tele.Context, state fsm.Context) error {
 		m.Row(resetFormBtn, cancelInlineBtn),
 	)
 
-	go state.Update("hobby", c.Message().Text)
-	go state.Set(InputConfirmState)
+	ctx := context.TODO()
+	go state.Update(ctx, "hobby", c.Message().Text)
+	go state.SetState(ctx, InputConfirmState)
 
 	var (
 		senderName string
 		senderAge  int
 	)
-	state.MustGet("name", &senderName)
-	state.MustGet("age", &senderAge)
+
+	state.MustGet(ctx, "name", &senderName)
+	state.MustGet(ctx, "age", &senderAge)
 
 	c.Send("Wow, interesting!")
 	return c.Send(fmt.Sprintf(
@@ -160,15 +168,16 @@ func OnInputHobby(c tele.Context, state fsm.Context) error {
 }
 
 func OnInputConfirm(c tele.Context, state fsm.Context) error {
-	defer state.Finish(true)
+	ctx := context.TODO()
+	defer state.Finish(ctx, true)
 	var (
 		senderName  string
 		senderAge   int
 		senderHobby string
 	)
-	state.MustGet("name", &senderName)
-	state.MustGet("age", &senderAge)
-	state.MustGet("hobby", &senderHobby)
+	state.MustGet(ctx, "name", &senderName)
+	state.MustGet(ctx, "age", &senderAge)
+	state.MustGet(ctx, "hobby", &senderHobby)
 
 	data, _ := json.Marshal(tele.M{
 		"name":  senderName,
@@ -207,12 +216,14 @@ func OnCancelForm(c tele.Context, state fsm.Context) error {
 	menu.Reply(menu.Row(regBtn))
 	menu.ResizeKeyboard = true
 
-	go state.Finish(true)
+	ctx := context.TODO()
+	go state.Finish(ctx, true)
 	return c.Send("Form entry canceled. Your input data has been deleted.", menu)
 }
 
 func OnInputResetForm(c tele.Context, state fsm.Context) error {
-	go state.Set(InputNameState)
+	ctx := context.TODO()
+	go state.SetState(ctx, InputNameState)
 	c.Send("Okay! Start again.")
 	return c.Send("How your name?")
 }

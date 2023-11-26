@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
@@ -87,7 +88,7 @@ func main() {
 		}
 	}(fsmStorage)
 
-	m := fsm.NewManager(bot, nil, fsmStorage, nil)
+	m := fsm.NewManager(bot, nil, fsmStorage, 0, nil)
 	m.Group().Handle("/help", func(c tele.Context) error {
 		return c.Send(helpText)
 	})
@@ -107,7 +108,8 @@ func main() {
 	m.Bind("/snap", fsm.AnyState, CommandSnap)
 
 	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
-		if err := state.Finish(false); err != nil {
+		ctx := context.TODO()
+		if err := state.Finish(ctx, false); err != nil {
 			return sendErr(c, err)
 		}
 
@@ -115,7 +117,8 @@ func main() {
 	})
 
 	m.Bind("/state", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
-		userState, err := state.State()
+		ctx := context.TODO()
+		userState, err := state.State(ctx)
 		if err != nil {
 			return sendErr(c, err)
 		}
@@ -145,7 +148,8 @@ func GetDataHandler(c tele.Context, state fsm.Context) error {
 		return c.Send("Send key after command. Like /data my_key")
 	}
 	var data string
-	if err := state.Get(key, &data); err != nil {
+	ctx := context.TODO()
+	if err := state.Data(ctx, key, &data); err != nil {
 		if errors.Is(err, fsm.ErrNotFound) {
 			return c.Send("Not found data in my storage :(")
 		}
@@ -160,7 +164,8 @@ func SetDataHandler(c tele.Context, state fsm.Context) error {
 		return c.Send("Ops. You must input two args. Like /set_data my_key my_data")
 	}
 
-	if err := state.Update(args[0], args[1]); err != nil {
+	ctx := context.TODO()
+	if err := state.Update(ctx, args[0], args[1]); err != nil {
 		return sendErr(c, err)
 	}
 
@@ -168,7 +173,8 @@ func SetDataHandler(c tele.Context, state fsm.Context) error {
 }
 
 func CommandBegin(c tele.Context, state fsm.Context) error {
-	if err := state.Set(stateBegin); err != nil {
+	ctx := context.TODO()
+	if err := state.SetState(ctx, stateBegin); err != nil {
 		return sendErr(c, err)
 	}
 
@@ -176,7 +182,8 @@ func CommandBegin(c tele.Context, state fsm.Context) error {
 }
 
 func CommandRight(c tele.Context, state fsm.Context) error {
-	if err := state.Set(stateRight); err != nil {
+	ctx := context.TODO()
+	if err := state.SetState(ctx, stateRight); err != nil {
 		return sendErr(c, err)
 	}
 
@@ -193,7 +200,8 @@ func RevertMessageText(c tele.Context, _ fsm.Context) error {
 }
 
 func CommandLeft(c tele.Context, state fsm.Context) error {
-	if err := state.Set(stateLeft); err != nil {
+	ctx := context.TODO()
+	if err := state.SetState(ctx, stateLeft); err != nil {
 		return sendErr(c, err)
 	}
 
@@ -206,7 +214,8 @@ func UpperMessageText(c tele.Context, _ fsm.Context) error {
 }
 
 func CommandEnd(c tele.Context, state fsm.Context) error {
-	if err := state.Set(stateEnd); err != nil {
+	ctx := context.TODO()
+	if err := state.SetState(ctx, stateEnd); err != nil {
 		return sendErr(c, err)
 	}
 
@@ -229,7 +238,8 @@ func CommandComplex(c tele.Context, state fsm.Context) error {
 		User:  c.Sender().ID,
 		Input: float,
 	}
-	if err := state.Update("snap", s); err != nil {
+	ctx := context.TODO()
+	if err := state.Update(ctx, "snap", s); err != nil {
 		return c.Send(err.Error())
 	}
 	return c.Send("saved")
@@ -237,7 +247,8 @@ func CommandComplex(c tele.Context, state fsm.Context) error {
 
 func CommandSnap(c tele.Context, state fsm.Context) error {
 	var s snap
-	if err := state.Get("snap", &s); err != nil {
+	ctx := context.TODO()
+	if err := state.Data(ctx, "snap", &s); err != nil {
 		return c.Send(err.Error())
 	}
 	return c.Send(fmt.Sprintf("%+v", s))

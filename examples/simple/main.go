@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -30,17 +31,17 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	m := fsm.NewManager(bot, nil, memory.NewStorage(), nil)
+	m := fsm.NewManager(bot, nil, memory.NewStorage(), fsm.StrategyDefault, nil)
 
 	// For any state
 	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
-		_ = state.Finish(c.Data() != "")
+		_ = state.Finish(context.TODO(), c.Data() != "")
 		return c.Send("finish")
 	})
 	// It also for any states. Because manager don't filter this handler
 	bot.Handle("/state",
 		m.HandlerAdapter(func(c tele.Context, state fsm.Context) error {
-			s, err := state.State()
+			s, err := state.State(context.TODO())
 			if err != nil {
 				return c.Send(fmt.Sprintf("can't get state: %s", err))
 			}
@@ -50,8 +51,8 @@ func main() {
 
 	bot.Handle("/set", m.TelebotHandlerForState(fsm.DefaultState,
 		func(c tele.Context, state fsm.Context) error {
-			state.Set(MyState)
-			_ = state.Update("payload", time.Now().Format(time.RFC850))
+			state.SetState(context.TODO(), MyState)
+			_ = state.Update(context.TODO(), "payload", time.Now().Format(time.RFC850))
 			return c.Send("set state")
 		},
 	))
@@ -59,8 +60,8 @@ func main() {
 	m.Handle(fsm.F(tele.OnText, MyState),
 		func(c tele.Context, state fsm.Context) error {
 			var payload string
-			state.Get("payload", &payload)
-			_ = state.Update("payload", time.Now().Format(time.RFC850)+"  "+c.Text())
+			state.Data(context.TODO(), "payload", &payload)
+			_ = state.Update(context.TODO(), "payload", time.Now().Format(time.RFC850)+"  "+c.Text())
 			return c.Send("prev payload: " + payload)
 		},
 	)
