@@ -3,15 +3,15 @@ package file
 import (
 	"reflect"
 
+	"github.com/vitaliy-ukiru/fsm-telebot"
 	"github.com/vitaliy-ukiru/fsm-telebot/storages"
 )
 
 // do exec `call` and save modification to storage.
 // It helps not to copy the code.
-func (s *Storage) do(chat, user int64, call func(*record)) {
+func (s *Storage) do(key fsm.StorageKey, call func(*record)) {
 	s.rw.Lock()
 	defer s.rw.Unlock()
-	key := newKey(chat, user)
 
 	r := s.data[key]
 	call(&r)

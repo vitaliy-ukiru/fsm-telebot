@@ -7,15 +7,18 @@ type (
 	// This type using simple type for key.
 	// In any way you can create you custom type and custom provider
 	// with compatibility to this type.
-	ChatsStorage map[ChatID]UsersStorage
-	UsersStorage map[UserID]Record
-	Record       struct {
+	ChatsStorage   map[ChatID]UsersStorage
+	UsersStorage   map[UserID]ThreadsStorage
+	ThreadsStorage map[ThreadID]Record
+
+	Record struct {
 		State string            `json:"state"`
 		Data  map[string][]byte `json:"data"`
 	}
 
-	ChatID = int64
-	UserID = int64
+	ChatID   = int64
+	UserID   = int64
+	ThreadID = int64
 )
 
 func (d *dataCache) export(p Provider) ([]byte, error) {
@@ -54,9 +57,14 @@ func (s *Storage) dump() (ChatsStorage, error) {
 
 	chats := make(ChatsStorage)
 	for key, r := range s.data {
-		chat, ok := chats[key.c]
+		chat, ok := chats[key.ChatID]
 		if !ok {
 			chat = make(UsersStorage)
+		}
+
+		user, ok := chat[key.UserID]
+		if !ok {
+			user = make(ThreadsStorage)
 		}
 
 		exportData, err := r.exportData(s.p)
@@ -64,11 +72,19 @@ func (s *Storage) dump() (ChatsStorage, error) {
 			return nil, err
 		}
 
-		chat[key.u] = Record{
+		user[key.ThreadID] = Record{
 			State: string(r.state),
 			Data:  exportData,
 		}
-		chats[key.c] = chat
+
+		chat[key.UserID] = user
+		chats[key.ChatID] = chat
+
+		//chat[key.u] = Record{
+		//	State: string(r.state),
+		//	Data:  exportData,
+		//}
+		//chats[key.c] = chat
 	}
 	return chats, nil
 }
@@ -78,15 +94,21 @@ func (s *Storage) reset(dump ChatsStorage) {
 	defer s.rw.Unlock()
 
 	for chatId, usersStorage := range dump {
-		for userId, r := range usersStorage {
-			data := make(map[string]dataCache)
-			for key, d := range r.Data {
-				data[key] = dataCache{raw: d}
-			}
-
-			s.data[newKey(chatId, userId)] = record{
-				state: fsm.State(r.State),
-				data:  data,
+		for userId, threadsStorage := range usersStorage {
+			for threadId, r := range threadsStorage {
+				data := make(map[string]dataCache)
+				for key, d := range r.Data {
+					data[key] = dataCache{raw: d}
+				}
+				key := fsm.StorageKey{
+					ChatID:   chatId,
+					UserID:   userId,
+					ThreadID: threadId,
+				}
+				s.data[key] = record{
+					state: fsm.State(r.State),
+					data:  data,
+				}
 			}
 		}
 	}

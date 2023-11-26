@@ -5,6 +5,7 @@
 package file
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -26,18 +27,6 @@ type Provider interface {
 	Decode(data []byte, v any) error
 }
 
-// chatKey represents  pair {c: chat id, u: user id}
-type chatKey struct {
-	c, u int64
-}
-
-func newKey(chat, user int64) chatKey {
-	return chatKey{
-		c: chat,
-		u: user,
-	}
-}
-
 type record struct {
 	state fsm.State
 	data  map[string]dataCache
@@ -54,6 +43,8 @@ type dataCache struct {
 	raw []byte
 }
 
+var _ fsm.Storage = (*Storage)(nil)
+
 // Storage is file storage. In run time data storages in RAM.
 // On save (Close) and restore (Init) data will edit
 // by result of Provider.
@@ -62,13 +53,17 @@ type dataCache struct {
 // to special format - ChatsStorage.
 type Storage struct {
 	rw       sync.RWMutex
-	data     map[chatKey]record
+	data     map[fsm.StorageKey]record
 	p        Provider
 	writerFn WriterFunc
 }
 
 func NewStorage(p Provider, writerFn WriterFunc) *Storage {
-	return &Storage{p: p, writerFn: writerFn, data: make(map[chatKey]record)}
+	return &Storage{
+		p:        p,
+		writerFn: writerFn,
+		data:     make(map[fsm.StorageKey]record),
+	}
 }
 
 // Init storage set from readr.
@@ -88,22 +83,21 @@ func (s *Storage) Init(r io.Reader) error {
 	return nil
 }
 
-func (s *Storage) GetState(chatId, userId int64) (fsm.State, error) {
+func (s *Storage) GetState(_ context.Context, key fsm.StorageKey) (fsm.State, error) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	key := newKey(chatId, userId)
 	return s.data[key].state, nil
 }
 
-func (s *Storage) SetState(chatId, userId int64, state fsm.State) error {
-	s.do(chatId, userId, func(r *record) {
+func (s *Storage) SetState(_ context.Context, key fsm.StorageKey, state fsm.State) error {
+	s.do(key, func(r *record) {
 		r.state = state
 	})
 	return nil
 }
 
-func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
-	s.do(chatId, userId, func(r *record) {
+func (s *Storage) ResetState(_ context.Context, key fsm.StorageKey, withData bool) error {
+	s.do(key, func(r *record) {
 		r.state = ""
 		if withData {
 			for key := range r.data {
@@ -114,8 +108,8 @@ func (s *Storage) ResetState(chatId, userId int64, withData bool) error {
 	return nil
 }
 
-func (s *Storage) UpdateData(chatId, userId int64, key string, data any) error {
-	s.do(chatId, userId, func(r *record) {
+func (s *Storage) UpdateData(_ context.Context, target fsm.StorageKey, key string, data any) error {
+	s.do(target, func(r *record) {
 		if r.data == nil {
 			r.data = make(map[string]dataCache)
 		}
@@ -128,10 +122,10 @@ func (s *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 	return nil
 }
 
-func (s *Storage) GetData(chatId, userId int64, key string, to any) error {
+func (s *Storage) GetData(_ context.Context, target fsm.StorageKey, key string, to any) error {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
-	d, ok := s.data[newKey(chatId, userId)].data[key]
+	d, ok := s.data[target].data[key]
 	if !ok {
 		return fsm.ErrNotFound
 	}
