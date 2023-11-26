@@ -1,6 +1,7 @@
 package fsm
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -26,7 +27,7 @@ func TestManagerOneEndpoint(t *testing.T) {
 
 	m := &Manager{
 		group:        bot.Group(),
-		contextMaker: func(_ tele.Context, _ Storage) Context { return ctxMock },
+		contextMaker: func(_ Storage, _ StorageKey) Context { return ctxMock },
 		handlers:     handlerMapping{},
 	}
 
@@ -104,7 +105,7 @@ func TestManagerOneEndpoint(t *testing.T) {
 
 	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
-			call := ctxMock.EXPECT().State()
+			call := ctxMock.EXPECT().State(context.TODO())
 			call.Return(tt.mockState, nil)
 			defer call.Unset()
 
