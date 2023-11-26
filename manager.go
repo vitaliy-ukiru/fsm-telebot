@@ -10,7 +10,7 @@ type Handler func(c tele.Context, state Context) error
 
 // ContextMakerFunc alias for function for create new context.
 // You can use custom Context implementation.
-type ContextMakerFunc func(ctx tele.Context, storage Storage) Context // TODO: add error to return values
+type ContextMakerFunc func(storage Storage, key StorageKey) Context // TODO: add error to return values
 
 // Manager is object for managing FSM, binding handlers.
 type Manager struct {
