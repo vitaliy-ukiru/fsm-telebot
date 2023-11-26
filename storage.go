@@ -45,5 +45,5 @@ type Storage interface {
 type StorageKey struct {
 	ChatID   int64
 	UserID   int64
-	ThreadID *int64
+	ThreadID int64
 }

@@ -14,7 +14,7 @@ const (
 	StrategyDefault = StrategyUserInChat
 )
 
-func (s Strategy) Apply(chatId int64, userId int64, threadId *int64) StorageKey {
+func (s Strategy) Apply(chatId int64, userId int64, threadId int64) StorageKey {
 	switch s {
 	case StrategyChat:
 		return StorageKey{ChatID: chatId, UserID: chatId}
@@ -34,11 +34,7 @@ func (s Strategy) Apply(chatId int64, userId int64, threadId *int64) StorageKey 
 func ExtractKeyWithStrategy(c tele.Context, strategy Strategy) StorageKey {
 	chatId := c.Chat().ID
 	userId := c.Sender().ID
-	var threadId *int64
-	if msg := c.Message(); msg.TopicMessage {
-		thread := int64(msg.ThreadID)
-		threadId = &thread
-	}
+	threadId := int64(c.Message().ThreadID) // TODO: check is safe using zero thread id
 
 	return strategy.Apply(chatId, userId, threadId)
 }
