@@ -17,8 +17,8 @@ func Test_wrapperContext_Get(t *testing.T) {
 	teleCtx.Set("_fsm_", 56)
 
 	fsmCtx := Context(&fsmContext{
-		c: teleCtx,
-		s: nil, // pass nil, because don't testing context methods
+		key:     ExtractKeyWithStrategy(teleCtx, StrategyDefault),
+		storage: nil, // pass nil, because don't testing context methods
 	})
 
 	w := &wrapperContext{
@@ -59,7 +59,7 @@ func Test_tryUnwrapContext(t *testing.T) {
 		c tele.Context
 	}
 	teleCtx := B.NewContext(U)
-	fsmCtx := Context(&fsmContext{c: teleCtx})
+	fsmCtx := Context(&fsmContext{key: ExtractKeyWithStrategy(teleCtx, StrategyDefault)})
 
 	teleCtx.Set(fsmInternalKey, fsmCtx)
 
