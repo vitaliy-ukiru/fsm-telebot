@@ -10,6 +10,8 @@ const (
 	StrategyGlobalUser
 	StrategyUserInTopic
 	StrategyChatTopic
+
+	StrategyDefault = StrategyUserInChat
 )
 
 func (s Strategy) Apply(chatId int64, userId int64, threadId *int64) StorageKey {
