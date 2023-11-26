@@ -1,6 +1,8 @@
 package fsm
 
 import (
+	"context"
+
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -21,7 +23,7 @@ func F(endpoint any, states ...State) Filter {
 // TelebotHandlerForState creates tele.Handler with local filter for given state.
 func (m *Manager) TelebotHandlerForState(want State, handler Handler) tele.HandlerFunc {
 	return m.HandlerAdapter(func(c tele.Context, state Context) error {
-		s, err := state.State()
+		s, err := state.State(context.Background())
 		if err != nil {
 			return &ErrHandlerState{Handler: "Manager.ForState", Err: err}
 		}
@@ -36,7 +38,7 @@ func (m *Manager) TelebotHandlerForState(want State, handler Handler) tele.Handl
 // for current state to check for presence in given states.
 func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.HandlerFunc {
 	return m.HandlerAdapter(func(c tele.Context, state Context) error {
-		s, err := state.State()
+		s, err := state.State(context.Background())
 		if err != nil {
 			return &ErrHandlerState{Handler: "Manager.ForStates", Err: err}
 		}
