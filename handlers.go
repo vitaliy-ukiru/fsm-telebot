@@ -1,6 +1,7 @@
 package fsm
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/internal"
@@ -40,9 +41,9 @@ func (hm handlerMapping) insert(endpoint string, entry handlerEntry) {
 // forEndpoint returns handler what filters queries and execute correct handler.
 func (m *Manager) forEndpoint(endpoint string) tele.HandlerFunc {
 	return func(teleCtx tele.Context) error {
-		fsmCtx := m.contextMaker(teleCtx, m.store)
+		fsmCtx := m.newContext(teleCtx)
 
-		state, err := fsmCtx.State()
+		state, err := fsmCtx.State(context.TODO())
 		if err != nil {
 			return &ErrHandlerState{Handler: endpoint, Err: err}
 		}
