@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages"
+	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storage"
 )
 
 var _ fsm.Storage = (*Storage)(nil)
@@ -93,22 +93,22 @@ func (m *Storage) GetData(_ context.Context, target fsm.StorageKey, key string, 
 
 	destValue := reflect.ValueOf(to)
 	if destValue.Kind() != reflect.Ptr {
-		return storages.ErrNotPointer
+		return storage.ErrNotPointer
 	}
 	if destValue.IsNil() || !destValue.IsValid() {
-		return storages.ErrInvalidValue
+		return storage.ErrInvalidValue
 	}
 
 	destElem := destValue.Elem()
 	if !destElem.IsValid() {
-		return storages.ErrNotPointer
+		return storage.ErrNotPointer
 	}
 
 	destType := destElem.Type()
 
 	vType := reflect.TypeOf(v)
 	if !vType.AssignableTo(destType) {
-		return &storages.ErrWrongTypeAssign{
+		return &storage.ErrWrongTypeAssign{
 			Expect: vType,
 			Got:    destType,
 		}

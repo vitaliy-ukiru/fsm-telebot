@@ -1,6 +1,8 @@
 package provider
 
-import "github.com/vitaliy-ukiru/fsm-telebot/storages/file"
+import (
+	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storages/file"
+)
 
 func newError(provider string, op string, err error) error {
 	if err == nil {

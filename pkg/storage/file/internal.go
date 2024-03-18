@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages"
+	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storage"
 )
 
 // do exec `call` and save modification to storage.
@@ -22,15 +22,15 @@ func (s *Storage) do(key fsm.StorageKey, call func(*record)) {
 func (d *dataCache) get(to any, p Provider) error {
 	destValue := reflect.ValueOf(to)
 	if destValue.Kind() != reflect.Ptr {
-		return storages.ErrNotPointer
+		return storage.ErrNotPointer
 	}
 	if destValue.IsNil() || !destValue.IsValid() {
-		return storages.ErrInvalidValue
+		return storage.ErrInvalidValue
 	}
 
 	destElem := destValue.Elem()
 	if !destElem.IsValid() {
-		return storages.ErrNotPointer
+		return storage.ErrNotPointer
 	}
 
 	destType := destElem.Type()
@@ -45,7 +45,7 @@ func (d *dataCache) get(to any, p Provider) error {
 
 	vType := reflect.TypeOf(d.loaded)
 	if !vType.AssignableTo(destType) {
-		return &storages.ErrWrongTypeAssign{Expect: vType, Got: destType}
+		return &storage.ErrWrongTypeAssign{Expect: vType, Got: destType}
 	}
 
 	destElem.Set(reflect.ValueOf(d.loaded))

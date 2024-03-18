@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages/file"
+	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storages/file"
 )
 
 func jsonB64EncodeBytes(t *testing.T, s string) []byte {

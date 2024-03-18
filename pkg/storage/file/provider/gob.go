@@ -5,7 +5,7 @@ import (
 	"encoding/gob"
 	"io"
 
-	"github.com/vitaliy-ukiru/fsm-telebot/storages/file"
+	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storages/file"
 )
 
 // Gob provides encoding/gob format.

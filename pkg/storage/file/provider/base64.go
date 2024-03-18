@@ -5,7 +5,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/vitaliy-ukiru/fsm-telebot/storages/file"
+	file2 "github.com/vitaliy-ukiru/fsm-telebot/pkg/storages/file"
 )
 
 // Base64 provides access to two encoded values.
@@ -16,10 +16,10 @@ import (
 // and base64 stream writes to io.Writer.
 type Base64 struct {
 	enc  *b64.Encoding
-	base file.Provider
+	base file2.Provider
 }
 
-func NewBase64(enc *b64.Encoding, base file.Provider) *Base64 {
+func NewBase64(enc *b64.Encoding, base file2.Provider) *Base64 {
 	return &Base64{enc: enc, base: base}
 }
 
@@ -49,7 +49,7 @@ func (b Base64) ProviderName() string {
 	return "base64:" + b.base.ProviderName()
 }
 
-func (b Base64) Save(w io.Writer, data file.ChatsStorage) (err error) {
+func (b Base64) Save(w io.Writer, data file2.ChatsStorage) (err error) {
 	encoder := b64.NewEncoder(b.enc, w)
 
 	defer func(encoder io.WriteCloser) {
@@ -61,7 +61,7 @@ func (b Base64) Save(w io.Writer, data file.ChatsStorage) (err error) {
 	return
 }
 
-func (b Base64) Read(r io.Reader) (file.ChatsStorage, error) {
+func (b Base64) Read(r io.Reader) (file2.ChatsStorage, error) {
 	d := b64.NewDecoder(b.enc, r)
 	cs, err := b.base.Read(d)
 	if err != nil {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages"
+	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storage"
 )
 
 func TestStorage_GetData(t *testing.T) {
@@ -52,7 +52,7 @@ func TestStorage_GetData(t *testing.T) {
 			data: m,
 			args: args{"right", false},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, storages.ErrNotPointer, i...)
+				return assert.ErrorIs(t, err, storage.ErrNotPointer, i...)
 			},
 		},
 		{
@@ -60,7 +60,7 @@ func TestStorage_GetData(t *testing.T) {
 			data: m,
 			args: args{"foo", new(byte)},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				var e *storages.ErrWrongTypeAssign
+				var e *storage.ErrWrongTypeAssign
 				if !assert.ErrorAs(t, err, &e, i...) {
 					return false
 				}
@@ -74,7 +74,7 @@ func TestStorage_GetData(t *testing.T) {
 			data: m,
 			args: args{"age", (*int)(nil)},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, storages.ErrInvalidValue, i...)
+				return assert.ErrorIs(t, err, storage.ErrInvalidValue, i...)
 			},
 		},
 	}
