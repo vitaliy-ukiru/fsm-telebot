@@ -39,7 +39,14 @@ func (m *Manager) NewContext(ctx tele.Context) Context {
 	return m.contextFactory(m.store, key)
 }
 
-// Storage returns manger storage instance.
+func (m *Manager) mustGetContext(c tele.Context) Context {
+	fsmCtx, ok := tryUnwrapContext(c)
+	if ok {
+		return fsmCtx
+	}
+	return m.NewContext(c)
+}
+
 func (m *Manager) Storage() Storage {
 	return m.store
 }
