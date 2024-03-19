@@ -11,6 +11,10 @@ const (
 	AnyState     State = "*"
 )
 
+func (s State) MatchState(other State) bool {
+	return s == other || (s == AnyState || other == AnyState)
+}
+
 func (s State) GoString() string {
 	switch s {
 	case DefaultState:
