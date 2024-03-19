@@ -1,5 +1,11 @@
 package fsm
 
+import (
+	"strings"
+
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/internal/container"
+)
+
 // State objects just string for identification.
 //
 // Default state is empty string.
@@ -33,55 +39,66 @@ func (s State) GoString() string {
 //	group := fsm.NewStateGroup("adm", "State0", "State1")
 //	filter := fsm.F("/cmd", group.States...)
 type StateGroup struct {
-	Prefix string
-	States []State
+	prefix string
+	group  *container.LinkedHashSet[State]
+}
+
+func (sg StateGroup) Prefix() string {
+	return sg.prefix
 }
 
 // NewStateGroup returns new StateGroup.
 func NewStateGroup(prefix string, states ...State) *StateGroup {
+	sgPrefix := State(prefix + stateGroupSep)
 	for i := 0; i < len(states); i++ {
-		states[i] = State(prefix) + "@" + states[i]
+		states[i] = sgPrefix + states[i]
 	}
 	return &StateGroup{
-		Prefix: prefix,
-		States: states,
+		prefix: prefix,
+		group:  container.NewLinkedHashSet(states...),
 	}
 }
 
-// New returns new state with group prefix and add to group states.
-func (s *StateGroup) New(name string) (state State) {
-	state = State(s.Prefix + "@" + name)
-	s.States = append(s.States, state)
-	return
+const stateGroupSep = ":"
+
+func (sg StateGroup) New(name string) State {
+	prefix := sg.prefix + stateGroupSep
+	if !strings.HasPrefix(name, prefix) {
+		name = prefix + name
+	}
+	state := State(name)
+	sg.group.Add(state)
+	return state
 }
 
-// Previous state relative to current.
-// Returns default state if current state is first or not found.
-func (s *StateGroup) Previous(current State) State {
-	currentIndex := stateIndex(s.States, current)
-	if currentIndex <= 0 {
+func (sg StateGroup) Next(s State) State {
+	node := sg.group.Item(s)
+	if node == nil {
 		return DefaultState
 	}
-	return s.States[currentIndex-1]
-}
 
-// Next state relative to current.
-// Returns default state if current state is last or not found.
-func (s *StateGroup) Next(current State) State {
-	currentIndex := stateIndex(s.States, current)
-	if currentIndex >= len(s.States)-1 || currentIndex == -1 {
+	next := node.Next()
+	if next == nil {
 		return DefaultState
 	}
-	return s.States[currentIndex+1]
+
+	return next.Value()
 }
 
-// stateIndex returns the index of the given state in given states.
-// Returns -1 if state is not found.
-func stateIndex(states []State, s State) int {
-	for i, state := range states {
-		if s == state {
-			return i
-		}
+func (sg StateGroup) Prev(s State) State {
+	node := sg.group.Item(s)
+	if node == nil {
+		return DefaultState
 	}
-	return -1
+
+	prev := node.Prev()
+	if prev == nil {
+		return DefaultState
+	}
+
+	return prev.Value()
+}
+
+func (sg StateGroup) MatchState(state State) bool {
+	return sg.group.Has(state)
 }
