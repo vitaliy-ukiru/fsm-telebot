@@ -3,7 +3,7 @@ package internal
 import (
 	"reflect"
 
-	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storage"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage"
 )
 
 func SetupValue(value any, to any) error {

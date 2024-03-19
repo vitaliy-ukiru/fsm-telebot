@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storage"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage"
 )
 
 var _ fsm.Storage = (*Storage)(nil)

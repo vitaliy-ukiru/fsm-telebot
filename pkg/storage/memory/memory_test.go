@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/pkg/storage"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage"
 )
 
 func TestStorage_GetData(t *testing.T) {
