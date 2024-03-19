@@ -11,16 +11,8 @@ Based on [aiogram](https://github.com/aiogram/aiogram) FSM version.
 It not a full implementation FSM. It just states manager for telegram bots.
 
 ## Install:
-
-
-Last release version (manually):
 ```
-go get -u github.com/vitaliy-ukiru/fsm-telebot@v1.3.3
-```
-
-Last commit from master (unstable)
-```
-go get -u github.com/vitaliy-ukiru/fsm-telebot@master
+go get github.com/vitaliy-ukiru/fsm-telebot/v2
 ```
 
 
@@ -33,11 +25,12 @@ go get -u github.com/vitaliy-ukiru/fsm-telebot@master
 package main
 
 import (
+	"context"
 	"os"
 	"time"
 
-	"github.com/vitaliy-ukiru/fsm-telebot"
 	"github.com/vitaliy-ukiru/fsm-telebot/storages/memory"
+	"github.com/vitaliy-ukiru/telebot-filter/dispatcher"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -50,17 +43,18 @@ func main() {
 		panic(err)
 	}
 
+	dp := dispatcher.NewDispatcher(bot.Group())
+
 	// for example using memory storage
 	// but prefer will use redis or file storage.
 	storage := memory.NewStorage()
 	manager := fsm.NewManager(
-		bot,     // tele.Bot
-		nil,     // handlers will setups to this group. Default: creates new
-		storage, // storage for states and data
-		nil,     // context maker. Default: NewFSMContext
+		storage,             // storage for states and data
+		fsm.StrategyDefault, // strategy handling target for storage
+		nil,                 // context factory. Default: NewFSMContext
 	)
-	manager.Bind("/state", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
-		userState, err := state.State()
+	manager.Handle(dp, "/state", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
+		userState, err := state.State(context.Background())
 		if err != nil {
 			return c.Send("error: " + err.Error())
 		}
