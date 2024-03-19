@@ -3,63 +3,48 @@ package fsm
 import (
 	"context"
 
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/internal/container"
+	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
 	tele "gopkg.in/telebot.v3"
 )
 
-// Filter object. Needs for graceful works with state filters.
-type Filter struct {
-	Endpoint any
-	States   []State
+type StateMatcher interface {
+	MatchState(state State) bool
 }
 
-// F returns new Filter object.
-func F(endpoint any, states ...State) Filter {
-	if len(states) == 0 {
-		states = []State{DefaultState}
+type StateFilter func(state State) bool
+
+func (s StateFilter) MatchState(state State) bool {
+	return s(state)
+}
+
+func NewSingleStateFilter(want State) StateFilter {
+	return func(state State) bool {
+		return want.MatchState(state)
 	}
-	return Filter{Endpoint: endpoint, States: states}
 }
 
-// TelebotHandlerForState creates tele.Handler with local filter for given state.
-func (m *Manager) TelebotHandlerForState(want State, handler Handler) tele.HandlerFunc {
-	return m.HandlerAdapter(func(c tele.Context, state Context) error {
-		s, err := state.State(context.Background())
-		if err != nil {
-			return &ErrHandlerState{Handler: "Manager.ForState", Err: err}
-		}
-		if Is(s, want) {
-			return handler(c, state)
-		}
-		return nil
-	})
-}
-
-// TelebotHandlerForStates creates a handler with local filter
-// for current state to check for presence in given states.
-func (m *Manager) TelebotHandlerForStates(h Handler, states ...State) tele.HandlerFunc {
-	return m.HandlerAdapter(func(c tele.Context, state Context) error {
-		s, err := state.State(context.Background())
-		if err != nil {
-			return &ErrHandlerState{Handler: "Manager.ForStates", Err: err}
-		}
-		if ContainsState(s, states...) {
-			return h(c, state)
-		}
-		return nil
-	})
-}
-
-func (f Filter) CallbackUnique() string {
-	return getEndpoint(f.Endpoint)
-}
-
-func getEndpoint(e any) string {
-	switch end := e.(type) {
-	case string:
-		return end
-	case tele.CallbackEndpoint:
-		return end.CallbackUnique()
-	default:
-		panic("fsm: telebot: unsupported endpoint")
+func NewMultiStateFilter(states ...State) StateFilter {
+	set := container.HashSetFromSlice(states)
+	return func(state State) bool {
+		return set.Has(state) || set.Has(AnyState)
 	}
+}
+
+func (m *Manager) Filter(filter StateFilter) tf.Filter {
+	return func(c tele.Context) bool {
+		return m.runFilter(c, filter)
+	}
+}
+
+func (m *Manager) runFilter(c tele.Context, filter StateFilter) bool {
+	fsmCtx := m.mustGetContext(c)
+
+	state, err := fsmCtx.State(context.Background())
+	if err != nil {
+		c.Bot().OnError(err, c)
+		return false
+	}
+
+	return filter(state)
 }
