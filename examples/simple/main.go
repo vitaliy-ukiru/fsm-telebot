@@ -8,9 +8,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages/memory"
-
+	"github.com/vitaliy-ukiru/fsm-telebot/v2"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/fsmopt"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage/memory"
+	"github.com/vitaliy-ukiru/telebot-filter/dispatcher"
+	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -31,37 +33,54 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	m := fsm.NewManager(bot, nil, memory.NewStorage(), fsm.StrategyDefault, nil)
-
-	// For any state
-	m.Bind("/stop", fsm.AnyState, func(c tele.Context, state fsm.Context) error {
-		_ = state.Finish(context.TODO(), c.Data() != "")
-		return c.Send("finish")
-	})
-	// It also for any states. Because manager don't filter this handler
-	bot.Handle("/state",
-		m.HandlerAdapter(func(c tele.Context, state fsm.Context) error {
+	dp := dispatcher.NewDispatcher(bot.Group())
+	m := fsm.New(
+		memory.NewStorage(),
+		fsm.StrategyDefault,
+		nil,
+	)
+	dp.Dispatch(
+		m.New(
+			fsmopt.On("/stop"),            // set endpoint
+			fsmopt.OnStates(fsm.AnyState), // set state filter
+			fsmopt.Do(func(c tele.Context, state fsm.Context) error { // set handler
+				_ = state.Finish(context.TODO(), c.Data() != "")
+				return c.Send("finish")
+			}),
+		),
+	)
+	// It also for any states. Because FSM don't filter this handler
+	dp.Handle(tf.RawHandler{
+		Endpoint: "/stop",
+		Callback: m.Adapt(func(c tele.Context, state fsm.Context) error {
 			s, err := state.State(context.TODO())
 			if err != nil {
 				return c.Send(fmt.Sprintf("can't get state: %s", err))
 			}
 			return c.Send("your state: " + s.GoString())
 		}),
-	)
+	})
 
-	bot.Handle("/set", m.TelebotHandlerForState(fsm.DefaultState,
-		func(c tele.Context, state fsm.Context) error {
+	m.Bind(
+		dp,
+		fsmopt.OnStates(), // will handler on default state
+		fsmopt.Do(func(c tele.Context, state fsm.Context) error {
 			state.SetState(context.TODO(), MyState)
 			_ = state.Update(context.TODO(), "payload", time.Now().Format(time.RFC850))
 			return c.Send("set state")
-		},
-	))
+		}),
+	)
 
-	m.Handle(fsm.F(tele.OnText, MyState),
+	m.Handle(
+		dp,
+		tele.OnText,
+		MyState,
 		func(c tele.Context, state fsm.Context) error {
 			var payload string
 			state.Data(context.TODO(), "payload", &payload)
-			_ = state.Update(context.TODO(), "payload", time.Now().Format(time.RFC850)+"  "+c.Text())
+
+			newPayload := time.Now().Format(time.RFC850) + "  " + c.Text()
+			_ = state.Update(context.TODO(), "payload", newPayload)
 			return c.Send("prev payload: " + payload)
 		},
 	)
