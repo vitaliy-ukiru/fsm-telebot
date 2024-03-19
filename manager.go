@@ -8,7 +8,6 @@ import (
 // Handler is object for handling  updates with FSM context.
 type Handler func(c tele.Context, state Context) error
 
-// ContextMakerFunc alias for function for create new context.
 // ContextFactoryFunc alias for function for create new context.
 // You can use custom Context implementation.
 type ContextFactoryFunc func(storage Storage, key StorageKey) Context
