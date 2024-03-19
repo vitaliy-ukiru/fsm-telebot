@@ -1,7 +1,7 @@
 package fsm
 
 import (
-	"github.com/vitaliy-ukiru/fsm-telebot/internal"
+	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -49,4 +49,77 @@ func (m *Manager) mustGetContext(c tele.Context) Context {
 
 func (m *Manager) Storage() Storage {
 	return m.store
+}
+
+func (m *Manager) Adapt(handler Handler) tele.HandlerFunc {
+	return func(c tele.Context) error {
+		return m.runHandler(c, handler)
+	}
+}
+
+// HandlerConfig is description of FSM handler.
+type HandlerConfig struct {
+	Endpoint    any
+	OnState     StateFilter
+	Filters     []tf.Filter
+	Handler     Handler
+	Middlewares []tele.MiddlewareFunc
+}
+
+// ---- handler section ----
+
+type HandlerOptionFunc func(hc *HandlerConfig)
+
+type Dispatcher interface {
+	Dispatch(tf.Route) string
+}
+
+// Bind builds handler and to dispatcher. For builtin option see fsmopt pkg.
+func (m *Manager) Bind(dp Dispatcher, opts ...HandlerOptionFunc) {
+	dp.Dispatch(m.New(opts...))
+}
+
+// Handle using telebot-like parameters for adding new handler.
+// But it don't supports filters.
+// #TODO: add one filter support
+func (m *Manager) Handle(
+	dp Dispatcher,
+	endpoint any,
+	onState StateMatcher,
+	fn Handler,
+	mw ...tele.MiddlewareFunc,
+) {
+	entity := handlerEntity{
+		endpoint: endpoint,
+		onState:  onState.MatchState,
+		handler:  fn,
+	}
+
+	route := m.newRoute(entity, mw)
+	dp.Dispatch(route)
+}
+
+func (m *Manager) New(opts ...HandlerOptionFunc) tf.Route {
+	hc := new(HandlerConfig)
+	for _, opt := range opts {
+		opt(hc)
+	}
+
+	entity := handlerEntity{
+		endpoint: hc.Endpoint,
+		onState:  hc.OnState,
+		filters:  hc.Filters,
+		handler:  hc.Handler,
+	}
+	return m.newRoute(entity, hc.Middlewares)
+}
+
+func (m *Manager) newRoute(entity handlerEntity, mw []tele.MiddlewareFunc) tf.Route {
+	return tf.Route{
+		Handler: &fsmHandler{
+			handlerEntity: entity,
+			manager:       m,
+		},
+		Middlewares: mw,
+	}
 }
