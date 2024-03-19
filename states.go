@@ -22,23 +22,6 @@ func (s State) GoString() string {
 	}
 }
 
-// Is indicates what state corresponds for other state.
-func Is(s State, other State) bool {
-	// if current or other state is * => every state equal
-	return s == other || (s == AnyState || other == AnyState)
-}
-
-// ContainsState indicates what state contains in given states.
-func ContainsState(s State, other ...State) bool {
-	for _, state := range other {
-		if Is(s, state) {
-			return true
-		}
-	}
-
-	return false
-}
-
 // StateGroup storages states with custom prefix.
 //
 // It can use in filter like and handled via Manager.Handle:
