@@ -1,6 +1,8 @@
 package fsm
 
-import tele "gopkg.in/telebot.v3"
+import (
+	tele "gopkg.in/telebot.v3"
+)
 
 type Strategy int
 
@@ -14,20 +16,42 @@ const (
 	StrategyDefault = StrategyUserInChat
 )
 
-func (s Strategy) Apply(chatId int64, userId int64, threadId int64) StorageKey {
+func (s Strategy) Apply(botId int64, chatId int64, userId int64, threadId int64) StorageKey {
 	switch s {
 	case StrategyChat:
-		return StorageKey{ChatID: chatId, UserID: chatId}
+		return StorageKey{
+			BotID:  botId,
+			ChatID: chatId,
+			UserID: chatId,
+		}
 	case StrategyGlobalUser:
-		return StorageKey{ChatID: userId, UserID: userId}
+		return StorageKey{
+			BotID:  botId,
+			ChatID: userId,
+			UserID: userId,
+		}
 	case StrategyUserInTopic:
-		return StorageKey{ChatID: chatId, UserID: userId, ThreadID: threadId}
+		return StorageKey{
+			BotID:    botId,
+			ChatID:   chatId,
+			UserID:   userId,
+			ThreadID: threadId,
+		}
 	case StrategyChatTopic:
-		return StorageKey{ChatID: chatId, UserID: chatId, ThreadID: threadId}
+		return StorageKey{
+			BotID:    botId,
+			ChatID:   chatId,
+			UserID:   chatId,
+			ThreadID: threadId,
+		}
 	case StrategyUserInChat:
 		fallthrough
 	default:
-		return StorageKey{ChatID: chatId, UserID: userId}
+		return StorageKey{
+			BotID:  botId,
+			ChatID: chatId,
+			UserID: userId,
+		}
 	}
 }
 
@@ -36,5 +60,6 @@ func ExtractKeyWithStrategy(c tele.Context, strategy Strategy) StorageKey {
 	userId := c.Sender().ID
 	threadId := int64(c.Message().ThreadID) // TODO: check is safe using zero thread id
 
-	return strategy.Apply(chatId, userId, threadId)
+	bot := c.Bot().Me
+	return strategy.Apply(bot.ID, chatId, userId, threadId)
 }

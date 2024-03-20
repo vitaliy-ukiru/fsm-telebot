@@ -43,6 +43,7 @@ type Storage interface {
 }
 
 type StorageKey struct {
+	BotID    int64
 	ChatID   int64
 	UserID   int64
 	ThreadID int64
