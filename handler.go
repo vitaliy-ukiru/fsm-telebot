@@ -21,18 +21,15 @@ func (m *Manager) WrapContext(next tele.HandlerFunc) tele.HandlerFunc {
 }
 
 type handlerEntity struct {
-	endpoint any
-	onState  StateFilter
-	filters  []tf.Filter
-	handler  Handler
+	onState StateFilter
+	filters []tf.Filter
+	handler Handler
 }
 
 type fsmHandler struct {
 	handlerEntity
 	manager *Manager
 }
-
-func (fh fsmHandler) HandlerEndpoint() any { return fh.endpoint }
 
 func (fh fsmHandler) Check(c tele.Context) bool {
 	// skip state filter on nil

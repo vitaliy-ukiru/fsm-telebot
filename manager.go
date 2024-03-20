@@ -70,7 +70,7 @@ type HandlerConfig struct {
 type HandlerOptionFunc func(hc *HandlerConfig)
 
 type Dispatcher interface {
-	Dispatch(tf.Route) string
+	Dispatch(tf.Route)
 }
 
 // Bind builds handler and to dispatcher. For builtin option see fsmopt pkg.
@@ -89,12 +89,11 @@ func (m *Manager) Handle(
 	mw ...tele.MiddlewareFunc,
 ) {
 	entity := handlerEntity{
-		endpoint: endpoint,
-		onState:  onState.MatchState,
-		handler:  fn,
+		onState: onState.MatchState,
+		handler: fn,
 	}
 
-	route := m.newRoute(entity, mw)
+	route := m.newRoute(endpoint, entity, mw)
 	dp.Dispatch(route)
 }
 
@@ -105,16 +104,16 @@ func (m *Manager) New(opts ...HandlerOptionFunc) tf.Route {
 	}
 
 	entity := handlerEntity{
-		endpoint: hc.Endpoint,
-		onState:  hc.OnState,
-		filters:  hc.Filters,
-		handler:  hc.Handler,
+		onState: hc.OnState,
+		filters: hc.Filters,
+		handler: hc.Handler,
 	}
-	return m.newRoute(entity, hc.Middlewares)
+	return m.newRoute(hc.Endpoint, entity, hc.Middlewares)
 }
 
-func (m *Manager) newRoute(entity handlerEntity, mw []tele.MiddlewareFunc) tf.Route {
+func (m *Manager) newRoute(e any, entity handlerEntity, mw []tele.MiddlewareFunc) tf.Route {
 	return tf.Route{
+		Endpoint: e,
 		Handler: &fsmHandler{
 			handlerEntity: entity,
 			manager:       m,

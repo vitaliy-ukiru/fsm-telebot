@@ -50,8 +50,7 @@ func main() {
 		),
 	)
 	// It also for any states. Because FSM don't filter this handler
-	dp.Handle(tf.RawHandler{
-		Endpoint: "/stop",
+	dp.Handle("/stop", tf.RawHandler{
 		Callback: m.Adapt(func(c tele.Context, state fsm.Context) error {
 			s, err := state.State(context.TODO())
 			if err != nil {
@@ -70,7 +69,6 @@ func main() {
 			return c.Send("set state")
 		}),
 	)
-
 	m.Handle(
 		dp,
 		tele.OnText,
