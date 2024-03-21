@@ -65,8 +65,14 @@ func main() {
 		fsmopt.On(tele.OnText),
 		fsmopt.OnStates(), // will handler on default state
 		fsmopt.Do(func(c tele.Context, state fsm.Context) error {
-			state.SetState(context.TODO(), MyState)
-			_ = state.Update(context.TODO(), "payload", time.Now().Format(time.RFC850))
+			err := state.SetState(context.TODO(), MyState)
+			if err != nil {
+				return err
+			}
+			err = state.Update(context.TODO(), "payload", time.Now().Format(time.RFC850))
+			if err != nil {
+				return err
+			}
 			return c.Send("set state")
 		}),
 	)
@@ -76,7 +82,9 @@ func main() {
 		MyState,
 		func(c tele.Context, state fsm.Context) error {
 			var payload string
-			state.Data(context.TODO(), "payload", &payload)
+			if err := state.Data(context.TODO(), "payload", &payload); err != nil {
+				return err
+			}
 
 			newPayload := time.Now().Format(time.RFC850) + "  " + c.Text()
 			_ = state.Update(context.TODO(), "payload", newPayload)
