@@ -88,7 +88,8 @@ func main() {
 
 			newPayload := time.Now().Format(time.RFC850) + "  " + c.Text()
 			_ = state.Update(context.TODO(), "payload", newPayload)
-			return c.Send("prev payload: " + payload)
+			return c.Send("prev payload: " + payload + "\n" +
+				"new payload: " + newPayload)
 		},
 	)
 
