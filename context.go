@@ -23,10 +23,6 @@ type Context interface {
 	// Data gets from storage and save it into `to` argument.
 	// Destination argument must be a valid pointer.
 	Data(ctx context.Context, key string, to any) error
-
-	// MustGet returns data from storage and save it into `to` ignoring errors.
-	// Destination argument must be a valid pointer.
-	MustGet(ctx context.Context, key string, to any)
 }
 
 type fsmContext struct {
@@ -60,8 +56,4 @@ func (f *fsmContext) Update(ctx context.Context, key string, data any) error {
 
 func (f *fsmContext) Data(ctx context.Context, key string, to any) error {
 	return f.storage.GetData(ctx, f.key, key, to)
-}
-
-func (f *fsmContext) MustGet(ctx context.Context, key string, to any) {
-	_ = f.storage.GetData(ctx, f.key, key, to)
 }

@@ -36,10 +36,6 @@ func (w *WithoutContext) Data(key string, to any) error {
 	return w.Context.Data(context.Background(), key, to)
 }
 
-func (w *WithoutContext) MustGet(key string, to any) {
-	w.Context.MustGet(context.Background(), key, to)
-}
-
 type Handler func(c tele.Context, state *WithoutContext) error
 
 func Wrap(h Handler) fsm.Handler {
