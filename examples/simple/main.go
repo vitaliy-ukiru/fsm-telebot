@@ -12,6 +12,7 @@ import (
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/fsmopt"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage/memory"
 	"github.com/vitaliy-ukiru/telebot-filter/dispatcher"
+	"github.com/vitaliy-ukiru/telebot-filter/routing"
 	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
 	tele "gopkg.in/telebot.v3"
 )
@@ -91,6 +92,28 @@ func main() {
 			return c.Send("prev payload: " + payload + "\n" +
 				"new payload: " + newPayload)
 		},
+	)
+	// also we can use telebot-filter/routing package
+	bot.Handle(
+		"/check",
+		routing.New(
+			// don't specify the endpoint because it doesn't count.
+			m.New(
+				fsmopt.FilterState(func(state fsm.State) bool {
+					return state != fsm.DefaultState
+				}),
+				fsmopt.Do(func(c tele.Context, state fsm.Context) error {
+					return c.Send("You have state!")
+				}),
+			),
+
+			m.New(
+				fsmopt.OnStates(),
+				fsmopt.Do(func(c tele.Context, state fsm.Context) error {
+					return c.Send("You in default state")
+				}),
+			),
+		),
 	)
 
 	bot.Start()
