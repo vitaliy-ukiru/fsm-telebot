@@ -31,12 +31,12 @@ func Do(h fsm.Handler) fsm.HandlerOptionFunc {
 }
 
 func OnStates(states ...fsm.State) fsm.HandlerOptionFunc {
-	var filter fsm.StateFilter
+	var filter fsm.StateMatcher
 	switch len(states) {
 	case 0:
-		filter = fsm.NewSingleStateFilter(fsm.DefaultState)
+		filter = fsm.DefaultState
 	case 1:
-		filter = fsm.NewSingleStateFilter(states[0])
+		filter = states[0]
 	default:
 		filter = fsm.NewMultiStateFilter(states...)
 	}

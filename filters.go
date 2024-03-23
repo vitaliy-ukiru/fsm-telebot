@@ -18,12 +18,6 @@ func (s StateFilter) MatchState(state State) bool {
 	return s(state)
 }
 
-func NewSingleStateFilter(want State) StateFilter {
-	return func(state State) bool {
-		return want.MatchState(state)
-	}
-}
-
 func NewMultiStateFilter(states ...State) StateFilter {
 	set := container.HashSetFromSlice(states)
 	return func(state State) bool {
