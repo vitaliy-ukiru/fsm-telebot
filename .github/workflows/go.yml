@@ -5,9 +5,10 @@ on:
     tags:
       - v*
     branches:
-      - master
-      - main
+      - "dev/v2"
   pull_request:
+    branches:
+      - "dev/v2"
 
 jobs:
   test_go_mod_version:

@@ -16,10 +16,7 @@ func Test_wrapperContext_Get(t *testing.T) {
 	teleCtx := B.NewContext(U)
 	teleCtx.Set("_fsm_", 56)
 
-	fsmCtx := Context(&fsmContext{
-		c: teleCtx,
-		s: nil, // pass nil, because don't testing context methods
-	})
+	fsmCtx := Context(&fsmContext{})
 
 	w := &wrapperContext{
 		Context: teleCtx,
@@ -59,7 +56,7 @@ func Test_tryUnwrapContext(t *testing.T) {
 		c tele.Context
 	}
 	teleCtx := B.NewContext(U)
-	fsmCtx := Context(&fsmContext{c: teleCtx})
+	fsmCtx := Context(&fsmContext{})
 
 	teleCtx.Set(fsmInternalKey, fsmCtx)
 

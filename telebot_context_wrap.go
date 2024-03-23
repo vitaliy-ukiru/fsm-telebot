@@ -25,6 +25,10 @@ type wrapperContext struct {
 	fsmCtx Context
 }
 
+func newWrapperContext(context tele.Context, fsmCtx Context) *wrapperContext {
+	return &wrapperContext{Context: context, fsmCtx: fsmCtx}
+}
+
 func (w *wrapperContext) Get(key string) any {
 	if key == fsmInternalKey {
 		return w.fsmCtx

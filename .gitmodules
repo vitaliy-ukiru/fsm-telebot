@@ -1,3 +1,0 @@
-[submodule "storages/redis"]
-	path = storages/redis
-	url = https://github.com/nacknime-official/fsm-telebot-redis-storage

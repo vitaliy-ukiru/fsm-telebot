@@ -2,23 +2,26 @@
 package memory
 
 import (
+	"context"
 	"reflect"
 	"sync"
 
-	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage"
 )
+
+var _ fsm.Storage = (*Storage)(nil)
 
 // Storage is storage based on RAM. Drops if you stop script.
 type Storage struct {
 	l       sync.RWMutex
-	storage map[chatKey]record
+	storage map[fsm.StorageKey]record
 }
 
 // NewStorage returns new storage in memory.
 func NewStorage() *Storage {
 	return &Storage{
-		storage: make(map[chatKey]record),
+		storage: make(map[fsm.StorageKey]record),
 	}
 }
 
@@ -28,43 +31,32 @@ type record struct {
 	data  map[string]any
 }
 
-type chatKey struct {
-	c int64 // c is Chat ID
-	u int64 // u is User ID
-}
-
-func newKey(chat, user int64) chatKey {
-	return chatKey{c: chat, u: user}
-}
-
 // do exec `call` and save modification to storage.
 // It helps not to copy the code.
-func (m *Storage) do(chat, user int64, call func(*record)) {
+func (m *Storage) do(key fsm.StorageKey, call func(*record)) {
 	m.l.Lock()
 	defer m.l.Unlock()
-	key := newKey(chat, user)
 
 	r := m.storage[key]
 	call(&r)
 	m.storage[key] = r
 }
 
-func (m *Storage) GetState(chatId, userId int64) (fsm.State, error) {
+func (m *Storage) GetState(_ context.Context, key fsm.StorageKey) (fsm.State, error) {
 	m.l.RLock()
 	defer m.l.RUnlock()
-	key := newKey(chatId, userId)
 	return m.storage[key].state, nil
 }
 
-func (m *Storage) SetState(chatId, userId int64, state fsm.State) error {
-	m.do(chatId, userId, func(r *record) {
+func (m *Storage) SetState(_ context.Context, key fsm.StorageKey, state fsm.State) error {
+	m.do(key, func(r *record) {
 		r.state = state
 	})
 	return nil
 }
 
-func (m *Storage) ResetState(chatId, userId int64, withData bool) error {
-	m.do(chatId, userId, func(r *record) {
+func (m *Storage) ResetState(_ context.Context, key fsm.StorageKey, withData bool) error {
+	m.do(key, func(r *record) {
 		r.state = ""
 		if withData {
 			for key := range r.data {
@@ -75,8 +67,8 @@ func (m *Storage) ResetState(chatId, userId int64, withData bool) error {
 	return nil
 }
 
-func (m *Storage) UpdateData(chatId, userId int64, key string, data any) error {
-	m.do(chatId, userId, func(r *record) {
+func (m *Storage) UpdateData(_ context.Context, target fsm.StorageKey, key string, data any) error {
+	m.do(target, func(r *record) {
 		if r.data == nil {
 			r.data = make(map[string]any)
 		}
@@ -89,11 +81,11 @@ func (m *Storage) UpdateData(chatId, userId int64, key string, data any) error {
 	return nil
 }
 
-func (m *Storage) GetData(chatId, userId int64, key string, to any) error {
+func (m *Storage) GetData(_ context.Context, target fsm.StorageKey, key string, to any) error {
 	m.l.RLock()
 	defer m.l.RUnlock()
 
-	r := m.storage[newKey(chatId, userId)]
+	r := m.storage[target]
 	v, ok := r.data[key]
 	if !ok {
 		return fsm.ErrNotFound
@@ -101,22 +93,22 @@ func (m *Storage) GetData(chatId, userId int64, key string, to any) error {
 
 	destValue := reflect.ValueOf(to)
 	if destValue.Kind() != reflect.Ptr {
-		return storages.ErrNotPointer
+		return storage.ErrNotPointer
 	}
 	if destValue.IsNil() || !destValue.IsValid() {
-		return storages.ErrInvalidValue
+		return storage.ErrInvalidValue
 	}
 
 	destElem := destValue.Elem()
 	if !destElem.IsValid() {
-		return storages.ErrNotPointer
+		return storage.ErrNotPointer
 	}
 
 	destType := destElem.Type()
 
 	vType := reflect.TypeOf(v)
 	if !vType.AssignableTo(destType) {
-		return &storages.ErrWrongTypeAssign{
+		return &storage.ErrWrongTypeAssign{
 			Expect: vType,
 			Got:    destType,
 		}
