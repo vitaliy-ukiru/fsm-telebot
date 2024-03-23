@@ -31,13 +31,13 @@ func NewMultiStateFilter(states ...State) StateFilter {
 	}
 }
 
-func (m *Manager) Filter(filter StateFilter) tf.Filter {
+func (m *Manager) Filter(filter StateMatcher) tf.Filter {
 	return func(c tele.Context) bool {
 		return m.runFilter(c, filter)
 	}
 }
 
-func (m *Manager) runFilter(c tele.Context, filter StateFilter) bool {
+func (m *Manager) runFilter(c tele.Context, filter StateMatcher) bool {
 	fsmCtx := m.mustGetContext(c)
 
 	state, err := fsmCtx.State(context.Background())
@@ -46,5 +46,5 @@ func (m *Manager) runFilter(c tele.Context, filter StateFilter) bool {
 		return false
 	}
 
-	return filter(state)
+	return filter.MatchState(state)
 }

@@ -53,7 +53,7 @@ func FilterState(filter fsm.StateFilter) fsm.HandlerOptionFunc {
 
 func MatchState(matcher fsm.StateMatcher) fsm.HandlerOptionFunc {
 	return func(hc *fsm.HandlerConfig) {
-		hc.OnState = matcher.MatchState
+		hc.OnState = matcher
 	}
 }
 

@@ -59,7 +59,7 @@ func (m *Manager) Adapt(handler Handler) tele.HandlerFunc {
 // HandlerConfig is description of FSM handler.
 type HandlerConfig struct {
 	Endpoint    any
-	OnState     StateFilter
+	OnState     StateMatcher
 	Filters     []tf.Filter
 	Handler     Handler
 	Middlewares []tele.MiddlewareFunc
@@ -89,7 +89,7 @@ func (m *Manager) Handle(
 	mw ...tele.MiddlewareFunc,
 ) {
 	entity := handlerEntity{
-		onState: onState.MatchState,
+		onState: onState,
 		handler: fn,
 	}
 
