@@ -80,7 +80,6 @@ func (m *Manager) Bind(dp Dispatcher, opts ...HandlerOptionFunc) {
 
 // Handle using telebot-like parameters for adding new handler.
 // But it don't supports filters.
-// #TODO: add one filter support
 func (m *Manager) Handle(
 	dp Dispatcher,
 	endpoint any,
