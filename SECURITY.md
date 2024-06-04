@@ -1,12 +1,16 @@
 # Security Policy
 
-## Supported Versionses.
-At current moment supported only last minor version and v1.2.
+## Supported Versions
+At current moment full support presents only for v2.x
+
+For v1.3.x will release only bug-fixes and possible
+service updates for support work.
 
 | Version | Supported          |
-| ------- | ------------------ |
-| 1.2.x   | :white_check_mark: |
-| < 1.2   | :x:                |
+|---------|--------------------|
+| 2.x     | :white_check_mark: |
+| 1.3.x   | :white_check_mark: |
+| < 1.3   | :x:                |
 
 ## Reporting a Vulnerability
 
