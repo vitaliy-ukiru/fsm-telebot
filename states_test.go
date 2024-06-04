@@ -24,7 +24,7 @@ func TestStateGroup_MatchState(t *testing.T) {
 		{
 			name: "not contains",
 			sg:   NewStateGroup("test", "state1"),
-			arg:  "state1", // state must don't match, because it not have prefix
+			arg:  "state1", // state must don't match, because it not has prefix
 			want: false,
 		},
 	}
