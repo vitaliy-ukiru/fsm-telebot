@@ -5,6 +5,29 @@
 [![Go](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go.yml/badge.svg?branch=master&style=flat-square)](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/go.yml)
 [![golangci-lint](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/golangci-lint.yml/badge.svg?branch=master)](https://github.com/vitaliy-ukiru/fsm-telebot/actions/workflows/golangci-lint.yml)
 
+<!-- TOC -->
+* [fsm-telebot](#fsm-telebot)
+* [Overview](#overview)
+* [Install](#install)
+* [Quick Start](#quick-start)
+  * [Create telebot.Bot instance](#create-telebotbot-instance)
+  * [Optionally create group (recommended)](#optionally-create-group-recommended)
+  * [Init FSM manager](#init-fsm-manager)
+    * [List of settings](#list-of-settings)
+  * [Optionally setup middleware for context](#optionally-setup-middleware-for-context)
+  * [Bind handler via telebot-filter](#bind-handler-via-telebot-filter)
+    * [telebot-filter/dispatcher](#telebot-filterdispatcher)
+      * [Init dispatcher](#init-dispatcher)
+      * [Setups handlers](#setups-handlers)
+    * [telebot-filter/routing](#telebot-filterrouting)
+* [Examples](#examples)
+* [Storages](#storages)
+  * [Memory storage](#memory-storage)
+    * [Path:](#path-)
+  * [Redis storage](#redis-storage)
+    * [Install](#install-1)
+  * [Add your implementation to list](#add-your-implementation-to-list)
+<!-- TOC -->
 
 # Overview
 Finite State Machine for [telebot](https://gopkg.in/telebot.v3). 
@@ -43,8 +66,8 @@ g = bot.Group()
 ```
 m := fsm.New(memory.NewStorage())
 ```
-Also, you can add optional settings. 
-See [fsmopt/manager.go](./fsmopt/manager.go)
+> Also, you can add optional settings. 
+> See [fsmopt/manager.go](./fsmopt/manager.go)
 
 ### List of settings
 - fsmopt.Strategy - Setup custom strategy for user's targeting in storage
@@ -99,8 +122,8 @@ m.Handle(
 ### telebot-filter/routing
 With this flow available only Manager.New
 
-And you don't need to pass endpoint option.
-Because routing package don't look on that.
+> You don't need to pass endpoint option.
+> Because routing package don't look on that.
 ```
 bot.Handle("/start", 
     routing.New(
