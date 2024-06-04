@@ -14,8 +14,9 @@ service updates for support work.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+You can report on vulnerability via issues 
+or in PM in telegram (link in my profile).
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+I'm always monitors activity in my repository.
+Estimated response time is less than 48 hours.
+This time may be increased due to some factors.
