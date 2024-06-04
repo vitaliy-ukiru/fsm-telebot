@@ -58,9 +58,7 @@ func (m *Storage) ResetState(_ context.Context, key fsm.StorageKey, withData boo
 	m.do(key, func(r *record) {
 		r.state = ""
 		if withData {
-			for key := range r.data {
-				delete(r.data, key)
-			}
+			clear(r.data)
 		}
 	})
 	return nil
