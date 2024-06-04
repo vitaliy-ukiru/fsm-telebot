@@ -36,7 +36,6 @@ func main() {
 	}
 
 	g := bot.Group()
-	dp := dispatcher.NewDispatcher(g)
 	m := fsm.New(memory.NewStorage())
 
 	// Bind to bot group for call before filters.
@@ -44,6 +43,7 @@ func main() {
 	// It helps make less allocations
 	g.Use(m.WrapContext)
 
+	dp := dispatcher.NewDispatcher(g)
 	dp.Dispatch(
 		m.New(
 			fsmopt.On("/stop"),            // set endpoint
