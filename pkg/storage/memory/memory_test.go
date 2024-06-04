@@ -1,13 +1,13 @@
 package memory
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vitaliy-ukiru/fsm-telebot"
-	"github.com/vitaliy-ukiru/fsm-telebot/storages"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 )
 
 func TestStorage_GetData(t *testing.T) {
@@ -51,7 +51,7 @@ func TestStorage_GetData(t *testing.T) {
 			data: m,
 			args: args{"right", false},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, storages.ErrNotPointer, i...)
+				return assert.ErrorIs(t, err, ErrNotPointer, i...)
 			},
 		},
 		{
@@ -59,7 +59,7 @@ func TestStorage_GetData(t *testing.T) {
 			data: m,
 			args: args{"foo", new(byte)},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				var e *storages.ErrWrongTypeAssign
+				var e *ErrWrongTypeAssign
 				if !assert.ErrorAs(t, err, &e, i...) {
 					return false
 				}
@@ -73,23 +73,29 @@ func TestStorage_GetData(t *testing.T) {
 			data: m,
 			args: args{"age", (*int)(nil)},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.ErrorIs(t, err, storages.ErrInvalidValue, i...)
+				return assert.ErrorIs(t, err, ErrInvalidValue, i...)
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.TODO()
 			m := &Storage{
-				storage: map[chatKey]record{
-					newKey(c, u): {
+				storage: map[fsm.StorageKey]record{
+					{ChatID: c, UserID: u}: {
 						data: tt.data,
 					},
 				},
 			}
 			tt.wantErr(
 				t,
-				m.GetData(c, u, tt.args.key, tt.args.to),
-				fmt.Sprintf("GetData(%v, %v, %v, %v)", c, u, tt.args.key, tt.args.to),
+				m.Data(
+					ctx,
+					fsm.StorageKey{ChatID: c, UserID: u},
+					tt.args.key,
+					tt.args.to,
+				),
+				fmt.Sprintf("Data(%v, %v, %v, %v, %v)", ctx, c, u, tt.args.key, tt.args.to),
 			)
 		})
 	}
