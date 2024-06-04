@@ -48,12 +48,12 @@ func (sg StateGroup) Prefix() string {
 }
 
 // NewStateGroup returns new StateGroup.
-func NewStateGroup(prefix string, states ...State) *StateGroup {
+func NewStateGroup(prefix string, states ...State) StateGroup {
 	sgPrefix := State(prefix + stateGroupSep)
 	for i := 0; i < len(states); i++ {
 		states[i] = sgPrefix + states[i]
 	}
-	return &StateGroup{
+	return StateGroup{
 		prefix: prefix,
 		group:  container.NewLinkedHashSet(states...),
 	}
