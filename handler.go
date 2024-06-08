@@ -20,14 +20,10 @@ func (m *Manager) WrapContext(next tele.HandlerFunc) tele.HandlerFunc {
 	}
 }
 
-type handlerEntity struct {
+type fsmHandler struct {
 	onState StateMatcher
 	filter  tf.Filter
 	handler Handler
-}
-
-type fsmHandler struct {
-	handlerEntity
 	manager *Manager
 }
 

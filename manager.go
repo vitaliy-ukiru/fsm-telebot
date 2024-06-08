@@ -116,12 +116,12 @@ func (m *Manager) Handle(
 	fn Handler,
 	mw ...tele.MiddlewareFunc,
 ) {
-	entity := handlerEntity{
+	handler := fsmHandler{
 		onState: onState,
 		handler: fn,
 	}
 
-	route := m.newRoute(endpoint, entity, mw)
+	route := m.newRoute(endpoint, handler, mw)
 	dp.Dispatch(route)
 }
 
@@ -131,21 +131,20 @@ func (m *Manager) New(opts ...HandlerOption) tf.Route {
 		opt(hc)
 	}
 
-	entity := handlerEntity{
+	handler := fsmHandler{
 		onState: hc.OnState,
 		filter:  combineFilters(hc.Filters),
 		handler: hc.Handler,
 	}
-	return m.newRoute(hc.Endpoint, entity, hc.Middlewares)
+	return m.newRoute(hc.Endpoint, handler, hc.Middlewares)
 }
 
-func (m *Manager) newRoute(e any, entity handlerEntity, mw []tele.MiddlewareFunc) tf.Route {
+func (m *Manager) newRoute(e any, handler fsmHandler, mw []tele.MiddlewareFunc) tf.Route {
+	handler.manager = m
+
 	return tf.Route{
-		Endpoint: e,
-		Handler: &fsmHandler{
-			handlerEntity: entity,
-			manager:       m,
-		},
+		Endpoint:    e,
+		Handler:     handler,
 		Middlewares: mw,
 	}
 }
