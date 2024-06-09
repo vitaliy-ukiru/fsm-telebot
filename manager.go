@@ -60,17 +60,23 @@ func New(storage Storage, opts ...ManagerOption) *Manager {
 }
 
 // NewContext creates new FSM Context.
+// Context will create via call context factory.
 //
-// It calls provided ContextFactory.
-func (m *Manager) NewContext(ctx tele.Context) Context {
-	key := ExtractKeyWithStrategy(ctx, m.strategy)
-	return m.contextFactory(m.store, key)
+// If key will be non-present it will return (nil, false)
+func (m *Manager) NewContext(ctx tele.Context) (Context, bool) {
+	key, ok := extractKeyWithStrategy(ctx, m.strategy)
+	if !ok {
+		return nil, false
+	}
+
+	context := m.contextFactory(m.store, key)
+	return context, context != nil
 }
 
-func (m *Manager) mustGetContext(c tele.Context) Context {
+func (m *Manager) mustGetContext(c tele.Context) (Context, bool) {
 	fsmCtx, ok := tryUnwrapContext(c)
 	if ok {
-		return fsmCtx
+		return fsmCtx, fsmCtx != nil
 	}
 	return m.NewContext(c)
 }
