@@ -32,7 +32,11 @@ func (m *Manager) Filter(filter StateMatcher) tf.Filter {
 }
 
 func (m *Manager) runFilter(c tele.Context, filter StateMatcher) bool {
-	fsmCtx := m.mustGetContext(c)
+	fsmCtx, ok := m.mustGetContext(c)
+	// don't run filter if can't get context
+	if !ok || fsmCtx == nil {
+		return false
+	}
 
 	return m.filterProcessor(c, fsmCtx, filter)
 }

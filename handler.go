@@ -6,7 +6,11 @@ import (
 )
 
 func (m *Manager) runHandler(c tele.Context, handler Handler) error {
-	fsmCtx := m.mustGetContext(c)
+	fsmCtx, ok := m.mustGetContext(c)
+	// don't run handler if can't get context
+	if !ok || fsmCtx == nil {
+		return nil
+	}
 	return handler(c, fsmCtx)
 }
 
