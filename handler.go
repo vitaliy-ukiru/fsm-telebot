@@ -19,8 +19,11 @@ func (m *Manager) runHandler(c tele.Context, handler Handler) error {
 // FSM will unwrap this context in internal mechanic.
 func (m *Manager) WrapContext(next tele.HandlerFunc) tele.HandlerFunc {
 	return func(c tele.Context) error {
-		ctx := newWrapperContext(c, m.NewContext(c))
-		return next(ctx)
+		fsmCtx, ok := m.NewContext(c)
+		if ok {
+			c = newWrapperContext(c, fsmCtx)
+		}
+		return next(c)
 	}
 }
 
