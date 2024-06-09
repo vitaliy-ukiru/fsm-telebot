@@ -3,6 +3,7 @@ package fsm
 import (
 	"fmt"
 
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/internal/null"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -77,11 +78,33 @@ func (s Strategy) Apply(botId int64, chatId int64, userId int64, threadId int64)
 	}
 }
 
-func ExtractKeyWithStrategy(c tele.Context, strategy Strategy) StorageKey {
-	chatId := c.Chat().ID
-	userId := c.Sender().ID
-	threadId := int64(c.Message().ThreadID)
+func extractKeyWithStrategy(c tele.Context, strategy Strategy) (StorageKey, bool) {
+	var (
+		chatId null.Nullable[int64]
+		userId null.Nullable[int64]
+	)
+
+	if chat := c.Chat(); chat != nil {
+		chatId.Set(chat.ID)
+	}
+
+	if user := c.Sender(); user != nil {
+		userId.Set(user.ID)
+	}
+
+	var threadId int64
+	if m := c.Message(); m != nil && m.TopicMessage {
+		threadId = int64(c.Message().ThreadID)
+	}
+
+	if !chatId.Valid {
+		chatId = userId
+	}
+
+	if !chatId.Valid || !userId.Valid {
+		return StorageKey{}, false
+	}
 
 	bot := c.Bot().Me
-	return strategy.Apply(bot.ID, chatId, userId, threadId)
+	return strategy.Apply(bot.ID, chatId.Value, userId.Value, threadId), true
 }
