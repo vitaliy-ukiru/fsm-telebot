@@ -34,10 +34,7 @@ func (s State) GoString() string {
 
 // StateGroup storages states with custom prefix.
 //
-// It can use in filter like and handled via Manager.Handle:
-//
-//	group := fsm.NewStateGroup("adm", "State0", "State1")
-//	filter := fsm.F("/cmd", group.States...)
+// This can be used as a filter for the state as [StateMatcher]
 type StateGroup struct {
 	prefix string
 	group  *container.LinkedHashSet[State]

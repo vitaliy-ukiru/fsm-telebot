@@ -60,17 +60,23 @@ func New(storage Storage, opts ...ManagerOption) *Manager {
 }
 
 // NewContext creates new FSM Context.
+// Context will create via call context factory.
 //
-// It calls provided ContextFactory.
-func (m *Manager) NewContext(ctx tele.Context) Context {
-	key := ExtractKeyWithStrategy(ctx, m.strategy)
-	return m.contextFactory(m.store, key)
+// If key will be non-present it will return (nil, false)
+func (m *Manager) NewContext(ctx tele.Context) (Context, bool) {
+	key, ok := extractKeyWithStrategy(ctx, m.strategy)
+	if !ok {
+		return nil, false
+	}
+
+	context := m.contextFactory(m.store, key)
+	return context, context != nil
 }
 
-func (m *Manager) mustGetContext(c tele.Context) Context {
+func (m *Manager) mustGetContext(c tele.Context) (Context, bool) {
 	fsmCtx, ok := tryUnwrapContext(c)
 	if ok {
-		return fsmCtx
+		return fsmCtx, fsmCtx != nil
 	}
 	return m.NewContext(c)
 }
@@ -116,12 +122,12 @@ func (m *Manager) Handle(
 	fn Handler,
 	mw ...tele.MiddlewareFunc,
 ) {
-	entity := handlerEntity{
+	handler := fsmHandler{
 		onState: onState,
 		handler: fn,
 	}
 
-	route := m.newRoute(endpoint, entity, mw)
+	route := m.newRoute(endpoint, handler, mw)
 	dp.Dispatch(route)
 }
 
@@ -131,21 +137,20 @@ func (m *Manager) New(opts ...HandlerOption) tf.Route {
 		opt(hc)
 	}
 
-	entity := handlerEntity{
+	handler := fsmHandler{
 		onState: hc.OnState,
 		filter:  combineFilters(hc.Filters),
 		handler: hc.Handler,
 	}
-	return m.newRoute(hc.Endpoint, entity, hc.Middlewares)
+	return m.newRoute(hc.Endpoint, handler, hc.Middlewares)
 }
 
-func (m *Manager) newRoute(e any, entity handlerEntity, mw []tele.MiddlewareFunc) tf.Route {
+func (m *Manager) newRoute(e any, handler fsmHandler, mw []tele.MiddlewareFunc) tf.Route {
+	handler.manager = m
+
 	return tf.Route{
-		Endpoint: e,
-		Handler: &fsmHandler{
-			handlerEntity: entity,
-			manager:       m,
-		},
+		Endpoint:    e,
+		Handler:     handler,
 		Middlewares: mw,
 	}
 }

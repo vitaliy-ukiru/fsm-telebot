@@ -6,7 +6,11 @@ import (
 )
 
 func (m *Manager) runHandler(c tele.Context, handler Handler) error {
-	fsmCtx := m.mustGetContext(c)
+	fsmCtx, ok := m.mustGetContext(c)
+	// don't run handler if can't get context
+	if !ok || fsmCtx == nil {
+		return nil
+	}
 	return handler(c, fsmCtx)
 }
 
@@ -15,19 +19,18 @@ func (m *Manager) runHandler(c tele.Context, handler Handler) error {
 // FSM will unwrap this context in internal mechanic.
 func (m *Manager) WrapContext(next tele.HandlerFunc) tele.HandlerFunc {
 	return func(c tele.Context) error {
-		ctx := newWrapperContext(c, m.NewContext(c))
-		return next(ctx)
+		fsmCtx, ok := m.NewContext(c)
+		if ok {
+			c = newWrapperContext(c, fsmCtx)
+		}
+		return next(c)
 	}
 }
 
-type handlerEntity struct {
+type fsmHandler struct {
 	onState StateMatcher
 	filter  tf.Filter
 	handler Handler
-}
-
-type fsmHandler struct {
-	handlerEntity
 	manager *Manager
 }
 
