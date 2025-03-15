@@ -105,6 +105,11 @@ func extractKeyWithStrategy(c tele.Context, strategy Strategy) (StorageKey, bool
 		return StorageKey{}, false
 	}
 
-	bot := c.Bot().Me
-	return strategy.Apply(bot.ID, chatId.Value, userId.Value, threadId), true
+	var botID int64
+
+	if bot, ok := c.Bot().(*tele.Bot); ok {
+		botID = bot.Me.ID
+	}
+
+	return strategy.Apply(botID, chatId.Value, userId.Value, threadId), true
 }

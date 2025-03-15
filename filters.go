@@ -44,7 +44,10 @@ func (m *Manager) runFilter(c tele.Context, filter StateMatcher) bool {
 func DefaultFilterProcessor(c tele.Context, fsmCtx Context, matcher StateMatcher) bool {
 	state, err := fsmCtx.State(context.Background())
 	if err != nil {
-		c.Bot().OnError(err, c)
+		if bot, ok := c.Bot().(*tele.Bot); ok {
+			bot.OnError(err, c)
+		}
+
 		return false
 	}
 
