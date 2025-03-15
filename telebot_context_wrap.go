@@ -1,7 +1,7 @@
 package fsm
 
 import (
-	tele "gopkg.in/telebot.v3"
+	tele "gopkg.in/telebot.v4"
 )
 
 // fsmInternalKey needed for catch context requests.

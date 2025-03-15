@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/internal/null"
-	tele "gopkg.in/telebot.v3"
+	tele "gopkg.in/telebot.v4"
 )
 
 type Strategy int

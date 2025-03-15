@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/internal/container"
-	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
-	tele "gopkg.in/telebot.v3"
+	tf "github.com/vitaliy-ukiru/telebot-filter/v2/telefilter"
+	tele "gopkg.in/telebot.v4"
 )
 
 type StateMatcher interface {
