@@ -35,7 +35,7 @@ Based on [aiogram](https://github.com/aiogram/aiogram) FSM version.
 
 It not a full implementation FSM. It just states manager for telegram bots.
 
-> ![IMPORTANT]
+> [!IMPORTANT]
 > 
 > Since v2.0.0-beta-2 (and next v2.1.x) supports only telebot@v4 and above
 > 
@@ -71,7 +71,7 @@ g = bot.Group()
 ```
 m := fsm.New(memory.NewStorage())
 ```
-> ![NOTE]
+> [!TIP]
 > 
 > Also, you can add optional settings. 
 > See [fsmopt/manager.go](./fsmopt/manager.go)
@@ -129,7 +129,7 @@ m.Handle(
 ### telebot-filter/routing
 With this flow available only Manager.New
 
-> ![NOTE
+> [!NOTE]
 > 
 > You don't need to pass endpoint option.
 > Because routing package don't look on that.
