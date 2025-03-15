@@ -30,11 +30,16 @@
 <!-- TOC -->
 
 # Overview
-Finite State Machine for [telebot](https://gopkg.in/telebot.v3). 
+Finite State Machine for [telebot](https://gopkg.in/telebot.v4). 
 Based on [aiogram](https://github.com/aiogram/aiogram) FSM version.
 
 It not a full implementation FSM. It just states manager for telegram bots.
 
+> ![IMPORTANT]
+> 
+> Since v2.0.0-beta-2 (and next v2.1.x) supports only telebot@v4 and above
+> 
+> Support for telebot@v3 will release as v2.0.x. And it includes only bugfixes.
 
 This module build over 
 [github.com/vitaliy-ukiru/telebot-filter](https://pkg.go.dev/github.com/vitaliy-ukiru/telebot-filter).
@@ -66,6 +71,8 @@ g = bot.Group()
 ```
 m := fsm.New(memory.NewStorage())
 ```
+> ![NOTE]
+> 
 > Also, you can add optional settings. 
 > See [fsmopt/manager.go](./fsmopt/manager.go)
 
@@ -122,8 +129,11 @@ m.Handle(
 ### telebot-filter/routing
 With this flow available only Manager.New
 
+> ![NOTE
+> 
 > You don't need to pass endpoint option.
 > Because routing package don't look on that.
+
 ```
 bot.Handle("/start", 
     routing.New(

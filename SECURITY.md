@@ -1,7 +1,8 @@
 # Security Policy
 
 ## Supported Versions
-At current moment full support presents only for v2.x
+At current moment full support presents only for v2.x 
+and _with telebot v4_
 
 For v1.3.x will release only bug-fixes and possible
 service updates for support work.
