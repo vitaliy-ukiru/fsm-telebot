@@ -36,8 +36,6 @@ func (w *wrapperContext) Get(key string) any {
 	return w.Context.Get(key)
 }
 
-func (w *wrapperContext) FSMContext() Context { return w.fsmCtx }
-
 // tryUnwrapContext tries get fsm.Context from telebot.Context.
 func tryUnwrapContext(c tele.Context) (Context, bool) {
 	wrapped, ok := c.(*wrapperContext)
