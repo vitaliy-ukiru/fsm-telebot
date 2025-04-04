@@ -24,9 +24,9 @@ func (s State) MatchState(other State) bool {
 func (s State) GoString() string {
 	switch s {
 	case DefaultState:
-		return "State(default)"
+		return "DefaultState"
 	case AnyState:
-		return "State(any)"
+		return "AnyState"
 	default:
 		return string("State(" + s + ")")
 	}
