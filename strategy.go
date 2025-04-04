@@ -107,7 +107,7 @@ func extractKeyWithStrategy(c tele.Context, strategy Strategy) (StorageKey, bool
 
 	var botID int64
 
-	if bot, ok := c.Bot().(*tele.Bot); ok {
+	if bot, ok := c.Bot().(*tele.Bot); ok && bot.Me != nil {
 		botID = bot.Me.ID
 	}
 
