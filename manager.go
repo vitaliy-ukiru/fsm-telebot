@@ -1,9 +1,9 @@
 package fsm
 
 import (
-	filterspkg "github.com/vitaliy-ukiru/telebot-filter/pkg/filters"
-	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
-	tele "gopkg.in/telebot.v3"
+	filterspkg "github.com/vitaliy-ukiru/telebot-filter/v2/pkg/filters"
+	tf "github.com/vitaliy-ukiru/telebot-filter/v2/telefilter"
+	tele "gopkg.in/telebot.v4"
 )
 
 // Handler is function for handling updates

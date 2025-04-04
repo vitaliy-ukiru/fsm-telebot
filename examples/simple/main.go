@@ -11,10 +11,10 @@ import (
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/fsmopt"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage/memory"
-	"github.com/vitaliy-ukiru/telebot-filter/dispatcher"
-	"github.com/vitaliy-ukiru/telebot-filter/routing"
-	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
-	tele "gopkg.in/telebot.v3"
+	"github.com/vitaliy-ukiru/telebot-filter/v2/dispatcher"
+	"github.com/vitaliy-ukiru/telebot-filter/v2/routing"
+	tf "github.com/vitaliy-ukiru/telebot-filter/v2/telefilter"
+	tele "gopkg.in/telebot.v4"
 )
 
 const (
