@@ -170,7 +170,7 @@ This storage based on redis in distributes separated.
 
 ### Install
 ```
-go get github.com/nacknime-official/fsm-telebot-redis-storage/v2
+go get github.com/nacknime-official/fsm-telebot-redis-storage/v3
 ```
 
 ## Add your implementation to list
