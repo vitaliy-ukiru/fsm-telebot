@@ -200,3 +200,32 @@ func TestState_MatchState(t *testing.T) {
 		})
 	}
 }
+
+func TestState_GoString(t *testing.T) {
+	tests := []struct {
+		name string
+		s    State
+		want string
+	}{
+		{
+			name: "default",
+			s:    DefaultState,
+			want: "DefaultState",
+		},
+		{
+			name: "any",
+			s:    AnyState,
+			want: "AnyState",
+		},
+		{
+			name: "custom",
+			s:    "CustomState",
+			want: "State(CustomState)",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, tt.s.GoString(), "GoString()")
+		})
+	}
+}

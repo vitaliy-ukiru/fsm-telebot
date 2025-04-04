@@ -3,9 +3,10 @@ module github.com/vitaliy-ukiru/fsm-telebot/v2
 go 1.21.0
 
 require (
-	github.com/stretchr/testify v1.9.0
-	github.com/vitaliy-ukiru/telebot-filter v0.0.0-20240504093450-3ccaf00d3c11
-	gopkg.in/telebot.v3 v3.2.1
+	github.com/stretchr/testify v1.10.0
+	github.com/vitaliy-ukiru/telebot-filter/v2 v2.0.1
+	gopkg.in/telebot.v4 v4.0.0-beta.4
+
 )
 
 require (

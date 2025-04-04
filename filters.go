@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/internal/container"
-	tf "github.com/vitaliy-ukiru/telebot-filter/telefilter"
-	tele "gopkg.in/telebot.v3"
+	tf "github.com/vitaliy-ukiru/telebot-filter/v2/telefilter"
+	tele "gopkg.in/telebot.v4"
 )
 
 type StateMatcher interface {
@@ -44,7 +44,10 @@ func (m *Manager) runFilter(c tele.Context, filter StateMatcher) bool {
 func DefaultFilterProcessor(c tele.Context, fsmCtx Context, matcher StateMatcher) bool {
 	state, err := fsmCtx.State(context.Background())
 	if err != nil {
-		c.Bot().OnError(err, c)
+		if bot, ok := c.Bot().(*tele.Bot); ok {
+			bot.OnError(err, c)
+		}
+
 		return false
 	}
 
