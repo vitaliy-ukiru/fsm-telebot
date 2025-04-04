@@ -37,9 +37,9 @@ It not a full implementation FSM. It just states manager for telegram bots.
 
 > [!IMPORTANT]
 > 
-> Since v2.0.0-beta-2 (and next v2.1.x) supports only telebot@v4 and above
+> Since v2.0.0-beta.2 supports only telebot@v4 and above
 > 
-> Support for telebot@v3 will release as v2.0.x. And it includes only bugfixes.
+> Support for telebot@v3 will be dropped.
 
 This module build over 
 [github.com/vitaliy-ukiru/telebot-filter](https://pkg.go.dev/github.com/vitaliy-ukiru/telebot-filter).
