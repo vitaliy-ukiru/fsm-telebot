@@ -18,10 +18,7 @@ func Test_wrapperContext_Get(t *testing.T) {
 
 	fsmCtx := Context(&fsmContext{})
 
-	w := &wrapperContext{
-		Context: teleCtx,
-		fsmCtx:  fsmCtx,
-	}
+	w := newWrapperContext(teleCtx, fsmCtx)
 
 	tests := []struct {
 		name string
@@ -49,6 +46,7 @@ func Test_wrapperContext_Get(t *testing.T) {
 			assert.Equalf(t, tt.want, w.Get(tt.key), "Get(%v)", tt.key)
 		})
 	}
+
 }
 
 func Test_tryUnwrapContext(t *testing.T) {
